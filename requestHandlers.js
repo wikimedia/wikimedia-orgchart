@@ -3,7 +3,9 @@ exec = require("child_process").exec,
 fs = require("fs"),
 formidable = require("formidable"),
 csv = require("csv"),
-json = require("JSON");
+jsonify = require("JSON").stringify,
+loads = require("JSON").parse,
+respondWithFile = require("./respondWithFile").respondWithFile;
 
 var db = [],
 fpath = "./db.csv";
@@ -14,25 +16,11 @@ csv()
         db.push(data);
     });
 
-function start(response) {
-    console.log("Request handler 'start' was called.");
-
-    fs.readFile('templates/index.html', function (error, file){
-        if(error) {
-            response.writeHead(500, {"Content-Type": "text/plain"});
-            response.write(error + "\n");
-            response.end();
-        } else {
-            response.writeHead(200, {"Content-Type": "text/html"});
-            response.write(file);
-            response.end();
-        }
-    });
+function upform(response) {
+    respondWithFile(response, 'templates/upform.html');
 }
 
 function upload(response, request) {
-    console.log("Request handler 'upload' was called.");
-
     var serror = null, sfields = null, sfiles = null, cpath = null;
 
     function moveDb(error, fields, files) {
@@ -68,13 +56,20 @@ function upload(response, request) {
     response.end();
 }
 
-function show(response) {
-    console.log("Request handler 'show' was called.");
-    response.writeHead(200, {"Content-Type": "application/json"});
-    response.write(json.stringify(db));
-    response.end();
+function start(response) {
+    respondWithFile(response, 'templates/index.html');
 }
 
+function script(response) {
+    respondWithFile(response, 'clientjs/of.js', 'text/javascript');
+}
+
+function jquery(response) {
+    respondWithFile(response, 'clientjs/jquery.js', 'text/javascript');
+}
+
+exports.jquery = jquery;
+exports.script = script;
 exports.start = start;
 exports.upload = upload;
-exports.show = show;
+exports.upform = upform;
