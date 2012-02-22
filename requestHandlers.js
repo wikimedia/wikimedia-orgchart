@@ -5,16 +5,39 @@ formidable = require("formidable"),
 csv = require("csv"),
 jsonify = require("JSON").stringify,
 loads = require("JSON").parse,
+url = require("url"),
 respondWithFile = require("./respondWithFile").respondWithFile;
 
-var db = [],
-fpath = "./db.csv";
+var db = {},
+fpath = "./db.csv",
+fields = ['title', 'supervisor', 'name', 'reqn', 'start', 'end', 'hours', 'status'];
 
-csv()
-    .fromPath(fpath)
-    .on('data', function (data, index) {
-        db.push(data);
-    });
+function loadToDb(fpath) {
+    csv()
+        .fromPath(fpath)
+        .on('data', function (data, index) {
+            var nobj = {};
+            for (var ix in data) {
+                if (fields[ix]) {
+                    nobj[fields[ix]] = data[ix];
+                }
+            }
+            db[index] = nobj;
+        })
+        .on('end', function (count) {
+            for (var ix in db) {
+                if (db[ix].supervisor && db[ix].supervisor != '' && db[ix].supervisor != null) {
+                    for (var jx in db) {
+                        if (db[jx].title == db[ix].supervisor) {
+                            db[ix].supervisor = jx;
+                        }
+                    }
+                }
+            }
+        });
+}
+
+loadToDb(fpath);
 
 function upform(response) {
     respondWithFile(response, 'templates/upform.html');
@@ -25,35 +48,43 @@ function upload(response, request) {
 
     function moveDb(error, fields, files) {
         fs.readFile(files.csv.path, function (error, file) {
-            fs.writeFile(fpath, file);
-            csv()
-                .fromPath(fpath)
-                .on('data', function (data, index) {
-                    db.push(data);
-                });
+            fs.writeFile(fpath, file, function (error) {
+                loadToDb(fpath);
+            });
         });
     }
 
     var form = new formidable.IncomingForm();
 
-    exec('pwd', function (error, stdout, stderr) {
-        cpath = stdout;
-        if (serror != null && sfields != null && sfiles != null) {
-            moveDb(serror, sfields, sfiles);
-        }
-    });
-
     form.parse(request, function(error, fields, files) {
-        serror = error;
-        sfields = fields;
-        sfiles = files;
-        if (cpath != null) {
-            moveDb(error, fields, files);
-        }
+        moveDb(error, fields, files);
     });
     response.writeHead(200, {"Content-Type": "text/plain"});
     response.write('Been fun!');
     response.end();
+}
+
+function list(response) {
+    response.writeHead(200, {'Content-Type': 'application/json'});
+    var thedata = [];
+    for (var ix in db) {
+        thedata.push(ix);
+    }
+    response.write(jsonify(thedata));
+    response.end();
+}
+
+function details(response, request, args) {
+    var thenum = args[0];
+    if (db[thenum]) {
+        response.writeHead(200, {'Content-Type': 'application/json'});
+        response.write(jsonify(db[thenum]));
+        response.end();
+    } else {
+        response.writeHead(200, {'Content-Type': 'text/plain'});
+        response.write('There is no record with index ' + thenum + '.');
+        response.end();
+    }
 }
 
 function start(response) {
@@ -68,6 +99,8 @@ function jquery(response) {
     respondWithFile(response, 'clientjs/jquery.js', 'text/javascript');
 }
 
+exports.details = details;
+exports.list = list;
 exports.jquery = jquery;
 exports.script = script;
 exports.start = start;
