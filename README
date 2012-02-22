@@ -1,0 +1,4 @@
+Required node modules (use npm install):
+  * formidable
+  * JSON
+  * csv
