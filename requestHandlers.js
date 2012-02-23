@@ -23,6 +23,7 @@ function loadToDb(fpath) {
                 }
             }
             db[index] = nobj;
+            db[index].index = index;
         })
         .on('end', function (count) {
             for (var ix in db) {
@@ -99,6 +100,11 @@ function jquery(response) {
     respondWithFile(response, 'clientjs/jquery.js', 'text/javascript');
 }
 
+function style(response) {
+    respondWithFile(response, 'style/of.css', 'text/css');
+}
+
+exports.style = style;
 exports.details = details;
 exports.list = list;
 exports.jquery = jquery;

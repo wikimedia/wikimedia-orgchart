@@ -1,0 +1,20 @@
+.of-unit-listing {
+    margin-top: 5px;
+    margin-bottom: 5px;
+}
+
+.of-unit-details {
+    display: inline;
+}
+
+.of-unit-box.employee>.of-unit-details {
+    background-color: rgba(100,255,0,0.4);
+}
+
+.of-unit-box.contractor>.of-unit-details {
+    background-color: rgba(255,204,0,0.5);
+}
+
+.of-unit-box.vacancy>.of-unit-details {
+    background-color: rgba(255,0,0,0.3);
+}
