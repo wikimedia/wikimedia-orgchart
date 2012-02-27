@@ -1,10 +1,44 @@
-.of-unit-listing {
+body {
+    background-color: rgb(30,30,30);
+}
+
+#of-org-form {
+    margin-left: -30px;
+}
+
+#of-org-form, .of-unit-listing {
     margin-top: 5px;
     margin-bottom: 5px;
+    list-style: none;
+}
+
+.of-title-name {
+    padding-bottom: 10px;
 }
 
 .of-unit-details {
-    display: inline;
+    border: 1px solid;
+    border-radius: 5px;
+    padding: 10px;
+    width: 500px;
+    height: 25px;
+    overflow: hidden;
+}
+
+.of-unit-details:hover {
+    height: auto;
+}
+
+.of-unit-details:hover .of-title-name {
+    padding-bottom: 0px;
+}
+
+.of-unit-name {
+    font-weight: bold;
+}
+
+.of-unit-box p {
+    margin: 1px;
 }
 
 .of-unit-box.employee>.of-unit-details {
@@ -16,5 +50,5 @@
 }
 
 .of-unit-box.vacancy>.of-unit-details {
-    background-color: rgba(255,0,0,0.3);
+    background-color: rgba(255,80,80,0.5);
 }

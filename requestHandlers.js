@@ -67,9 +67,17 @@ function upload(response, request) {
 
 function list(response) {
     response.writeHead(200, {'Content-Type': 'application/json'});
-    var thedata = [];
+    var thedata = {};
+    thedata.none = [];
     for (var ix in db) {
-        thedata.push(ix);
+        if (db[ix].supervisor == '') {
+            thedata.none.push(ix);
+        } else {
+            if (!thedata[db[ix].supervisor]) {
+                thedata[db[ix].supervisor] = [];
+            }
+            thedata[db[ix].supervisor].push(ix);
+        }
     }
     response.write(jsonify(thedata));
     response.end();
