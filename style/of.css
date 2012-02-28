@@ -2,6 +2,15 @@ body {
     background-color: rgb(30,30,30);
 }
 
+#of-filter-menu {
+    border: 1px solid;
+    border-radius: 5px;
+    padding: 10px;
+    width: 300px;
+    background-color: grey;
+    float: right;
+}
+
 #of-org-form {
     margin-left: -30px;
 }
@@ -20,16 +29,25 @@ body {
     border: 1px solid;
     border-radius: 5px;
     padding: 10px;
-    width: 500px;
+    width: 550px;
     height: 25px;
     overflow: hidden;
+    background-color: grey;
 }
 
-.of-unit-details:hover {
+.of-unit-details.noreqn {
+    border: 1px dashed;
+}
+
+.of-unit-show {
+    float: right;
+}
+
+.of-unit-details:hover, .shown {
     height: auto;
 }
 
-.of-unit-details:hover .of-title-name {
+.of-unit-details:hover .of-title-name, .shown .of-title-name {
     padding-bottom: 0px;
 }
 
@@ -41,14 +59,18 @@ body {
     margin: 1px;
 }
 
-.of-unit-box.employee>.of-unit-details {
-    background-color: rgba(100,255,0,0.4);
+.of-unit-box.fulltime .of-hours-weekly {
+    color: rgba(0,255,0,1);
 }
 
-.of-unit-box.contractor>.of-unit-details {
-    background-color: rgba(255,204,0,0.5);
+.of-unit-box.parttime .of-hours-weekly {
+    color: rgba(255,100,0,1);
 }
 
-.of-unit-box.vacancy>.of-unit-details {
-    background-color: rgba(255,80,80,0.5);
+.of-unit-box.veryparttime .of-hours-weekly {
+    color: rgba(255,0,0,1);
+}
+
+.of-unit-box.hidden>.of-unit-details {
+    display: none;
 }

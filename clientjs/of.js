@@ -8,12 +8,16 @@ var orgForm = function () {
         if (ddata && ddata.title) {
             units[ddata.index] = ddata;
             var $tc = $tunit.clone();
-            if (!ddata.name || ddata.name == '')
+            if (!ddata.name || ddata.name == '') {
+                $('.of-unit-status', $tc).html('This position is open');
                 $tc.addClass('vacancy');
-            else if (ddata.status.toLowerCase() == 'employee')
+            } else if (ddata.status.toLowerCase() == 'employee') {
+                $('.of-unit-status', $tc).html('This person is an employee');
                 $tc.addClass('employee');
-            else
+            } else {
                 $tc.addClass('contractor');
+                $('.of-unit-status', $tc).html('This person is a contractor');
+            }
             $tc.attr('id', 'of-unit-box-for-'+ddata.index);
             $('.of-unit-title', $tc).html(ddata.title);
             $('.of-unit-name', $tc).html(ddata.name);
@@ -22,6 +26,7 @@ var orgForm = function () {
                 $('.of-unit-reqn', $tc).html(ddata.reqn);
             } else {
                 $('.of-req-num', $tc).remove();
+                $('.of-unit-details', $tc).addClass('noreqn');
             }
             if (ddata.start && ddata.start != '') {
                 $('.of-unit-start', $tc).html(ddata.start);
@@ -35,6 +40,13 @@ var orgForm = function () {
             }
             if (ddata.hours && ddata.hours != '') {
                 $('.of-unit-hrs', $tc).html(ddata.hours);
+                if (ddata.hours-0 < 16) {
+                    $tc.addClass('veryparttime');
+                } else if (ddata.hours-0 < 32) {
+                    $tc.addClass('parttime');
+                } else {
+                    $tc.addClass('fulltime');
+                }
             } else {
                 $('.of-hours-weekly', $tc).remove();
             }
@@ -47,6 +59,18 @@ var orgForm = function () {
                     $ulist = $('.of-unit-listing', $super);
                 }
             }
+
+            $('.of-unit-show', $tc).click(function () {
+                var $this = $(this);
+                var state = $this.html();
+                if (state == '+') {
+                    $this.closest('.of-unit-details').addClass('shown');
+                    $this.html('-');
+                } else {
+                    $this.closest('.of-unit-details').removeClass('shown');
+                    $this.html('+');
+                }
+            });
             $ulist.append($tc);
             if (data[ddata.index] && data[ddata.index].length) {
                 for (var ix in data[ddata.index]) {
@@ -63,6 +87,36 @@ var orgForm = function () {
             $.get('/details/'+data.none[ix], function (ddata) {
                 handleData(data, ddata);
             });
+        }
+    });
+
+    $('#of-filter-vacant').change(function () {
+        var $this = $(this);
+        var ison = $this.is(':checked');
+        if (ison) {
+            $('.of-unit-box.vacancy').addClass('hidden');
+        } else {
+            $('.of-unit-box.vacancy').removeClass('hidden');
+        }
+    });
+
+    $('#of-filter-contract').change(function () {
+        var $this = $(this);
+        var ison = $this.is(':checked');
+        if (ison) {
+            $('.of-unit-box.contractor').addClass('hidden');
+        } else {
+            $('.of-unit-box.contractor').removeClass('hidden');
+        }
+    });
+
+    $('#of-filter-employee').change(function () {
+        var $this = $(this);
+        var ison = $this.is(':checked');
+        if (ison) {
+            $('.of-unit-box.employee').addClass('hidden');
+        } else {
+            $('.of-unit-box.employee').removeClass('hidden');
         }
     });
 };
