@@ -22,15 +22,28 @@ body {
     list-style: none;
 }
 
+.of-unit-listing {
+    border-left: 1px solid;
+    margin-left: 15px;
+    padding-left: 15px;
+}
+
+.of-unit-box:hover>.of-unit-listing {
+    border-left: 1px solid white;
+}
+
 .of-title-name {
     padding-bottom: 10px;
+}
+
+.of-unit-box {
+    width: 600px;
 }
 
 .of-unit-details {
     border: 1px solid;
     border-radius: 5px;
     padding: 10px;
-    width: 600px;
     height: 25px;
     overflow: hidden;
     background-color: grey;
