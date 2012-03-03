@@ -10,7 +10,9 @@ respondWithFile = require("./respondWithFile").respondWithFile;
 
 var db = {},
 fpath = "./db.csv",
-fields = ['title', 'supervisor', 'name', 'reqn', 'start', 'end', 'hours', 'status'];
+colors = ['#59c8401','#aab31a','#3070ac', '#886644'],
+locs = {},
+fields = ['title', 'supervisor', 'name', 'reqn', 'start', 'end', 'hours', 'status', 'location'];
 
 function loadToDb(fpath) {
     csv()
@@ -26,6 +28,8 @@ function loadToDb(fpath) {
             db[index].index = index;
         })
         .on('end', function (count) {
+            var locales = {},
+            sorted = [];
             for (var ix in db) {
                 if (db[ix].supervisor && db[ix].supervisor != '' && db[ix].supervisor != null) {
                     for (var jx in db) {
@@ -33,6 +37,25 @@ function loadToDb(fpath) {
                             db[ix].supervisor = jx;
                         }
                     }
+                }
+                if (db[ix].location && db[ix].location != '') {
+                    var loc = db[ix].location;
+                    if (!locales[loc])
+                        locales[loc] = 0;
+                    locales[loc] += 1;
+                }
+            }
+            for (var jx in locales) {
+                var sx = sorted.length;
+                while (sx != 0 && sorted[sx] > sorted[sx-1])
+                    sx -= 1;
+                sorted.splice(sx, 0, jx);
+            }
+            for (var tx in sorted) {
+                if (tx < colors.length) {
+                    locs[sorted[tx]] = colors[tx];
+                } else {
+                    locs[sorted[tx]] = colors[colors.length-1];
                 }
             }
         });
@@ -83,6 +106,12 @@ function list(response) {
     response.end();
 }
 
+function listcolors(response) {
+    response.writeHead(200, {'Content-Type': 'application/json'});
+    response.write(jsonify(locs));
+    response.end();
+}
+
 function details(response, request, args) {
     var thenum = args[0];
     if (db[thenum]) {
@@ -112,6 +141,7 @@ function style(response) {
     respondWithFile(response, 'style/of.css', 'text/css');
 }
 
+exports.colors = listcolors;
 exports.style = style;
 exports.details = details;
 exports.list = list;

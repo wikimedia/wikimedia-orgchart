@@ -12,9 +12,10 @@
   <body>
     <h1 id="title"></h1>
     <div id="of-filter-menu">
-      <label><input type="checkbox" id="of-filter-vacant" /> Hide vacancies</label><br />
-      <label><input type="checkbox" id="of-filter-contract" /> Hide contractors</label><br />
-      <label><input type="checkbox" id="of-filter-employee" /> Hide employees</label><br />
+      <label><input type="checkbox" id="of-expand-all" /> Expand all</label><br />
+      <label><input type="checkbox" id="of-filter-vacant" checked="checked" /> Show vacancies</label><br />
+      <label><input type="checkbox" id="of-filter-contract" checked="checked" /> Show contractors</label><br />
+      <label><input type="checkbox" id="of-filter-employee" checked="checked" /> Show employees</label><br />
     </div>
     <ul id="of-org-form">
       <ul class="of-unit-listing">
@@ -24,13 +25,14 @@
           <p class="of-title-name">
             <span class="of-unit-title"></span>:
             <span class="of-unit-name"></span>
+            (<span class="of-unit-loc"></span>)
             <button class="of-unit-show">+</button>
           </p>
+          <p class="of-unit-status"></p>
           <p class="of-req-num">Requisition Number: <span class="of-unit-reqn"></span></p>
           <p class="of-start-date">Start Date: <span class="of-unit-start"></span></p>
           <p class="of-end-date">End Date: <span class="of-unit-end"></span></p>
           <p class="of-hours-weekly">Hours Per Week: <span class="of-unit-hrs"></span></p>
-          <p class="of-unit-status"></p>
         </div>
       </li>
     </ul>

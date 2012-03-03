@@ -3,6 +3,7 @@ var orgForm = function () {
     var $tlist = $('.of-unit-listing').detach();
     var $units = $('#of-org-form');
     var units = {};
+    var locs = {};
 
     function handleData(data, ddata) {
         if (ddata && ddata.title) {
@@ -12,11 +13,11 @@ var orgForm = function () {
                 $('.of-unit-status', $tc).html('This position is open');
                 $tc.addClass('vacancy');
             } else if (ddata.status.toLowerCase() == 'employee') {
-                $('.of-unit-status', $tc).html('This person is an employee');
+                $('.of-unit-status', $tc).html('Status: Employee');
                 $tc.addClass('employee');
             } else {
                 $tc.addClass('contractor');
-                $('.of-unit-status', $tc).html('This person is a contractor');
+                $('.of-unit-status', $tc).html('Status: Independent contractor');
             }
             $tc.attr('id', 'of-unit-box-for-'+ddata.index);
             $('.of-unit-title', $tc).html(ddata.title);
@@ -71,6 +72,15 @@ var orgForm = function () {
                     $this.html('+');
                 }
             });
+
+            var $loc = $('.of-unit-loc', $tc);
+            if (ddata.location && ddata.location != '' && locs[ddata.location]) {
+                $loc.css('color', locs[ddata.location]);
+                $loc.html(ddata.location);
+            } else {
+                $loc.remove();
+            }
+
             $ulist.append($tc);
             if (data[ddata.index] && data[ddata.index].length) {
                 for (var ix in data[ddata.index]) {
@@ -81,6 +91,11 @@ var orgForm = function () {
             }
         }
     }
+
+    $.get('/colors', function (data) {
+        locs = data;
+        
+    });
 
     $.get('/list', function (data) {
         for (var ix in data.none) {
@@ -94,9 +109,9 @@ var orgForm = function () {
         var $this = $(this);
         var ison = $this.is(':checked');
         if (ison) {
-            $('.of-unit-box.vacancy').addClass('hidden');
-        } else {
             $('.of-unit-box.vacancy').removeClass('hidden');
+        } else {
+            $('.of-unit-box.vacancy').addClass('hidden');
         }
     });
 
@@ -104,9 +119,9 @@ var orgForm = function () {
         var $this = $(this);
         var ison = $this.is(':checked');
         if (ison) {
-            $('.of-unit-box.contractor').addClass('hidden');
-        } else {
             $('.of-unit-box.contractor').removeClass('hidden');
+        } else {
+            $('.of-unit-box.contractor').addClass('hidden');
         }
     });
 
@@ -114,9 +129,21 @@ var orgForm = function () {
         var $this = $(this);
         var ison = $this.is(':checked');
         if (ison) {
-            $('.of-unit-box.employee').addClass('hidden');
-        } else {
             $('.of-unit-box.employee').removeClass('hidden');
+        } else {
+            $('.of-unit-box.employee').addClass('hidden');
+        }
+    });
+
+    $('#of-expand-all').change(function () {
+        var $this = $(this);
+        var ison = $this.is(':checked');
+        if (ison) {
+            $('.of-unit-details').addClass('shown');
+            $('.of-unit-show').html('-');
+        } else {
+            $('.of-unit-details').removeClass('shown');
+            $('.of-unit-show').html('+');
         }
     });
 };
