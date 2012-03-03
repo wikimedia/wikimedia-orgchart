@@ -12,6 +12,5 @@ handle["/jquery.js"] = requestHandlers.jquery;
 handle["/list"] = requestHandlers.list;
 handle["/details"] = requestHandlers.details;
 handle["/of.css"] = requestHandlers.style;
-handle["/colors"] = requestHandlers.colors;
 
 server.start(router.route, handle);

@@ -92,15 +92,11 @@ var orgForm = function () {
         }
     }
 
-    $.get('/colors', function (data) {
-        locs = data;
-        
-    });
-
     $.get('/list', function (data) {
-        for (var ix in data.none) {
-            $.get('/details/'+data.none[ix], function (ddata) {
-                handleData(data, ddata);
+	locs = data.colors;
+        for (var ix in data.list.none) {
+            $.get('/details/'+data.list.none[ix], function (ddata) {
+                handleData(data.list, ddata);
             });
         }
     });

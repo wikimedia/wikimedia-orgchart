@@ -9,14 +9,17 @@ url = require("url"),
 respondWithFile = require("./respondWithFile").respondWithFile;
 
 var db = {},
-fpath = "./db.csv",
-colors = ['#59c8401','#aab31a','#3070ac', '#886644'],
+gfpath = "./db.csv",
+colors = ['#59c840','#aab31a','#3070ac', '#886644'],
 locs = {},
 fields = ['title', 'supervisor', 'name', 'reqn', 'start', 'end', 'hours', 'status', 'location'];
 
 function loadToDb(fpath) {
     csv()
         .fromPath(fpath)
+        .on('error', function (error) {
+	    return;
+	})
         .on('data', function (data, index) {
             var nobj = {};
             for (var ix in data) {
@@ -61,7 +64,7 @@ function loadToDb(fpath) {
         });
 }
 
-loadToDb(fpath);
+loadToDb(gfpath);
 
 function upform(response) {
     respondWithFile(response, 'templates/upform.html');
@@ -72,8 +75,8 @@ function upload(response, request) {
 
     function moveDb(error, fields, files) {
         fs.readFile(files.csv.path, function (error, file) {
-            fs.writeFile(fpath, file, function (error) {
-                loadToDb(fpath);
+            fs.writeFile(gfpath, file, function (error) {
+                loadToDb(gfpath);
             });
         });
     }
@@ -102,13 +105,7 @@ function list(response) {
             thedata[db[ix].supervisor].push(ix);
         }
     }
-    response.write(jsonify(thedata));
-    response.end();
-}
-
-function listcolors(response) {
-    response.writeHead(200, {'Content-Type': 'application/json'});
-    response.write(jsonify(locs));
+    response.write(jsonify({list: thedata, colors: locs}));
     response.end();
 }
 
@@ -141,7 +138,6 @@ function style(response) {
     respondWithFile(response, 'style/of.css', 'text/css');
 }
 
-exports.colors = listcolors;
 exports.style = style;
 exports.details = details;
 exports.list = list;
