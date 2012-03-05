@@ -81,6 +81,12 @@ var orgForm = function () {
                 $loc.remove();
             }
 
+            $('.of-unit-details', $tc).hover(function () {
+                $(this).closest('.of-unit-listing').addClass('super-select');
+            }, function () {
+                $(this).closest('.of-unit-listing').removeClass('super-select');
+            });
+
             $ulist.append($tc);
             if (data[ddata.index] && data[ddata.index].length) {
                 for (var ix in data[ddata.index]) {
