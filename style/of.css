@@ -23,6 +23,7 @@ body {
 }
 
 .of-unit-listing {
+    list-style: none;
     border-left: 1px solid;
     margin-left: 15px;
     padding-left: 15px;

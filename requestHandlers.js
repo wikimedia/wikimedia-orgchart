@@ -138,7 +138,12 @@ function style(response) {
     respondWithFile(response, 'style/of.css', 'text/css');
 }
 
+function pstyle(response) {
+    respondWithFile(response, 'style/of-print.css', 'text/css');
+}
+
 exports.style = style;
+exports.pstyle = pstyle;
 exports.details = details;
 exports.list = list;
 exports.jquery = jquery;
