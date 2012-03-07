@@ -41,7 +41,24 @@ body {
     width: 600px;
 }
 
+#of-org-form>.of-unit-box {
+    width: 100%;
+}
+
+#of-org-form>.of-unit-box>.of-unit-details {
+    width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+#of-org-form>.of-unit-box>.of-unit-listing>li {
+    width: 50%;
+    display: block;
+    float: left;
+}
+
 .of-unit-details {
+    width: 600px;
     border: 1px solid;
     border-radius: 5px;
     padding: 10px;
