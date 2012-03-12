@@ -4,9 +4,10 @@ var colors = ['#59c840','#aab31a','#3070ac', '#886644'],
 locs = {},
 db = {},
 gfpath = "./db.csv",
+loaded = false,
 fields = ['title', 'supervisor', 'name', 'reqn', 'start', 'end', 'hours', 'status', 'location'];
 
-function loadToDb(fpath) {
+function loadToDb(tdb, fpath) {
     csv()
         .fromPath(fpath)
         .on('error', function (error) {
@@ -19,22 +20,22 @@ function loadToDb(fpath) {
                     nobj[fields[ix]] = data[ix];
                 }
             }
-            db[index] = nobj;
-            db[index].index = index;
+            tdb[index] = nobj;
+            tdb[index].index = index;
         })
         .on('end', function (count) {
             var locales = {},
             sorted = [];
-            for (var ix in db) {
-                if (db[ix].supervisor && db[ix].supervisor != '' && db[ix].supervisor != null) {
-                    for (var jx in db) {
-                        if (db[jx].title == db[ix].supervisor) {
-                            db[ix].supervisor = jx;
+            for (var ix in tdb) {
+                if (tdb[ix].supervisor && tdb[ix].supervisor != '' && tdb[ix].supervisor != null) {
+                    for (var jx in tdb) {
+                        if (tdb[jx].title == tdb[ix].supervisor) {
+                            tdb[ix].supervisor = jx;
                         }
                     }
                 }
-                if (db[ix].location && db[ix].location != '') {
-                    var loc = db[ix].location;
+                if (tdb[ix].location && tdb[ix].location != '') {
+                    var loc = tdb[ix].location;
                     if (!locales[loc])
                         locales[loc] = 0;
                     locales[loc] += 1;
@@ -53,10 +54,11 @@ function loadToDb(fpath) {
                     locs[sorted[tx]] = colors[colors.length-1];
                 }
             }
+            loaded = true;
         });
 }
 
-loadToDb(gfpath);
+loadToDb(db, gfpath);
 
 function uploadToDb(response, request) {
     function moveDb(error, fields, files) {
@@ -78,6 +80,12 @@ function uploadToDb(response, request) {
 }
 
 function listHierarchy(cb) {
+    if (!loaded) {
+        setTimeout(function () {
+            listHierarchy(cb);
+        }, 200);
+        return false;
+    }
     var thedata = {};
     thedata.none = [];
     for (var ix in db) {
@@ -90,7 +98,7 @@ function listHierarchy(cb) {
             thedata[db[ix].supervisor].push(ix);
         }
     }
-    cb(thedata);
+    cb(thedata, locs);
 }
 
 function getUnit(index, cb) {

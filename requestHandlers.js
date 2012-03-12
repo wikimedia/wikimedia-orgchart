@@ -6,9 +6,11 @@ jsonify = require("JSON").stringify,
 loads = require("JSON").parse,
 url = require("url"),
 respondWithFile = require("./respondWithFile").respondWithFile,
-csvdb = require("./db/csv");
+csvdb = require("./db/csv"),
+mongodb = require("./db/mongo");
 
-var db = csvdb; // note, comment this out if you want to use a different DB.
+// var db = csvdb; // CSV database (not very good)
+var db = mongodb; // mongodb database (better)
 
 function upform(response) {
     respondWithFile(response, 'templates/upform.html');
@@ -27,9 +29,9 @@ function upload(response, request) {
 }
 
 function list(response) {
-    db.listHierarchy(function (list) {
+    db.listHierarchy(function (list, locs) {
         response.writeHead(200, {'Content-Type': 'application/json'});
-        response.write(jsonify({list: list, colors: db.locs}));
+        response.write(jsonify({list: list, colors: locs}));
         response.end();
     });
 }
