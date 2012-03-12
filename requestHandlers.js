@@ -2,69 +2,13 @@ var querystring = require("querystring"),
 exec = require("child_process").exec,
 fs = require("fs"),
 formidable = require("formidable"),
-csv = require("csv"),
 jsonify = require("JSON").stringify,
 loads = require("JSON").parse,
 url = require("url"),
-respondWithFile = require("./respondWithFile").respondWithFile;
+respondWithFile = require("./respondWithFile").respondWithFile,
+csvdb = require("./db/csv");
 
-var db = {},
-gfpath = "./db.csv",
-colors = ['#59c840','#aab31a','#3070ac', '#886644'],
-locs = {},
-fields = ['title', 'supervisor', 'name', 'reqn', 'start', 'end', 'hours', 'status', 'location'];
-
-function loadToDb(fpath) {
-    csv()
-        .fromPath(fpath)
-        .on('error', function (error) {
-	    return;
-	})
-        .on('data', function (data, index) {
-            var nobj = {};
-            for (var ix in data) {
-                if (fields[ix]) {
-                    nobj[fields[ix]] = data[ix];
-                }
-            }
-            db[index] = nobj;
-            db[index].index = index;
-        })
-        .on('end', function (count) {
-            var locales = {},
-            sorted = [];
-            for (var ix in db) {
-                if (db[ix].supervisor && db[ix].supervisor != '' && db[ix].supervisor != null) {
-                    for (var jx in db) {
-                        if (db[jx].title == db[ix].supervisor) {
-                            db[ix].supervisor = jx;
-                        }
-                    }
-                }
-                if (db[ix].location && db[ix].location != '') {
-                    var loc = db[ix].location;
-                    if (!locales[loc])
-                        locales[loc] = 0;
-                    locales[loc] += 1;
-                }
-            }
-            for (var jx in locales) {
-                var sx = sorted.length;
-                while (sx != 0 && sorted[sx] > sorted[sx-1])
-                    sx -= 1;
-                sorted.splice(sx, 0, jx);
-            }
-            for (var tx in sorted) {
-                if (tx < colors.length) {
-                    locs[sorted[tx]] = colors[tx];
-                } else {
-                    locs[sorted[tx]] = colors[colors.length-1];
-                }
-            }
-        });
-}
-
-loadToDb(gfpath);
+var db = csvdb; // note, comment this out if you want to use a different DB.
 
 function upform(response) {
     respondWithFile(response, 'templates/upform.html');
@@ -73,47 +17,27 @@ function upform(response) {
 function upload(response, request) {
     var serror = null, sfields = null, sfiles = null, cpath = null;
 
-    function moveDb(error, fields, files) {
-        fs.readFile(files.csv.path, function (error, file) {
-            fs.writeFile(gfpath, file, function (error) {
-                loadToDb(gfpath);
-            });
-        });
+    if (db && db.uploadToDb && typeof db.uploadToDb == 'function') {
+        db.uploadToDb(response, request);
+    } else {
+        response.writeHead(500, {'Content-Type': 'text/plain'});
+        response.write('This instance does not yet have a fully implemented database.');
+        response.end();
     }
-
-    var form = new formidable.IncomingForm();
-
-    form.parse(request, function(error, fields, files) {
-        moveDb(error, fields, files);
-    });
-    response.writeHead(200, {"Content-Type": "text/plain"});
-    response.write('Been fun!');
-    response.end();
 }
 
 function list(response) {
     response.writeHead(200, {'Content-Type': 'application/json'});
-    var thedata = {};
-    thedata.none = [];
-    for (var ix in db) {
-        if (db[ix].supervisor == '') {
-            thedata.none.push(ix);
-        } else {
-            if (!thedata[db[ix].supervisor]) {
-                thedata[db[ix].supervisor] = [];
-            }
-            thedata[db[ix].supervisor].push(ix);
-        }
-    }
-    response.write(jsonify({list: thedata, colors: locs}));
+    response.write(jsonify({list: db.listHierarchy(), colors: db.locs}));
     response.end();
 }
 
 function details(response, request, args) {
     var thenum = args[0];
-    if (db[thenum]) {
+    dbunit = db.getUnit(thenum);
+    if (dbunit) {
         response.writeHead(200, {'Content-Type': 'application/json'});
-        response.write(jsonify(db[thenum]));
+        response.write(jsonify(dbunit));
         response.end();
     } else {
         response.writeHead(200, {'Content-Type': 'text/plain'});

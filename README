@@ -1,4 +1,5 @@
 Required node modules (use npm install):
   * formidable
   * JSON
-  * csv
+  * csv // if you're using CSV files for your database stuff (not recommended)
+

@@ -1,0 +1,24 @@
+This project can use any kind of database, so long as you set up the following as exports:
+
+function listHierarchy() // return a dictionary with at least a 'none' index, listing IDs
+                         // of all units in the database in the values, corresponding to
+                         // the indexes, which indicate the parent unit of the values.
+
+function getUnit(id) // return a dictionary representing one unit, fields present should be
+                     // title, supervisor, name, reqn, start, end, hours, status, location
+
+function changeUnit(id, mods) // modify a unit, accepts an id like getUnit, but then should
+                              // take new values in mods and make them current.
+
+var locs // a dictionary with locations used in the database as indexes, and HTML color
+         // codes as values--these will be used to style the data.
+
+OPTIONAL:
+
+function loadToDb(path) // load the file at `path` into the database--this will be used
+                        // to allow uploads from the web client, so if you don't want to
+                        // allow that, just don't define this function.
+
+function uploadToDb(response, request) // this should implement the POST handler for the
+                                       // database upload functionality, so don't do this
+                                       // if you aren't accepting uploads.

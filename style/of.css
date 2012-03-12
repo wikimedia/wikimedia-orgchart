@@ -41,6 +41,10 @@ body {
     width: 600px;
 }
 
+/* The commented stuff below here is for splitting the second level into columns.
+   It didn't work. */
+
+/*
 #of-org-form>.of-unit-box {
     width: 100%;
 }
@@ -56,6 +60,7 @@ body {
     display: block;
     float: left;
 }
+*/
 
 .of-unit-details {
     width: 600px;
