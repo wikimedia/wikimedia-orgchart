@@ -77,7 +77,7 @@ function uploadToDb(response, request) {
     response.end();
 }
 
-function listHierarchy() {
+function listHierarchy(cb) {
     var thedata = {};
     thedata.none = [];
     for (var ix in db) {
@@ -90,26 +90,22 @@ function listHierarchy() {
             thedata[db[ix].supervisor].push(ix);
         }
     }
-    return thedata;
+    cb(thedata);
 }
 
-function getUnit(index) {
+function getUnit(index, cb) {
     if (db[index]) {
-        return db[index];
+        cb(db[index]);
     } else {
-        return false;
+        cb(false);
     }
 }
 
-function changeUnit(ix, mod, dbr) {
-    dbr = dbr | db; // db reference
+function changeUnit(ix, mod, cb) {
     for (mx in mod) {
-        if (typeof mod[mx] == 'object') {
-            changeUnit(mx, mod[mx], db[ix]);
-        } else {
-            dbr[ix][mx] = mod[mx];
-        }
+        db[ix][mx] = mod[mx];
     }
+    cb(db[ix]);
 }
 
 exports.loadToDb = loadToDb;

@@ -1,14 +1,23 @@
 This project can use any kind of database, so long as you set up the following as exports:
 
-function listHierarchy() // return a dictionary with at least a 'none' index, listing IDs
-                         // of all units in the database in the values, corresponding to
-                         // the indexes, which indicate the parent unit of the values.
+function listHierarchy(cb) // return a dictionary with at least a 'none' index, listing IDs
+                           // of all units in the database in the values, corresponding to
+                           // the indexes, which indicate the parent unit of the values.
+                           // changed to accept a callback which is called with the list as
+                           // its only argument (couldn't do it otherwise)
 
-function getUnit(id) // return a dictionary representing one unit, fields present should be
-                     // title, supervisor, name, reqn, start, end, hours, status, location
+function getUnit(id, cb) // return a dictionary representing one unit, fields present should be
+                         // title, supervisor, name, reqn, start, end, hours, status, location
+                         // changed to accept a callback, called with the unit as its only
+                         // argument.
 
-function changeUnit(id, mods) // modify a unit, accepts an id like getUnit, but then should
-                              // take new values in mods and make them current.
+function changeUnit(id, mods, cb) // modify a unit, accepts an id like getUnit, but then should
+                                  // take new values in mods and make them current.
+                                  // changed to accept a callback which is called with the modded
+                                  // unit as its only argument.
+
+function addUnit(data) // add a unit with the structure mentioned in getUnit--if you don't
+                       // implement this function, at least make the below one (loadToDb).
 
 var locs // a dictionary with locations used in the database as indexes, and HTML color
          // codes as values--these will be used to style the data.

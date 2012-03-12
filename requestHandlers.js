@@ -27,23 +27,26 @@ function upload(response, request) {
 }
 
 function list(response) {
-    response.writeHead(200, {'Content-Type': 'application/json'});
-    response.write(jsonify({list: db.listHierarchy(), colors: db.locs}));
-    response.end();
+    db.listHierarchy(function (list) {
+        response.writeHead(200, {'Content-Type': 'application/json'});
+        response.write(jsonify({list: list, colors: db.locs}));
+        response.end();
+    });
 }
 
 function details(response, request, args) {
     var thenum = args[0];
-    dbunit = db.getUnit(thenum);
-    if (dbunit) {
-        response.writeHead(200, {'Content-Type': 'application/json'});
-        response.write(jsonify(dbunit));
-        response.end();
-    } else {
-        response.writeHead(200, {'Content-Type': 'text/plain'});
-        response.write('There is no record with index ' + thenum + '.');
-        response.end();
-    }
+    db.getUnit(thenum, function (dbunit) {
+        if (dbunit && dbunit != null) {
+            response.writeHead(200, {'Content-Type': 'application/json'});
+            response.write(jsonify(dbunit));
+            response.end();
+        } else {
+            response.writeHead(200, {'Content-Type': 'text/plain'});
+            response.write('There is no record with index ' + thenum + '.');
+            response.end();
+        }
+    });
 }
 
 function start(response) {
