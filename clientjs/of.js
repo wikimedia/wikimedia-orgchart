@@ -5,6 +5,10 @@ var orgForm = function () {
     var units = {};
     var locs = {};
 
+    function getDetails(uid, cb) {
+        $.get('/details/'+uid, cb);
+    }
+
     function handleData(data, ddata, recurse, $eunit) {
         if (recurse !== false) {
             recurse = true;
@@ -182,7 +186,7 @@ var orgForm = function () {
             $ulist.append($tc);
             if (data[ddata.index] && data[ddata.index].length && recurse) {
                 for (var ix in data[ddata.index]) {
-                    $.get('/details/'+data[ddata.index][ix], function (ndata) {
+                    getDetails(data[ddata.index][ix], function (ndata) {
                         handleData(data, ndata);
                     });
                 }
