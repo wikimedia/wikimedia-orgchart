@@ -37,7 +37,7 @@ function listHierarchy(cb) {
                         cb([]);
                     }
                 } else {
-                    var list = {}, lcount = {};
+                    var list = {}, lcount = {}, units = docs;
                     list.none = [];
                     for (var ix in docs) {
                         if (!docs[ix].supervisor || docs[ix].supervisor == '') {
@@ -69,8 +69,13 @@ function listHierarchy(cb) {
                             locs[csort[lx]] = colors[colors.length-1];
                         }
                     }
+                    var dunits = {};
+                    for (var ux in units) {
+                        units[ux].index = units[ux]._id;
+                        dunits[units[ux]._id] = units[ux];
+                    }
                     if (cb && typeof cb == 'function') {
-                        cb(list, locs);
+                        cb(list, locs, dunits);
                     }
                 }
             });

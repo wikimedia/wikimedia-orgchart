@@ -33,9 +33,9 @@ function upload(response, request) {
 }
 
 function list(response) {
-    db.listHierarchy(function (list, locs) {
+    db.listHierarchy(function (list, locs, units) {
         response.writeHead(200, {'Content-Type': 'application/json'});
-        response.write(jsonify({list: list, colors: locs}));
+        response.write(jsonify({list: list, colors: locs, units: units}));
         response.end();
     });
 }

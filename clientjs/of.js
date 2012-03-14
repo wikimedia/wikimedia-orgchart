@@ -6,17 +6,13 @@ var orgForm = function () {
     var locs = {};
 
     function getDetails(uid, cb) {
-        $.get('/details/'+uid, cb);
+        cb(units[uid]);
     }
 
-    function handleData(data, ddata, recurse, $eunit) {
-        if (recurse !== false) {
-            recurse = true;
-        }
-        $eunit = $eunit || null;
+    function handleData(data, ddata) {
         if (ddata && ddata.title) {
             units[ddata.index] = ddata;
-            var $tc = $eunit || $tunit.clone();
+            var $tc = $tunit.clone();
             if (!ddata.name || ddata.name == '') {
                 $('.of-unit-status', $tc).html('This position is open');
                 $tc.addClass('vacancy');
@@ -69,7 +65,7 @@ var orgForm = function () {
             var $ulist = $units;
             if (ddata.supervisor && ddata.supervisor != '') {
                 var $super = $('#of-unit-box-for-'+ddata.supervisor, $units);
-                $ulist = $('.of-unit-listing', $super);
+                $ulist = $super.children('.of-unit-listing');
                 if (!$ulist || !$ulist.length) {
                     $super.append($tlist.clone());
                     $ulist = $('.of-unit-listing', $super);
@@ -184,7 +180,7 @@ var orgForm = function () {
             });
 
             $ulist.append($tc);
-            if (data[ddata.index] && data[ddata.index].length && recurse) {
+            if (data[ddata.index] && data[ddata.index].length) {
                 for (var ix in data[ddata.index]) {
                     getDetails(data[ddata.index][ix], function (ndata) {
                         handleData(data, ndata);
@@ -195,9 +191,10 @@ var orgForm = function () {
     }
 
     $.get('/list', function (data) {
+        units = data.units;
 	locs = data.colors;
         for (var ix in data.list.none) {
-            $.get('/details/'+data.list.none[ix], function (ddata) {
+            getDetails(data.list.none[ix], function (ddata) {
                 handleData(data.list, ddata);
             });
         }
