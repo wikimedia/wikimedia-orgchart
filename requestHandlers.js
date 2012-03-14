@@ -12,6 +12,10 @@ mongodb = require("./db/mongo");
 // var db = csvdb; // CSV database (not very good)
 var db = mongodb; // mongodb database (better)
 
+function checkAuth() {
+    return true;
+}
+
 function upform(response) {
     respondWithFile(response, 'templates/upform.html');
 }
@@ -51,6 +55,25 @@ function details(response, request, args) {
     });
 }
 
+function modify(response, request, args) {
+    var thenum = args[0],
+    form = new formidable.IncomingForm();
+
+    if (checkAuth()) {
+        form.parse(request, function(error, fields, files) {
+            db.changeUnit(thenum, fields, function (unit) {
+                response.writeHead(200, {'Content-Type': 'application/json'});
+                response.write(jsonify({'success': true, 'unit': unit}));
+                response.end();
+            });
+        });
+    } else {
+        response.writeHead(200, {'Content-Type': 'application/json'});
+        response.write(jsonify({'success': false, 'error': 'Not authorized to do that!'}));
+        response.end();
+    }
+}
+
 function start(response) {
     respondWithFile(response, 'templates/index.html');
 }
@@ -63,6 +86,10 @@ function jquery(response) {
     respondWithFile(response, 'clientjs/jquery.js', 'text/javascript');
 }
 
+function jqueryform(response) {
+    respondWithFile(response, 'clientjs/jquery.form.js', 'text/javascript');
+}
+
 function style(response) {
     respondWithFile(response, 'style/of.css', 'text/css');
 }
@@ -71,11 +98,13 @@ function pstyle(response) {
     respondWithFile(response, 'style/of-print.css', 'text/css');
 }
 
+exports.modify = modify;
 exports.style = style;
 exports.pstyle = pstyle;
 exports.details = details;
 exports.list = list;
 exports.jquery = jquery;
+exports.jqueryform = jqueryform;
 exports.script = script;
 exports.start = start;
 exports.upload = upload;

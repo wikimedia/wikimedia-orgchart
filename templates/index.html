@@ -1,6 +1,7 @@
 <html>
   <head>
     <script type="text/javascript" src="/jquery.js"></script>
+    <script type="text/javascript" src="/jquery.form.js"></script>
     <script type="text/javascript" src="/of.js"></script>
     <script type="text/javascript">
       $(document).ready(function () {
@@ -23,17 +24,31 @@
       </ul>
       <li class="of-unit-box">
         <div class="of-unit-details">
-          <p class="of-title-name">
-            <span class="of-unit-title"></span>:
-            <span class="of-unit-name"></span>
-            (<span class="of-unit-loc"></span>)
-            <button class="of-unit-show">+</button>
-          </p>
-          <p class="of-unit-status"></p>
-          <p class="of-req-num">Requisition Number: <span class="of-unit-reqn"></span></p>
-          <p class="of-start-date">Start Date: <span class="of-unit-start"></span></p>
-          <p class="of-end-date">End Date: <span class="of-unit-end"></span></p>
-          <p class="of-hours-weekly">Hours Per Week: <span class="of-unit-hrs"></span></p>
+          <div class="of-unit-view">
+            <p class="of-title-name">
+              <span class="of-unit-title"></span>:
+              <span class="of-unit-name"></span>
+              (<span class="of-unit-loc"></span>)
+              <button class="of-unit-show">+</button>
+            </p>
+            <p class="of-unit-status-container"><span class="of-unit-status"></span><button class="of-unit-edit">Edit</button></p>
+            <p class="of-req-num">Requisition Number: <span class="of-unit-reqn"></span></p>
+            <p class="of-start-date">Start Date: <span class="of-unit-start"></span></p>
+            <p class="of-end-date">End Date: <span class="of-unit-end"></span></p>
+            <p class="of-hours-weekly">Hours Per Week: <span class="of-unit-hrs"></span></p>
+          </div>
+          <div class="of-unit-edit-form">
+            <form method="POST" action="/modify">
+              <p><label>Job Title: <input name="title" class="of-unit-title" type="text" /></label></p>
+              <p><label>Name: <input name="name" class="of-unit-name" type="text" /></label></p>
+              <p><label>Physical Location: <input name="location" class="of-unit-loc" type="text" /></label></p>
+              <p><label>Requsition Number: <input name="reqn" class="of-unit-reqn" type="text" /></label></p>
+              <p><label>Start Date: <input name="start" class="of-unit-start" type="text" /></label></p>
+              <p><label>End Date: <input name="end" class="of-unit-end" type="text" /></label></p>
+              <p><label>Hours Per Week: <input name="hours" class="of-unit-hours" type="text" /></label></p>
+              <p><button type="submit" class="of-unit-cancel-edit">Submit</button> <button type="button" class="of-unit-cancel-edit">Cancel</button></p>
+            </form>
+          </div>
         </div>
       </li>
     </ul>

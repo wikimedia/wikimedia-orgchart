@@ -34,7 +34,7 @@ body {
 }
 
 .of-title-name {
-    padding-bottom: 10px;
+    padding-bottom: 20px;
 }
 
 .of-unit-box {
@@ -76,7 +76,16 @@ body {
     border: 1px dashed;
 }
 
-.of-unit-show {
+.of-unit-show, .of-unit-edit {
+    float: right;
+}
+
+.of-req-num {
+    clear: both;
+}
+
+.of-unit-cancel {
+    display: none;
     float: right;
 }
 
@@ -86,6 +95,10 @@ body {
 
 .of-unit-details:hover .of-title-name, .shown .of-title-name {
     padding-bottom: 0px;
+}
+
+.of-unit-status-container {
+    clear: both;
 }
 
 .of-unit-name {
@@ -109,5 +122,9 @@ body {
 }
 
 .of-unit-box.hidden>.of-unit-details {
+    display: none;
+}
+
+.of-unit-edit-form {
     display: none;
 }
