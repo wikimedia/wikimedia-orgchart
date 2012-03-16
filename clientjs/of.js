@@ -25,9 +25,9 @@ var orgForm = function () {
             }
             $tc.attr('id', 'of-unit-box-for-'+ddata.index);
             $('form', $tc).attr('action', '/modify/'+ddata.index);
-            $('span.of-unit-title', $tc).html(ddata.title);
+            $('p.of-unit-title', $tc).html(ddata.title);
             $('input.of-unit-title', $tc).val(ddata.title);
-            $('span.of-unit-name', $tc).html(ddata.name);
+            $('p.of-unit-name', $tc).html(ddata.name);
             $('input.of-unit-name', $tc).val(ddata.name);
 
             if (ddata.reqn && ddata.reqn != '') {

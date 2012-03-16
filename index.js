@@ -15,5 +15,7 @@ handle["/details"] = requestHandlers.details;
 handle["/modify"] = requestHandlers.modify;
 handle["/of.css"] = requestHandlers.style;
 handle["/of-print.css"] = requestHandlers.pstyle;
+handle["/jquery.jorgchart.js"] = requestHandlers.jorgchart;
+handle["/jorgchart.css"] = requestHandlers.jorgchartstyle;
 
 server.start(router.route, handle);

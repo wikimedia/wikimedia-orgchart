@@ -98,13 +98,23 @@ function pstyle(response) {
     respondWithFile(response, 'style/of-print.css', 'text/css');
 }
 
+function jorgchartstyle(response) {
+    respondWithFile(response, 'style/jquery.jorgchart.css', 'text/css');
+}
+
+function jorgchart(response) {
+    respondWithFile(response, 'clientjs/jquery.jorgchart.js', 'text/javascript');
+}
+
 exports.modify = modify;
 exports.style = style;
 exports.pstyle = pstyle;
+exports.jorgchartstyle = jorgchartstyle;
 exports.details = details;
 exports.list = list;
 exports.jquery = jquery;
 exports.jqueryform = jqueryform;
+exports.jorgchart = jorgchart;
 exports.script = script;
 exports.start = start;
 exports.upload = upload;

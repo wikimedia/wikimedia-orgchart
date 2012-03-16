@@ -13,20 +13,7 @@ body {
 }
 
 #of-org-form {
-    margin-left: -30px;
-}
-
-#of-org-form, .of-unit-listing {
-    margin-top: 5px;
-    margin-bottom: 5px;
-    list-style: none;
-}
-
-.of-unit-listing {
-    list-style: none;
-    border-left: 1px solid;
-    margin-left: 15px;
-    padding-left: 15px;
+    display: none;
 }
 
 .of-unit-listing.super-select {
@@ -35,10 +22,12 @@ body {
 
 .of-title-name {
     padding-bottom: 20px;
+    float: left;
 }
 
 .of-unit-box {
-    width: 600px;
+    position: relative;
+    width: 200px;
 }
 
 /* The commented stuff below here is for splitting the second level into columns.
@@ -63,11 +52,11 @@ body {
 */
 
 .of-unit-details {
-    width: 600px;
+    width: 250px;
     border: 1px solid;
     border-radius: 5px;
     padding: 10px;
-    height: 25px;
+    height: 70px;
     overflow: hidden;
     background-color: grey;
 }
@@ -76,7 +65,18 @@ body {
     border: 1px dashed;
 }
 
-.of-unit-show, .of-unit-edit {
+.of-unit-show {
+    display: none;
+    position: absolute;
+    top: 5px;
+    right: -172px;
+}
+
+.of-unit-details:hover .of-unit-show {
+    display: block;
+}
+
+.of-unit-edit {
     float: right;
 }
 

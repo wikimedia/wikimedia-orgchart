@@ -2,6 +2,7 @@
   <head>
     <script type="text/javascript" src="/jquery.js"></script>
     <script type="text/javascript" src="/jquery.form.js"></script>
+    <script type="text/javascript" src="/jquery.jorgchart.js"></script>
     <script type="text/javascript" src="/of.js"></script>
     <script type="text/javascript">
       $(document).ready(function () {
@@ -10,6 +11,7 @@
     </script>
     <link rel="stylesheet" href="/of.css" media="screen" />
     <link rel="stylesheet" href="/of-print.css" media="print" />
+    <link rel="stylesheet" href="/jorgchart.css" media="screen" />
   </head>
   <body>
     <h1 id="title"></h1>
@@ -25,12 +27,12 @@
       <li class="of-unit-box">
         <div class="of-unit-details">
           <div class="of-unit-view">
-            <p class="of-title-name">
-              <span class="of-unit-title"></span>:
-              <span class="of-unit-name"></span>
-              (<span class="of-unit-loc"></span>)
+            <div class="of-title-name">
+              <p class="of-unit-title"></p>
+              <p class="of-unit-name"></p>
+              <p>(<span class="of-unit-loc"></span>)</p>
               <button class="of-unit-show">+</button>
-            </p>
+            </div>
             <p class="of-unit-status-container"><span class="of-unit-status"></span><button class="of-unit-edit">Edit</button></p>
             <p class="of-req-num">Requisition Number: <span class="of-unit-reqn"></span></p>
             <p class="of-start-date">Start Date: <span class="of-unit-start"></span></p>
