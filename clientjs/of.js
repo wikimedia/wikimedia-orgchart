@@ -4,6 +4,7 @@ var orgForm = function () {
     var $units = $('#of-org-form');
     var units = {};
     var locs = {};
+    var waiting = [];
 
     function getDetails(uid, cb) {
         cb(units[uid]);
@@ -180,12 +181,25 @@ var orgForm = function () {
             });
 
             $ulist.append($tc);
+            var wix = waiting.indexOf(ddata.index);
+            waiting = waiting.slice(0, wix).concat(waiting.slice(wix+1));
             if (data[ddata.index] && data[ddata.index].length) {
                 for (var ix in data[ddata.index]) {
                     getDetails(data[ddata.index][ix], function (ndata) {
                         handleData(data, ndata);
                     });
                 }
+            } else if (waiting.length == 0) {
+                $('#of-org-form').jOrgChart();
+            }
+        }
+    }
+
+    function addWait(thelist, thislist, biglist) {
+        for (var ix in thislist) {
+            thelist.push(thislist[ix]);
+            if (biglist[thislist[ix]] && biglist[thislist[ix]].length) {
+                addWait(thelist, biglist[thislist[ix]], biglist);
             }
         }
     }
@@ -193,6 +207,7 @@ var orgForm = function () {
     $.get('/list', function (data) {
         units = data.units;
 	locs = data.colors;
+        addWait(waiting, data.list.none, data.list);
         for (var ix in data.list.none) {
             getDetails(data.list.none[ix], function (ddata) {
                 handleData(data.list, ddata);
