@@ -22,7 +22,6 @@ body {
 
 .of-title-name {
     padding-bottom: 20px;
-    float: left;
 }
 
 .of-unit-box {
@@ -52,11 +51,11 @@ body {
 */
 
 .of-unit-details {
-    width: 250px;
+    width: 200px;
     border: 1px solid;
     border-radius: 5px;
     padding: 10px;
-    height: 70px;
+    height: 75px;
     overflow: hidden;
     background-color: grey;
 }
@@ -69,7 +68,7 @@ body {
     display: none;
     position: absolute;
     top: 5px;
-    right: -172px;
+    right: 30px;
 }
 
 .of-unit-details:hover .of-unit-show {

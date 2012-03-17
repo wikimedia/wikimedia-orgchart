@@ -190,7 +190,7 @@ var orgForm = function () {
                     });
                 }
             } else if (waiting.length == 0) {
-                $('#of-org-form').jOrgChart();
+                $('#of-org-form').jOrgChart({highlightParent: true});
             }
         }
     }
