@@ -10,6 +10,7 @@ body {
     background-color: grey;
     position: fixed;
     right: 10px;
+    z-index: 30;
 }
 
 #of-org-form {

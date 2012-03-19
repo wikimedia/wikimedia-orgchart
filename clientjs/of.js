@@ -94,7 +94,8 @@ var orgForm = function () {
             } else if (waiting.length == 0) {
                 $('#of-org-form').jOrgChart({highlightParent: true,
                                              collapse: false,
-                                             cb: function ($node) {
+                                             cb: function ($node, level) {
+                                                 $node.css('z-index', 29-level);
                                                  $('.of-unit-show', $node).click(function () {
                                                      var $this = $(this);
                                                      var state = $this.html();
