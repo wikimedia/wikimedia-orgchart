@@ -16,6 +16,10 @@
   $.fn.jOrgChart = function(options) {
     var opts = $.extend({}, $.fn.jOrgChart.defaults, options);
     var $appendTo = $(opts.chartElement);
+    var callbackFunction = opts.cb;
+    if (typeof callbackFunction != 'function') {
+        callbackFunction = $.noop;
+    }
 
     // build the tree
     $this = $(this);
@@ -186,6 +190,11 @@
     var $childNodes = $node.children("ul:first").children("li");
     var $nodeDiv;
     
+    var callbackFunction = opts.cb;
+    if (typeof callbackFunction != 'function') {
+        callbackFunction = $.noop;
+    }
+
     if($childNodes.length > 1) {
       $nodeCell.attr("colspan", $childNodes.length * 2);
     }
@@ -205,7 +214,7 @@
     }
 
     // Expand and contract nodes
-    if ($childNodes.length > 0) {
+    if ($childNodes.length > 0 && opts.collapse !== false) {
       $nodeDiv.click(function() {
           var $this = $(this);
           var $tr = $this.closest("tr");
@@ -227,9 +236,10 @@
     $tbody.append($nodeRow);
 
     if($childNodes.length > 0) {
-      // if it can be expanded then change the cursor
-      $nodeDiv.css('cursor','n-resize').addClass('expanded');
-    
+      if (opts.collapse !== false) {
+        // if it can be expanded then change the cursor
+        $nodeDiv.css('cursor','n-resize').addClass('expanded');
+      }
       // recurse until leaves found (-1) or to the level specified
       if(opts.depth == -1 || (level+1 < opts.depth)) { 
         var $downLineRow = $("<tr/>");
@@ -289,11 +299,13 @@
     $table.append($tbody);
     $appendTo.append($table);
     
-    /* Prevent trees collapsing if a link inside a node is clicked */
-    $nodeDiv.children('a').click(function(e){
+    /* Prevent trees collapsing if a link, button, or input inside a node is clicked */
+    $nodeDiv.children('a, button, input').click(function(e){
         console.log(e);
         e.stopPropagation();
     });
+
+    callbackFunction($nodeDiv);
   };
 
 })(jQuery);

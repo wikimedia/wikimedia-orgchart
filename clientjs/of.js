@@ -73,98 +73,6 @@ var orgForm = function () {
                 }
             }
 
-            $('.of-unit-show', $tc).click(function () {
-                var $this = $(this);
-                var state = $this.html();
-                if (state == '+') {
-                    $this.closest('.of-unit-details').addClass('shown');
-                    $this.html('-');
-                } else {
-                    $this.closest('.of-unit-details').removeClass('shown');
-                    $this.html('+');
-                }
-            });
-
-            $('.of-unit-edit', $tc).click(function () {
-                var $this = $(this);
-                var $unit = $this.closest('.of-unit-details');
-                $('.of-unit-view', $unit).css('display','none');
-                $('.of-unit-edit-form', $unit).css('display','block');
-            });
-
-            var $form = $('.of-unit-edit-form form', $tc);
-            
-            $form.ajaxForm({
-                success: function (data) {
-                    if (data.success) {
-                        var $unit = $('#of-unit-box-for-'+data.unit._id+' .of-unit-details');
-                        var u = data.unit;
-                        $('.of-unit-view', $unit).css('display','block');
-                        $('.of-unit-edit-form', $unit).css('display','none');
-                        
-                        var $name = $('span.of-unit-name', $unit);
-                        if (u.name && u.name != $name.html()) {
-                            $name.html(u.name);
-                            $('input.of-unit-name', $unit).val(u.name);
-                        }
-                        if (u.name == '') {
-                            $('.of-unit-status', $unit).html('This position is vacant.');
-                        }
-                        var $title = $('span.of-unit-title', $unit);
-                        if (u.title && u.title != $title.html()) {
-                            $title.html(u.title);
-                            $('input.of-unit-title', $unit).val(u.title);
-                        }
-                        var $uloc = $('span.of-unit-loc', $unit);
-                        if (u.location && u.location != $uloc.html()) {
-                            $uloc.html(u.location);
-                            $('input.of-unit-loc', $unit).val(u.location);
-                        }
-                        var $reqn = $('span.of-unit-reqn', $unit);
-                        if (u.reqn && u.reqn != $reqn.html()) {
-                            $reqn.html(u.reqn);
-                            $('input.of-unit-reqn', $unit).val(u.reqn);
-                        }
-                        if (u.reqn == '') {
-                            $reqn.closest('p').css('display', 'none');
-                        }
-                        var $start = $('span.of-unit-start', $unit);
-                        if (u.start && u.start != $start.html()) {
-                            $start.html(u.start);
-                            $('input.of-unit-start', $unit).val(u.start);
-                        }
-                        if (u.start == '') {
-                            $start.closest('p').css('display', 'none');
-                        }
-                        var $end = $('span.of-unit-end', $unit);
-                        if (u.end && u.end != $end.html()) {
-                            $end.html(u.end);
-                            $('input.of-unit-end', $unit).val(u.end);
-                        }
-                        if (u.end == '') {
-                            $end.closest('p').css('display', 'none');
-                        }
-                        var $hours = $('span.of-unit-hrs', $unit);
-                        if (u.hours && u.hours != $hours.html()) {
-                            $hours.html(u.hours);
-                            $('input.of-unit-hours', $unit).val(u.hours);
-                        }
-                        if (u.hours == '') {
-                            $hours.closest('p').css('display', 'none');
-                        }
-                    }
-                },
-                dataType: 'json',
-            });
-                           
-            $('.of-unit-cancel-edit', $tc).click(function () {
-                var $this = $(this);
-                var $unit = $this.closest('.of-unit-details');
-                $('.of-unit-view', $unit).css('display','block');
-                $('.of-unit-edit-form', $unit).css('display','none');
-                return 0;
-            });
-
             var $loc = $('span.of-unit-loc', $tc);
             if (ddata.location && ddata.location != '' && locs[ddata.location]) {
                 $loc.css('color', locs[ddata.location]);
@@ -190,7 +98,101 @@ var orgForm = function () {
                     });
                 }
             } else if (waiting.length == 0) {
-                $('#of-org-form').jOrgChart({highlightParent: true});
+                $('#of-org-form').jOrgChart({highlightParent: true,
+                                             collapse: false,
+                                             cb: function ($node) {
+                                                 $('.of-unit-show', $node).click(function () {
+                                                     var $this = $(this);
+                                                     var state = $this.html();
+                                                     if (state == '+') {
+                                                         $this.closest('.of-unit-details').addClass('shown');
+                                                         $this.html('-');
+                                                     } else {
+                                                         $this.closest('.of-unit-details').removeClass('shown');
+                                                         $this.html('+');
+                                                     }
+                                                 });
+                                                 
+                                                 $('.of-unit-edit', $node).click(function () {
+                                                     var $this = $(this);
+                                                     var $unit = $this.closest('.of-unit-details');
+                                                     $('.of-unit-view', $unit).css('display','none');
+                                                     $('.of-unit-edit-form', $unit).css('display','block');
+                                                 });
+
+                                                 var $form = $('.of-unit-edit-form form', $node);
+                                                 
+                                                 $form.ajaxForm({
+                                                     success: function (data) {
+                                                         if (data.success) {
+                                                             var $unit = $('#of-unit-box-for-'+data.unit._id+' .of-unit-details');
+                                                             var u = data.unit;
+                                                             $('.of-unit-view', $unit).css('display','block');
+                                                             $('.of-unit-edit-form', $unit).css('display','none');
+                                                             
+                                                             var $name = $('span.of-unit-name', $unit);
+                                                             if (u.name && u.name != $name.html()) {
+                                                                 $name.html(u.name);
+                                                                 $('input.of-unit-name', $unit).val(u.name);
+                                                             }
+                                                             if (u.name == '') {
+                                                                 $('.of-unit-status', $unit).html('This position is vacant.');
+                                                             }
+                                                             var $title = $('span.of-unit-title', $unit);
+                                                             if (u.title && u.title != $title.html()) {
+                                                                 $title.html(u.title);
+                                                                 $('input.of-unit-title', $unit).val(u.title);
+                                                             }
+                                                             var $uloc = $('span.of-unit-loc', $unit);
+                                                             if (u.location && u.location != $uloc.html()) {
+                                                                 $uloc.html(u.location);
+                                                                 $('input.of-unit-loc', $unit).val(u.location);
+                                                             }
+                                                             var $reqn = $('span.of-unit-reqn', $unit);
+                                                             if (u.reqn && u.reqn != $reqn.html()) {
+                                                                 $reqn.html(u.reqn);
+                                                                 $('input.of-unit-reqn', $unit).val(u.reqn);
+                                                             }
+                                                             if (u.reqn == '') {
+                                                                 $reqn.closest('p').css('display', 'none');
+                                                             }
+                                                             var $start = $('span.of-unit-start', $unit);
+                                                             if (u.start && u.start != $start.html()) {
+                                                                 $start.html(u.start);
+                                                                 $('input.of-unit-start', $unit).val(u.start);
+                                                             }
+                                                             if (u.start == '') {
+                                                                 $start.closest('p').css('display', 'none');
+                                                             }
+                                                             var $end = $('span.of-unit-end', $unit);
+                                                             if (u.end && u.end != $end.html()) {
+                                                                 $end.html(u.end);
+                                                                 $('input.of-unit-end', $unit).val(u.end);
+                                                             }
+                                                             if (u.end == '') {
+                                                                 $end.closest('p').css('display', 'none');
+                                                             }
+                                                             var $hours = $('span.of-unit-hrs', $unit);
+                                                             if (u.hours && u.hours != $hours.html()) {
+                                                                 $hours.html(u.hours);
+                                                                 $('input.of-unit-hours', $unit).val(u.hours);
+                                                             }
+                                                             if (u.hours == '') {
+                                                                 $hours.closest('p').css('display', 'none');
+                                                             }
+                                                         }
+                                                     },
+                                                     dataType: 'json',
+                                                 });
+                                                 
+                                                 $('.of-unit-cancel-edit', $node).click(function () {
+                                                     var $this = $(this);
+                                                     var $unit = $this.closest('.of-unit-details');
+                                                     $('.of-unit-view', $unit).css('display','block');
+                                                     $('.of-unit-edit-form', $unit).css('display','none');
+                                                     return 0;
+                                                 });
+                                             }});
             }
         }
     }
