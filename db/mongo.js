@@ -63,7 +63,7 @@ function listHierarchy(cb) {
                         csort.splice(sx, 0, lx);
                     }
                     for (var lx in csort) {
-                        if (lx <= colors.length) {
+                        if (lx < colors.length) {
                             locs[csort[lx]] = colors[lx];
                         } else {
                             locs[csort[lx]] = colors[colors.length-1];
