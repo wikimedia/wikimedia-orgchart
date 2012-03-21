@@ -144,15 +144,19 @@ var orgForm = function () {
             }
 
             var $tc = $tunit.clone();
+            var estat = data.status.toLowerCase();
             if (!data.name || data.name == '') {
                 $('.of-unit-status', $tc).html('This position is open');
                 $tc.addClass('vacancy');
-            } else if (data.status.toLowerCase() == 'employee') {
+            } else if (estat == 'employee') {
                 $('.of-unit-status', $tc).html('Status: Employee');
-                $tc.addClass('employee');
+                $tc.addClass(estat);
+                $('option[value='+estat+']', $tc).attr('selected', 'selected');
             } else {
-                $tc.addClass('contractor');
+                estat = 'contractor';
                 $('.of-unit-status', $tc).html('Status: Independent contractor');
+                $tc.addClass(estat);
+                $('option[value='+estat+']', $tc).attr('selected', 'selected');
             }
             $tc.attr('id', 'of-unit-box-for-'+data.index);
             $tc.attr('data-ofid', data.index);
