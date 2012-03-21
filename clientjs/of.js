@@ -1,61 +1,192 @@
 var orgForm = function () {
+    var $ucreate = $('.of-unit-edit-form').first().clone();
     var $tunit = $('.of-unit-box').detach();
     var $tlist = $('.of-unit-listing').detach();
     var $units = $('#of-org-form');
     var units = {};
     var locs = {};
     var waiting = [];
+    $ucreate.attr('class', 'of-unit-create');
 
     function getDetails(uid, cb) {
         cb(units[uid]);
     }
 
-    function handleData(data, ddata) {
-        if (ddata && ddata.title) {
-            units[ddata.index] = ddata;
+    function postAdd($node, level) {
+        $node.css('z-index', 29-level);
+        
+        $('.of-unit-show', $node).click(function () {
+            var $this = $(this);
+            var state = $this.html();
+            if (state == '+') {
+                $this.closest('.of-unit-details').addClass('shown');
+                $this.html('-');
+            } else {
+                $this.closest('.of-unit-details').removeClass('shown');
+                $this.html('+');
+            }
+        });
+        
+        $('.of-unit-edit', $node).click(function () {
+            var $this = $(this);
+            var $unit = $this.closest('.of-unit-details');
+            $('.of-unit-view', $unit).css('display','none');
+            $('.of-unit-edit-form', $unit).css('display','block');
+        });
+        
+        var $form = $('.of-unit-edit-form form', $node);
+        
+        $form.ajaxForm({
+            success: function (data) {
+                if (data.success) {
+                    var $unit = $('div#of-unit-box-for-'+data.unit._id+' .of-unit-details');
+                    var u = data.unit;
+                    $('.of-unit-view', $unit).css('display','block');
+                    $('.of-unit-edit-form', $unit).css('display','none');
+                    
+                    var $name = $('span.of-unit-name', $unit);
+                    if (u.name && u.name != $name.html()) {
+                        $name.html(u.name);
+                        $('input.of-unit-name', $unit).val(u.name);
+                    }
+                    if (u.name == '') {
+                        $('.of-unit-status', $unit).html('This position is vacant.');
+                    }
+                    var $title = $('span.of-unit-title', $unit);
+                    if (u.title && u.title != $title.html()) {
+                        $title.html(u.title);
+                        $('input.of-unit-title', $unit).val(u.title);
+                    }
+                    var $uloc = $('span.of-unit-loc', $unit);
+                    if (u.location && u.location != $uloc.html()) {
+                        $uloc.html(u.location);
+                        $('input.of-unit-loc', $unit).val(u.location);
+                    }
+                    var $reqn = $('span.of-unit-reqn', $unit);
+                    if (u.reqn && u.reqn != $reqn.html()) {
+                        $reqn.html(u.reqn);
+                        $('input.of-unit-reqn', $unit).val(u.reqn);
+                    }
+                    if (u.reqn == '') {
+                        $reqn.closest('p').css('display', 'none');
+                    }
+                    var $start = $('span.of-unit-start', $unit);
+                    if (u.start && u.start != $start.html()) {
+                        $start.html(u.start);
+                        $('input.of-unit-start', $unit).val(u.start);
+                    }
+                    if (u.start == '') {
+                        $start.closest('p').css('display', 'none');
+                    }
+                    var $end = $('span.of-unit-end', $unit);
+                    if (u.end && u.end != $end.html()) {
+                        $end.html(u.end);
+                        $('input.of-unit-end', $unit).val(u.end);
+                    }
+                    if (u.end == '') {
+                        $end.closest('p').css('display', 'none');
+                    }
+                    var $hours = $('span.of-unit-hrs', $unit);
+                    if (u.hours && u.hours != $hours.html()) {
+                        $hours.html(u.hours);
+                        $('input.of-unit-hours', $unit).val(u.hours);
+                    }
+                    if (u.hours == '') {
+                        $hours.closest('p').css('display', 'none');
+                    }
+                }
+            },
+            dataType: 'json',
+        });
+        
+        $('.of-unit-cancel-edit', $node).click(function () {
+            var $this = $(this);
+            var $unit = $this.closest('.of-unit-details');
+            $('.of-unit-view', $unit).css('display','block');
+            $('.of-unit-edit-form', $unit).css('display','none');
+            return 0;
+        });
+
+        $('.of-unit-add-child', $node).click(function () {
+            var $this = $(this);
+            var $unit = $this.closest('.of-unit-details');
+            var $uv = $('.of-unit-view', $unit);
+            $uv.css('display','none');
+            $unit.append($ucreate.clone());
+            var $tcreate = $('.of-unit-create', $unit);
+            $tcreate.css('display','block');
+
+            $('.of-unit-cancel-edit', $tcreate).click(function () {
+                $tcreate.remove();
+                $uv.css('display','block');
+            });
+
+            var $cform = $('form', $tcreate);
+            
+            $cform.attr('action', '/addto/' + $('li#'+$node.attr('id')).attr('data-ofid'));
+
+            $cform.ajaxForm({
+                success: function (data) {
+                    $tcreate.remove();
+                    $uv.css('display','block');
+                    addTo(data.unit[0]);
+                },
+                dataType: 'json'});
+        });
+    }
+
+    function addTo(data, childlist, $parent) {
+        var $of = $('#of-org-form');
+        if (data && data.title) {
+            childlist = childlist || [];
+            if (data.supervisor) {
+                $parent = $parent || $('#of-unit-box-for-'+data.supervisor, $of);
+            }
+
             var $tc = $tunit.clone();
-            if (!ddata.name || ddata.name == '') {
+            if (!data.name || data.name == '') {
                 $('.of-unit-status', $tc).html('This position is open');
                 $tc.addClass('vacancy');
-            } else if (ddata.status.toLowerCase() == 'employee') {
+            } else if (data.status.toLowerCase() == 'employee') {
                 $('.of-unit-status', $tc).html('Status: Employee');
                 $tc.addClass('employee');
             } else {
                 $tc.addClass('contractor');
                 $('.of-unit-status', $tc).html('Status: Independent contractor');
             }
-            $tc.attr('id', 'of-unit-box-for-'+ddata.index);
-            $('form', $tc).attr('action', '/modify/'+ddata.index);
-            $('p.of-unit-title', $tc).html(ddata.title);
-            $('input.of-unit-title', $tc).attr('value', ddata.title);
-            $('p.of-unit-name', $tc).html(ddata.name);
-            $('input.of-unit-name', $tc).attr('value', ddata.name);
+            $tc.attr('id', 'of-unit-box-for-'+data.index);
+            $tc.attr('data-ofid', data.index);
+            $('form', $tc).attr('action', '/modify/'+data.index);
+            $('p.of-unit-title', $tc).html(data.title);
+            $('input.of-unit-title', $tc).attr('value', data.title);
+            $('p.of-unit-name', $tc).html(data.name);
+            $('input.of-unit-name', $tc).attr('value', data.name);
 
-            if (ddata.reqn && ddata.reqn != '') {
-                $('span.of-unit-reqn', $tc).html(ddata.reqn);
-                $('input.of-unit-reqn', $tc).attr('value', ddata.reqn);
+            if (data.reqn && data.reqn != '') {
+                $('span.of-unit-reqn', $tc).html(data.reqn);
+                $('input.of-unit-reqn', $tc).attr('value', data.reqn);
             } else {
                 $('.of-req-num', $tc).css('display', 'none');
                 $('.of-unit-details', $tc).addClass('noreqn');
             }
-            if (ddata.start && ddata.start != '') {
-                $('span.of-unit-start', $tc).html(ddata.start);
-                $('input.of-unit-start', $tc).attr('value', ddata.start);
+            if (data.start && data.start != '') {
+                $('span.of-unit-start', $tc).html(data.start);
+                $('input.of-unit-start', $tc).attr('value', data.start);
             } else {
                 $('.of-start-date', $tc).css('display', 'none');
             }
-            if (ddata.end && ddata.end != '') {
-                $('span.of-unit-end', $tc).html(ddata.end);
-                $('input.of-unit-end', $tc).attr('value', ddata.end);
+            if (data.end && data.end != '') {
+                $('span.of-unit-end', $tc).html(data.end);
+                $('input.of-unit-end', $tc).attr('value', data.end);
             } else {
                 $('.of-end-date', $tc).css('display', 'none');
             }
-            if (ddata.hours && ddata.hours != '') {
-                $('span.of-unit-hrs', $tc).html(ddata.hours);
-                $('input.of-unit-hours', $tc).attr('value', ddata.hours);
-                if (ddata.hours-0 < 16) {
+            if (data.hours && data.hours != '') {
+                $('span.of-unit-hrs', $tc).html(data.hours);
+                $('input.of-unit-hours', $tc).attr('value', data.hours);
+                if (data.hours-0 < 16) {
                     $tc.addClass('veryparttime');
-                } else if (ddata.hours-0 < 32) {
+                } else if (data.hours-0 < 32) {
                     $tc.addClass('parttime');
                 } else {
                     $tc.addClass('fulltime');
@@ -63,9 +194,9 @@ var orgForm = function () {
             } else {
                 $('.of-hours-weekly', $tc).css('display', 'none');
             }
-            var $ulist = $units;
-            if (ddata.supervisor && ddata.supervisor != '') {
-                var $super = $('#of-unit-box-for-'+ddata.supervisor, $units);
+            var $ulist = $('.of-unit-listing', $parent);
+            if (data.supervisor && data.supervisor != '') {
+                var $super = $('#of-unit-box-for-'+data.supervisor, $units);
                 $ulist = $super.children('.of-unit-listing');
                 if (!$ulist || !$ulist.length) {
                     $super.append($tlist.clone());
@@ -73,123 +204,57 @@ var orgForm = function () {
                 }
             }
 
+            if (!$ulist || !$ulist.length) {
+                $ulist = $units;
+                if (!$ulist || !$ulist.length) {
+                    return;
+                }
+            }
+
             var $loc = $('span.of-unit-loc', $tc);
-            if (ddata.location && ddata.location != '' && locs[ddata.location]) {
-                $loc.css('color', locs[ddata.location]);
-                $loc.html(ddata.location);
-                $('input.of-unit-loc', $tc).attr('value', ddata.location);
+            if (data.location && data.location != '') {
+                if (locs[data.location]) {
+                    $loc.css('color', locs[data.location]);
+                } else {
+                    $loc.css('color', locs.other);
+                }
+                $loc.html(data.location);
+                $('input.of-unit-loc', $tc).attr('value', data.location);
             } else {
                 $loc.css('display', 'none');
             }
 
             $ulist.append($tc);
-            var wix = waiting.indexOf(ddata.index);
-            waiting = waiting.slice(0, wix).concat(waiting.slice(wix+1));
-            if (data[ddata.index] && data[ddata.index].length) {
-                for (var ix in data[ddata.index]) {
-                    getDetails(data[ddata.index][ix], function (ndata) {
-                        handleData(data, ndata);
+
+            var wix = waiting.indexOf(data.index);
+            if (wix != -1) {
+                waiting = waiting.slice(0, wix).concat(waiting.slice(wix+1));
+            }
+
+            if (childlist[data.index] && childlist[data.index].length) {
+                for (var ix in childlist[data.index]) {
+                    getDetails(childlist[data.index][ix], function (ndata) {
+                        handleData(childlist, ndata);
                     });
                 }
             } else if (waiting.length == 0) {
-                $('#of-org-form').jOrgChart({highlightParent: true,
-                                             collapse: false,
-                                             cb: function ($node, level) {
-                                                 $node.css('z-index', 29-level);
-                                                 $('.of-unit-show', $node).click(function () {
-                                                     var $this = $(this);
-                                                     var state = $this.html();
-                                                     if (state == '+') {
-                                                         $this.closest('.of-unit-details').addClass('shown');
-                                                         $this.html('-');
-                                                     } else {
-                                                         $this.closest('.of-unit-details').removeClass('shown');
-                                                         $this.html('+');
-                                                     }
-                                                 });
-                                                 
-                                                 $('.of-unit-edit', $node).click(function () {
-                                                     var $this = $(this);
-                                                     var $unit = $this.closest('.of-unit-details');
-                                                     $('.of-unit-view', $unit).css('display','none');
-                                                     $('.of-unit-edit-form', $unit).css('display','block');
-                                                 });
-
-                                                 var $form = $('.of-unit-edit-form form', $node);
-                                                 
-                                                 $form.ajaxForm({
-                                                     success: function (data) {
-                                                         if (data.success) {
-                                                             var $unit = $('div#of-unit-box-for-'+data.unit._id+' .of-unit-details');
-                                                             var u = data.unit;
-                                                             $('.of-unit-view', $unit).css('display','block');
-                                                             $('.of-unit-edit-form', $unit).css('display','none');
-                                                             
-                                                             var $name = $('span.of-unit-name', $unit);
-                                                             if (u.name && u.name != $name.html()) {
-                                                                 $name.html(u.name);
-                                                                 $('input.of-unit-name', $unit).val(u.name);
-                                                             }
-                                                             if (u.name == '') {
-                                                                 $('.of-unit-status', $unit).html('This position is vacant.');
-                                                             }
-                                                             var $title = $('span.of-unit-title', $unit);
-                                                             if (u.title && u.title != $title.html()) {
-                                                                 $title.html(u.title);
-                                                                 $('input.of-unit-title', $unit).val(u.title);
-                                                             }
-                                                             var $uloc = $('span.of-unit-loc', $unit);
-                                                             if (u.location && u.location != $uloc.html()) {
-                                                                 $uloc.html(u.location);
-                                                                 $('input.of-unit-loc', $unit).val(u.location);
-                                                             }
-                                                             var $reqn = $('span.of-unit-reqn', $unit);
-                                                             if (u.reqn && u.reqn != $reqn.html()) {
-                                                                 $reqn.html(u.reqn);
-                                                                 $('input.of-unit-reqn', $unit).val(u.reqn);
-                                                             }
-                                                             if (u.reqn == '') {
-                                                                 $reqn.closest('p').css('display', 'none');
-                                                             }
-                                                             var $start = $('span.of-unit-start', $unit);
-                                                             if (u.start && u.start != $start.html()) {
-                                                                 $start.html(u.start);
-                                                                 $('input.of-unit-start', $unit).val(u.start);
-                                                             }
-                                                             if (u.start == '') {
-                                                                 $start.closest('p').css('display', 'none');
-                                                             }
-                                                             var $end = $('span.of-unit-end', $unit);
-                                                             if (u.end && u.end != $end.html()) {
-                                                                 $end.html(u.end);
-                                                                 $('input.of-unit-end', $unit).val(u.end);
-                                                             }
-                                                             if (u.end == '') {
-                                                                 $end.closest('p').css('display', 'none');
-                                                             }
-                                                             var $hours = $('span.of-unit-hrs', $unit);
-                                                             if (u.hours && u.hours != $hours.html()) {
-                                                                 $hours.html(u.hours);
-                                                                 $('input.of-unit-hours', $unit).val(u.hours);
-                                                             }
-                                                             if (u.hours == '') {
-                                                                 $hours.closest('p').css('display', 'none');
-                                                             }
-                                                         }
-                                                     },
-                                                     dataType: 'json',
-                                                 });
-                                                 
-                                                 $('.of-unit-cancel-edit', $node).click(function () {
-                                                     var $this = $(this);
-                                                     var $unit = $this.closest('.of-unit-details');
-                                                     $('.of-unit-view', $unit).css('display','block');
-                                                     $('.of-unit-edit-form', $unit).css('display','none');
-                                                     return 0;
-                                                 });
-                                             }});
+                refreshChart($of);
             }
+        } else {
+            return;
         }
+    }
+
+    function refreshChart($data) {
+        $('.jOrgChart').remove();
+        $data.jOrgChart({highlightParent: true,
+                         collapse: false,
+                         cb: postAdd});
+    }
+
+    function handleData(data, ddata) {
+        units[ddata.index] = ddata;
+        addTo(ddata, data);
     }
 
     function addWait(thelist, thislist, biglist) {

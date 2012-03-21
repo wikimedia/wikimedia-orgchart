@@ -38,17 +38,26 @@
             <p class="of-start-date">Start Date: <span class="of-unit-start"></span></p>
             <p class="of-end-date">End Date: <span class="of-unit-end"></span></p>
             <p class="of-hours-weekly">Hours Per Week: <span class="of-unit-hrs"></span></p>
+            <p><button class="of-unit-add-child">Add Subordinate</button></p>
           </div>
           <div class="of-unit-edit-form">
             <form method="POST" action="/modify">
               <p><label>Job Title: <input name="title" class="of-unit-title" type="text" /></label></p>
+              <p>
+                <label>Status:
+                  <select name="status">
+                    <option value="employee">Employee</option>
+                    <option value="contractor">Contractor</option>
+                  </select>
+                </label>
+              </p>
               <p><label>Name: <input name="name" class="of-unit-name" type="text" /></label></p>
               <p><label>Physical Location: <input name="location" class="of-unit-loc" type="text" /></label></p>
               <p><label>Requsition Number: <input name="reqn" class="of-unit-reqn" type="text" /></label></p>
               <p><label>Start Date: <input name="start" class="of-unit-start" type="text" /></label></p>
               <p><label>End Date: <input name="end" class="of-unit-end" type="text" /></label></p>
               <p><label>Hours Per Week: <input name="hours" class="of-unit-hours" type="text" /></label></p>
-              <p><button type="submit" class="of-unit-cancel-edit">Submit</button> <button type="button" class="of-unit-cancel-edit">Cancel</button></p>
+              <p><button type="submit">Submit</button> <button type="button" class="of-unit-cancel-edit">Cancel</button></p>
             </form>
           </div>
         </div>

@@ -5,6 +5,9 @@ formidable = require("formidable"),
 jsonify = require("JSON").stringify,
 loads = require("JSON").parse,
 url = require("url"),
+sessions = require("sessions"),
+SessionHandler = new sessions(),
+
 respondWithFile = require("./respondWithFile").respondWithFile,
 csvdb = require("./db/csv"),
 mongodb = require("./db/mongo");
@@ -74,6 +77,26 @@ function modify(response, request, args) {
     }
 }
 
+function add(response, request, args) {
+    form = new formidable.IncomingForm();
+
+    if (checkAuth()) {
+        var superv = args[0];
+        form.parse(request, function(error, fields, files) {
+            if (superv) {
+                fields['supervisor'] = superv;
+            } else {
+                fields['supervisor'] = '';
+            }
+            db.addUnit(fields, function (unit) {
+                response.writeHead(200, {'Content-Type': 'application/json'});
+                response.write(jsonify({'success': true, 'unit': unit}));
+                response.end();
+            });
+        });
+    }
+}
+
 function start(response) {
     respondWithFile(response, 'templates/index.html');
 }
@@ -107,6 +130,7 @@ function jorgchart(response) {
 }
 
 exports.modify = modify;
+exports.add = add;
 exports.style = style;
 exports.pstyle = pstyle;
 exports.jorgchartstyle = jorgchartstyle;

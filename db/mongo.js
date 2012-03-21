@@ -23,6 +23,19 @@ db.open(function (err, p_client) {
     });
 });
 
+function findAndRemove(con) {
+    if (!loaded) {
+        setTimeout(function () { findAndRemove(con); }, 200);
+        return;
+    }
+    db.open(function (err, p_client) {
+        db.collection(cols.units, function (err, col) {
+            col.remove(con);
+            db.close();
+        });
+    });
+}
+
 function listHierarchy(cb) {
     if (!loaded) {
         setTimeout(function () { listHierarchy(cb); }, 200);
@@ -69,6 +82,9 @@ function listHierarchy(cb) {
                             locs[csort[lx]] = colors[colors.length-1];
                         }
                     }
+                    
+                    locs.other = colors[colors.length-1];
+                    
                     var dunits = {};
                     for (var ux in units) {
                         units[ux].index = units[ux]._id;
@@ -162,3 +178,4 @@ exports.listHierarchy = listHierarchy;
 exports.addUnit = addUnit;
 exports.getUnit = getUnit;
 exports.changeUnit = changeUnit;
+exports.findAndRemove = findAndRemove;
