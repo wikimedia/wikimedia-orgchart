@@ -39,12 +39,10 @@ body {
 
 .of-unit-box {
     position: relative;
-    width: 250px;
     height: 75px;
 }
 
 .of-unit-details {
-    width: 80%;
     border: 1px solid #979998;
     border-radius: 5px;
     padding: 10px;

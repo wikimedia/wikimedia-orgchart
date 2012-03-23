@@ -27,6 +27,12 @@ var orgForm = function () {
 
     function postAdd($node, level) {
         $node.css('z-index', 29-level);
+
+        var name = $('.of-unit-name', $node).html().length;
+        var title = $('.of-unit-title', $node).html().length;
+        
+        var longest = name > title ? name : title;
+        $node.css('width', (9*longest)+'px');
         
         $('.of-unit-show', $node).click(function () {
             var $this = $(this);
