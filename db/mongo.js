@@ -5,23 +5,49 @@ locs = {},
 db = new mgdb.Db('orgcharts', new mgdb.Server('127.0.0.1', 27017, {})),
 ObjectId = mgdb.ObjectID,
 cols = {},
+colld = {},
 looking = 0,
 loaded = false;
 
 cols.units = 'units';
+cols.users = 'users';
+
+var initusers = [{username: 'admin', password: 'admin'}];
 
 db.open(function (err, p_client) {
     db.collectionNames(function (err, items) {
         for (var ux in cols) {
             if (!items || items.length == 0 || items.indexOf(cols[ux]) == -1) {
-                db.createCollection(cols[ux], function () {
+                db.createCollection(cols[ux], function (err, col) {
+                    colld[col.collectionName] = true;
                     db.close();
+                    for (var cx in cols) {
+                        if (!colld[cx]) {
+                            return;
+                        }
+                    }
                     loaded = true;
+                    console.log('Database ready.');
                 });
+            } else {
+                colld[ux] = true;
+                for (var cx in cols) {
+                    if (!colld[cx]) {
+                        return;
+                    }
+                }
+                loaded = true;
+                console.log('Database ready.');
             }
         }
     });
 });
+
+for (var ux in initusers) {
+    addUser(initusers[ux], function (user) {
+        console.log('Database: Added default user ' + user[0].username);
+    });
+}
 
 function findAndRemove(con) {
     if (!loaded) {
@@ -142,6 +168,49 @@ function changeUnit(uid, mods, cb) {
     });
 }
 
+function addUser(data, cb) {
+    if (!loaded) {
+        setTimeout(function () { addUser(data, cb); }, 200);
+        return;
+    }
+    db.open(function (err, p_client) {
+        db.collection(cols.users, function (err, col) {
+            col.findOne({username: data.username}, function (err, doc) {
+                if (!doc) {
+                    col.insert([data], {safe: true}, function (err, doc) {
+                        db.close();
+                        if (cb && typeof cb == 'function') {
+                            cb(doc); // I don't know what gets sent here, but do it anyway!
+                        }
+                    });
+                }
+            });
+        });
+    });
+}
+
+function checkLogin(data, cb) {
+    if (!cb || typeof cb != 'function') {
+        cb = function () {};
+    }
+    if (data && data.username && data.password) {
+        db.open(function (err, p_client) {
+            db.collection(cols.users, function (err, col) {
+                col.findOne({username: data.username}, {}, function (err, doc) {
+                    db.close();
+                    if (doc && doc.username == data.username && doc.password == data.password) {
+                        cb({success: true});
+                    } else {
+                        cb({success: false});
+                    }
+                });
+            });
+        });
+    } else {
+        cb({success: false});
+    }
+}
+
 function addUnit(data, cb) {
     if (!loaded) {
         setTimeout(function () { addUnit(data, cb); }, 200);
@@ -179,3 +248,5 @@ exports.addUnit = addUnit;
 exports.getUnit = getUnit;
 exports.changeUnit = changeUnit;
 exports.findAndRemove = findAndRemove;
+exports.addUser = addUser;
+exports.checkLogin = checkLogin;

@@ -18,5 +18,8 @@ handle["/of.css"] = requestHandlers.style;
 handle["/of-print.css"] = requestHandlers.pstyle;
 handle["/jquery.jorgchart.js"] = requestHandlers.jorgchart;
 handle["/jorgchart.css"] = requestHandlers.jorgchartstyle;
+handle["/login"] = requestHandlers.login;
+handle["/logout"] = requestHandlers.logout;
+handle["/isLogged"] = requestHandlers.isLogged;
 
 server.start(router.route, handle);

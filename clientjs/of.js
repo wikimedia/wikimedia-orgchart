@@ -6,7 +6,20 @@ var orgForm = function () {
     var units = {};
     var locs = {};
     var waiting = [];
+    var session = {logged: false};
+    var isLogged = false;
     $ucreate.attr('class', 'of-unit-create');
+
+    $.get('/isLogged', function (data) {
+        if (data.isLogged) {
+            $('.hide-until-logged').css('display', 'block');
+            $('.hide-when-logged').css('display', 'none');
+            isLogged = true;
+        } else {
+            $('.hide-until-logged').css('display', 'none');
+            $('.hide-when-logged').css('display', 'block');
+        }
+    });
 
     function getDetails(uid, cb) {
         cb(units[uid]);
@@ -243,6 +256,13 @@ var orgForm = function () {
                 }
             } else if (waiting.length == 0) {
                 refreshChart($of);
+                if (isLogged) { 
+                    $('.hide-until-logged').css('display', 'block');
+                    $('.hide-when-logged').css('display', 'none');
+                } else {
+                    $('.hide-until-logged').css('display', 'none');
+                    $('.hide-when-logged').css('display', 'block');
+                }
             }
         } else {
             return;
@@ -322,4 +342,26 @@ var orgForm = function () {
             $('.of-unit-show').html('+');
         }
     });
+
+    $('#of-login-form-in>form').ajaxForm({
+        success: function (data) {
+            if (data && data.success && data.success !== false) {
+                session.logged = true;
+                session.name = data.name;
+                $('.hide-until-logged').css('display', 'block');
+                $('.hide-when-logged').css('display', 'none');
+            }
+        },
+        dataType: 'json'});
+
+    $('#of-login-form-out>form').ajaxForm({
+        success: function (data) {
+            if (data && data.success && data.success !== false) {
+                session.logged = false;
+                delete session.name;
+                $('.hide-until-logged').css('display', 'none');
+                $('.hide-when-logged').css('display', 'block');
+            }
+        },
+        dataType: 'json'});
 };
