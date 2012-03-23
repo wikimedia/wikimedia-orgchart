@@ -120,6 +120,7 @@ function remove(response, request, args) {
 
     checkAuth(response, request, function (isLogged) {
         if (isLogged) {
+            console.log('Deleting node ' + thenum);
             db.findAndRemove(thenum, function () {
                 response.writeHead(200, {'Content-Type': 'application/json'});
                 response.write(jsonify({success: true}));
