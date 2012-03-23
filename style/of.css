@@ -39,15 +39,16 @@ body {
 
 .of-unit-box {
     position: relative;
-    width: 200px;
+    width: 250px;
+    height: 75px;
 }
 
 .of-unit-details {
-    width: 200px;
+    width: 80%;
     border: 1px solid #979998;
     border-radius: 5px;
     padding: 10px;
-    height: 75px;
+    height: 80%;
     overflow: hidden;
     background-color: #fefffd;
 }
@@ -122,6 +123,6 @@ body {
     display: none;
 }
 
-.of-unit-edit-form, .of-unit-delete-confirm {
+.of-unit-edit-form, .of-unit-delete-confirm, .of-unit-collapsed {
     display: none;
 }

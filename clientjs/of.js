@@ -339,30 +339,69 @@ var orgForm = function () {
     $('#of-filter-vacant').change(function () {
         var $this = $(this);
         var ison = $this.is(':checked');
+        var $vacancies = $('.of-unit-box.vacancy');
         if (ison) {
-            $('.of-unit-box.vacancy').removeClass('hidden');
+            $vacancies.each(function () {
+                var $node = $(this);
+                $('.of-unit-view', $node).css('display','block');
+                $('.of-unit-collapsed', $node).css('display','none');
+                $node.css('width', '250px');
+                $node.css('height', '75px');
+            });
         } else {
-            $('.of-unit-box.vacancy').addClass('hidden');
+            $vacancies.each(function () {
+                var $node = $(this);
+                $('.of-unit-view', $node).css('display','none');
+                $('.of-unit-collapsed', $node).css('display','block');
+                $node.css('width', '5px');
+                $node.css('height', 'auto');
+            });
         }
     });
 
     $('#of-filter-contract').change(function () {
         var $this = $(this);
         var ison = $this.is(':checked');
+        var $contractors = $('.of-unit-box.contractor');
         if (ison) {
-            $('.of-unit-box.contractor').removeClass('hidden');
+            $contractors.each(function () {
+                var $node = $(this);
+                $('.of-unit-view', $node).css('display','block');
+                $('.of-unit-collapsed', $node).css('display','none');
+                $node.css('width', '250px');
+                $node.css('height', '75px');
+            });
         } else {
-            $('.of-unit-box.contractor').addClass('hidden');
+            $contractors.each(function () {
+                var $node = $(this);
+                $('.of-unit-view', $node).css('display','none');
+                $('.of-unit-collapsed', $node).css('display','block');
+                $node.css('width', '5px');
+                $node.css('height', 'auto');
+            });
         }
     });
 
     $('#of-filter-employee').change(function () {
         var $this = $(this);
         var ison = $this.is(':checked');
+        var $employees = $('.of-unit-box.employee');
         if (ison) {
-            $('.of-unit-box.employee').removeClass('hidden');
+            $employees.each(function () {
+                var $node = $(this);
+                $('.of-unit-view', $node).css('display','block');
+                $('.of-unit-collapsed', $node).css('display','none');
+                $node.css('width', '250px');
+                $node.css('height', '75px');
+            });
         } else {
-            $('.of-unit-box.employee').addClass('hidden');
+            $employees.each(function () {
+                var $node = $(this);
+                $('.of-unit-view', $node).css('display','none');
+                $('.of-unit-collapsed', $node).css('display','block');
+                $node.css('width', '5px');
+                $node.css('height', 'auto');
+            });
         }
     });
 
