@@ -198,6 +198,9 @@ var orgForm = function () {
         var $of = $('#of-org-form');
         if (data && data.title) {
             childlist = childlist || [];
+            if (data && data._id) {
+                data.index = data._id;
+            }
             if (data.supervisor) {
                 $parent = $parent || $('#of-unit-box-for-'+data.supervisor, $of);
             }
