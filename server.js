@@ -10,6 +10,10 @@ function start(route, handle) {
         paths.shift();
         paths.shift();
         console.log("Request for " + pathname + " received.");
+        if (paths.length) {
+            console.log('  Arguments found!');
+            console.log(paths);
+        }
         route(handle, pathname, response, request, paths);
     }
     

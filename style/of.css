@@ -13,6 +13,12 @@ body {
     z-index: 30;
 }
 
+#title-container {
+    float: left;
+    width: 100%;
+    text-align: center;
+}
+
 #of-login-form {
     border: 1px solid #979998;
     border-radius: 5px;
@@ -29,12 +35,16 @@ body {
     display: none;
 }
 
+body>div.jOrgChart {
+    clear: both;
+}
+
 #of-org-form {
     display: none;
 }
 
 .of-title-name {
-    padding-bottom: 20px;
+    padding-bottom: 50px;
 }
 
 .of-unit-box {
@@ -103,6 +113,10 @@ body {
 
 .of-unit-box p {
     margin: 1px;
+}
+
+.of-unit-box.vacancy {
+    background-color: #ffc4c4;
 }
 
 .of-unit-box.fulltime .of-hours-weekly {

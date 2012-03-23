@@ -15,6 +15,8 @@ mongodb = require("./db/mongo");
 // var db = csvdb; // CSV database (not very good)
 var db = mongodb; // mongodb database (better)
 
+var orgName = "Wikimedia Foundation";
+
 function checkAuth(response, request, cb) {
     SessionHandler.httpRequest(request, response, function (err, sess) {
         var uname = sess.get('username');
@@ -94,7 +96,7 @@ function upload(response, request) {
 function list(response) {
     db.listHierarchy(function (list, locs, units) {
         response.writeHead(200, {'Content-Type': 'application/json'});
-        response.write(jsonify({list: list, colors: locs, units: units}));
+        response.write(jsonify({list: list, colors: locs, units: units, org: orgName}));
         response.end();
     });
 }
@@ -120,7 +122,6 @@ function remove(response, request, args) {
 
     checkAuth(response, request, function (isLogged) {
         if (isLogged) {
-            console.log('Deleting node ' + thenum);
             db.findAndRemove(thenum, function () {
                 response.writeHead(200, {'Content-Type': 'application/json'});
                 response.write(jsonify({success: true}));

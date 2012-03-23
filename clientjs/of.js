@@ -284,7 +284,7 @@ var orgForm = function () {
                 $loc.html(data.location);
                 $('input.of-unit-loc', $tc).attr('value', data.location);
             } else {
-                $loc.css('display', 'none');
+                $loc.parent('p').css('display', 'none');
             }
 
             $ulist.append($tc);
@@ -341,6 +341,9 @@ var orgForm = function () {
     $.get('/list', function (data) {
         units = data.units;
 	locs = data.colors;
+        if (data.org) {
+            $('#title').html(data.org);
+        }
         addWait(waiting, data.list.none, data.list);
         for (var ix in data.list.none) {
             getDetails(data.list.none[ix], function (ddata) {
