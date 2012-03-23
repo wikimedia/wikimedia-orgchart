@@ -44,7 +44,7 @@ body>div.jOrgChart {
 }
 
 .of-title-name {
-    padding-bottom: 50px;
+    padding-bottom: 200px;
 }
 
 .of-unit-box {
@@ -115,7 +115,7 @@ body>div.jOrgChart {
     margin: 1px;
 }
 
-.of-unit-box.vacancy {
+.of-unit-box.vacancy .of-unit-details {
     background-color: #ffc4c4;
 }
 
