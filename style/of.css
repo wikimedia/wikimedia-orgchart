@@ -87,11 +87,11 @@ body {
     float: right;
 }
 
-.of-unit-details:hover, .shown {
+.of-unit-details:hover, .shown, .shown-temp {
     height: auto;
 }
 
-.of-unit-details:hover .of-title-name, .shown .of-title-name {
+.of-unit-details:hover .of-title-name, .shown .of-title-name, .shown-temp .of-title-name {
     padding-bottom: 0px;
 }
 

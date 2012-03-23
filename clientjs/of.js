@@ -45,6 +45,7 @@ var orgForm = function () {
             var $unit = $this.closest('.of-unit-details');
             $('.of-unit-view', $unit).css('display','none');
             $('.of-unit-edit-form', $unit).css('display','block');
+            $unit.addClass('shown-temp');
         });
 
         $('.of-unit-remove-node', $node).click(function () {
@@ -52,6 +53,7 @@ var orgForm = function () {
             var $unit = $this.closest('.of-unit-details');
             $('.of-unit-view', $unit).css('display','none');
             $('.of-unit-delete-confirm', $unit).css('display','block');
+            $unit.addClass('shown-temp');
         });
         
         $('.of-unit-remove-node-cancel', $node).click(function () {
@@ -59,6 +61,7 @@ var orgForm = function () {
             var $unit = $this.closest('.of-unit-details');
             $('.of-unit-view', $unit).css('display','block');
             $('.of-unit-delete-confirm', $unit).css('display','none');
+            $unit.removeClass('shown-temp');
         });
         
         var $dform = $('.of-unit-delete-confirm-form', $node);
@@ -152,7 +155,7 @@ var orgForm = function () {
             var $unit = $this.closest('.of-unit-details');
             $('.of-unit-view', $unit).css('display','block');
             $('.of-unit-edit-form', $unit).css('display','none');
-            return 0;
+            $unit.removeClass('shown-temp');
         });
 
         $('.of-unit-add-child', $node).click(function () {
@@ -167,6 +170,7 @@ var orgForm = function () {
             $('.of-unit-cancel-edit', $tcreate).click(function () {
                 $tcreate.remove();
                 $uv.css('display','block');
+                $unit.removeClass('shown-temp');
             });
 
             var $cform = $('form', $tcreate);
@@ -180,10 +184,11 @@ var orgForm = function () {
                     addTo(data.unit[0]);
                 },
                 dataType: 'json'});
+            $unit.addClass('shown-temp');
         });
     }
 
-    function addTo(data, childlist, $parent) {
+    function addTo(data, childlist, $parent, checkLog) {
         var $of = $('#of-org-form');
         if (data && data.title) {
             childlist = childlist || [];
@@ -291,12 +296,14 @@ var orgForm = function () {
                 }
             } else if (waiting.length == 0) {
                 refreshChart($of);
-                if (isLogged) { 
-                    $('.hide-until-logged').css('display', 'block');
-                    $('.hide-when-logged').css('display', 'none');
-                } else {
-                    $('.hide-until-logged').css('display', 'none');
-                    $('.hide-when-logged').css('display', 'block');
+                if (checkLog) {
+                    if (isLogged) {
+                        $('.hide-until-logged').css('display', 'block');
+                        $('.hide-when-logged').css('display', 'none');
+                    } else {
+                        $('.hide-until-logged').css('display', 'none');
+                        $('.hide-when-logged').css('display', 'block');
+                    }
                 }
             }
         } else {
@@ -313,7 +320,7 @@ var orgForm = function () {
 
     function handleData(data, ddata) {
         units[ddata.index] = ddata;
-        addTo(ddata, data);
+        addTo(ddata, data, null, true);
     }
 
     function addWait(thelist, thislist, biglist) {
