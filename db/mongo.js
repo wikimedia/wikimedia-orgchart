@@ -1,4 +1,5 @@
 var mgdb = require('mongodb');
+var crypto = require('crypto');
 
 var colors = ['#59c840','#aab31a','#3070ac','#886644'],
 locs = {},
@@ -12,7 +13,7 @@ loaded = false;
 cols.units = 'units';
 cols.users = 'users';
 
-var initusers = [{username: 'admin', password: 'admin'}];
+var initusers = [{username: 'admin', password: crypto.createHash('sha512').update(''+Math.random()).digest('hex')}];
 
 db.open(function (err, p_client) {
     db.collectionNames(function (err, items) {
@@ -45,7 +46,7 @@ db.open(function (err, p_client) {
 
 for (var ux in initusers) {
     addUser(initusers[ux], function (user) {
-        console.log('Database: Added default user ' + user[0].username);
+        console.log('Database: Added default user ' + user[0].username + ' with password ' + user[0].password);
     });
 }
 
@@ -237,13 +238,14 @@ function addUnit(data, cb) {
     });
 }
 
-function dropCollection() {
+function dropCollection(name) {
     if (!loaded) {
-        setTimeout(dropCollection, 200);
+        setTimeout(function () { dropCollection(name); }, 200);
         return;
     }
+    name = name || 'units';
     db.open(function (err, p_client) {
-        db.collection(cols.units, function (err, col) {
+        db.collection(cols[name], function (err, col) {
             col.drop(function () {
                 db.close();
             });
