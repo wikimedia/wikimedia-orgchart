@@ -346,6 +346,7 @@ var orgForm = function () {
 	locs = data.colors;
         if (data.org) {
             $('#title').html(data.org);
+            $('title').html('Org Chart: ' + data.org);
         }
         addWait(waiting, data.list.none, data.list);
         for (var ix in data.list.none) {
