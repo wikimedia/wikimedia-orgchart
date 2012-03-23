@@ -49,15 +49,24 @@ for (var ux in initusers) {
     });
 }
 
-function findAndRemove(con) {
+function findAndRemove(con, cb) {
     if (!loaded) {
-        setTimeout(function () { findAndRemove(con); }, 200);
+        setTimeout(function () { findAndRemove(con, cb); }, 200);
         return;
     }
+    if (typeof cb != 'function') {
+        cb = function () {};
+    }
+    if (typeof con != 'object') {
+        con = {_id: new ObjectId(con)};
+    }
+    
     db.open(function (err, p_client) {
         db.collection(cols.units, function (err, col) {
-            col.remove(con);
-            db.close();
+            col.remove(con, {safe: true}, function (err, num) {
+                db.close();
+                cb();
+            });
         });
     });
 }

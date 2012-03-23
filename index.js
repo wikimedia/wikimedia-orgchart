@@ -13,6 +13,7 @@ handle["/jquery.form.js"] = requestHandlers.jqueryform;
 handle["/list"] = requestHandlers.list;
 handle["/details"] = requestHandlers.details;
 handle["/modify"] = requestHandlers.modify;
+handle["/remove"] = requestHandlers.remove;
 handle["/addto"] = requestHandlers.add;
 handle["/of.css"] = requestHandlers.style;
 handle["/of-print.css"] = requestHandlers.pstyle;

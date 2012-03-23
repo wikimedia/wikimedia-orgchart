@@ -114,6 +114,21 @@ function details(response, request, args) {
     });
 }
 
+function remove(response, request, args) {
+    var thenum = args[0],
+    form = new formidable.IncomingForm();
+
+    checkAuth(response, request, function (isLogged) {
+        if (isLogged) {
+            db.findAndRemove(thenum, function () {
+                response.writeHead(200, {'Content-Type': 'application/json'});
+                response.write(jsonify({success: true}));
+                response.end();
+            });
+        }
+    });
+}
+
 function modify(response, request, args) {
     var thenum = args[0],
     form = new formidable.IncomingForm();
@@ -206,3 +221,4 @@ exports.upform = upform;
 exports.login = login;
 exports.logout = logout;
 exports.isLogged = isLogged;
+exports.remove = remove;

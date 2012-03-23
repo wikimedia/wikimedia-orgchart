@@ -46,6 +46,41 @@ var orgForm = function () {
             $('.of-unit-view', $unit).css('display','none');
             $('.of-unit-edit-form', $unit).css('display','block');
         });
+
+        $('.of-unit-remove-node', $node).click(function () {
+            var $this = $(this);
+            var $unit = $this.closest('.of-unit-details');
+            $('.of-unit-view', $unit).css('display','none');
+            $('.of-unit-delete-confirm', $unit).css('display','block');
+        });
+        
+        $('.of-unit-remove-node-cancel', $node).click(function () {
+            var $this = $(this);
+            var $unit = $this.closest('.of-unit-details');
+            $('.of-unit-view', $unit).css('display','block');
+            $('.of-unit-delete-confirm', $unit).css('display','none');
+        });
+        
+        var $dform = $('.of-unit-delete-confirm-form', $node);
+        $dform.attr('action', '/remove/' + $('li#'+$node.attr('id')).attr('data-ofid'));
+
+        $dform.ajaxForm({
+            success: function (data) {
+                if (data && data.success) {
+                    var $of = $('#of-org-form');
+                    var $dnode = $('li#'+$node.attr('id'), $of);
+                    var $clist = $('.of-unit-listing', $dnode);
+                    if ($clist && $clist.length != 0 && $clist.children('li').length != 0) {
+                        var $plist = $dnode.closest('ul');
+                        $clist.children().each(function () {
+                            $plist.append($(this).detach());
+                        });
+                    }
+                    $dnode.remove();
+                    refreshChart($of);
+                }
+            },
+            dataType: 'json'});
         
         var $form = $('.of-unit-edit-form form', $node);
         

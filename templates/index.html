@@ -53,6 +53,15 @@
             <p class="of-end-date">End Date: <span class="of-unit-end"></span></p>
             <p class="of-hours-weekly">Hours Per Week: <span class="of-unit-hrs"></span></p>
             <p><button class="of-unit-add-child hide-until-logged">Add Subordinate</button></p>
+            <p><button class="of-unit-remove-node hide-until-logged">Delete this Node</button></p>
+          </div>
+          <div class="of-unit-delete-confirm">
+            <form class="of-unit-delete-confirm-form" method="POST" action="/remove">
+              <p>Are you sure you want to delete this node?</p>
+              <p class="of-unit-name"></p>
+              <p><button type="submit" class="of-unit-remove-node-confirm">I'm sure! Delete!</button></p>
+              <p><button type="button" class="of-unit-remove-node-cancel">Ah, no! Go back!</button></p>
+            </form>
           </div>
           <div class="of-unit-edit-form">
             <form method="POST" action="/modify">
