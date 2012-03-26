@@ -75,7 +75,7 @@ body>div.jOrgChart {
     display: none;
     position: absolute;
     top: 5px;
-    right: 30px;
+    right: 5px;
 }
 
 .of-unit-details:hover .of-unit-show {
@@ -137,4 +137,27 @@ body>div.jOrgChart {
 
 .of-unit-edit-form, .of-unit-delete-confirm, .of-unit-collapsed {
     display: none;
+}
+
+.of-unit-type:before {
+    position: absolute;
+    left: 15px;
+    top: 60px;
+    content: "V";
+    padding: 4px;
+    font-size: 1em;
+    font-weight: bold;
+    border: 4px solid black;
+    border-radius: 60px;
+    float: left;
+}
+
+.of-unit-box.employee .of-unit-type:before {
+    content: "E";
+    border-color: #00699a;
+}
+
+.of-unit-box.contractor .of-unit-type:before {
+    content: "C";
+    border-color: #9c0e0c;
 }
