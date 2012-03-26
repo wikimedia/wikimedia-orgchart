@@ -46,7 +46,11 @@ db.open(function (err, p_client) {
 
 for (var ux in initusers) {
     addUser(initusers[ux], function (user) {
-        console.log('Database: Added default user ' + user[0].username + ' with password ' + user[0].password);
+        if (user && user[0] && user[0].username) {
+            console.log('Database: Added default user ' + user[0].username + ' with password ' + user[0].password);
+        } else {
+            console.log('Database: Default user ' + user.ename + ' exists with password ' + user.epass);
+        }
     });
 }
 
@@ -193,6 +197,8 @@ function addUser(data, cb) {
                             cb(doc); // I don't know what gets sent here, but do it anyway!
                         }
                     });
+                } else {
+                    cb({ename: doc.username, epass: doc.password});
                 }
             });
         });
