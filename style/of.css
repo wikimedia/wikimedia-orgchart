@@ -62,6 +62,10 @@ body>div.jOrgChart {
     min-height: 70px;
 }
 
+.of-unit-details:hover .of-title-name, .shown .of-title-name, .shown-temp .of-title-name {
+    min-height: 0px;
+}
+
 .of-all-others {
     display: none;
 }
