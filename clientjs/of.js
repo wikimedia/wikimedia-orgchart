@@ -31,7 +31,7 @@ var orgForm = function () {
         var name = $('.of-unit-name', $node).html().length;
         var title = $('.of-unit-title', $node).html().length;
         var status = $('.of-unit-status', $node).html().length;
-        
+
         var longest = name > title ? name : title;
         longest = longest > status ? longest : status;
         $node.css('width', (9*longest)+'px');
@@ -285,7 +285,16 @@ var orgForm = function () {
                     $loc.css('color', locs.other);
                 }
                 $loc.html(data.location);
+                var loccode = '';
+                if (data.loccode && data.loccode != '') {
+                    loccode = data.loccode;
+                } else {
+                    loccode = data.location.replace(/[a-z ]/g, '').slice(0,2);
+                }
+                $('span.of-unit-lc', $tc).html(loccode);
+
                 $('input.of-unit-loc', $tc).attr('value', data.location);
+                $('input.of-unit-lc', $tc).attr('value', loccode);
             } else {
                 $loc.parent('p').css('display', 'none');
             }

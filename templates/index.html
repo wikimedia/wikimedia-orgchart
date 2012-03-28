@@ -41,6 +41,7 @@
       </ul>
       <li class="of-unit-box">
         <div class="of-unit-details">
+          <span class="of-unit-lc"></span>
           <div class="of-unit-collapsed">
             <p></p>
           </div>
@@ -48,11 +49,11 @@
             <div class="of-title-name">
               <p class="of-unit-title"></p>
               <p class="of-unit-name"></p>
-              <p>(<span class="of-unit-loc"></span>)</p>
               <span class="of-unit-type"></span>
             </div>
             <div class="of-all-others">
-              <p class="of-unit-status-container"><span class="of-unit-status"></span><button class="of-unit-edit hide-until-logged">Edit</button></p>
+              <p>(<span class="of-unit-loc"></span>)</p>
+              <p class="of-unit-status-container"><span class="of-unit-status"></span></p>
               <p class="of-req-num">Requisition Number: <span class="of-unit-reqn"></span></p>
               <p class="of-start-date">Start Date: <span class="of-unit-start"></span></p>
               <p class="of-end-date">End Date: <span class="of-unit-end"></span></p>
@@ -60,6 +61,7 @@
               <p><button class="of-unit-add-child hide-until-logged">Add Report</button></p>
               <p><button class="of-unit-remove-node hide-until-logged">Delete this Node</button></p>
               <span class="of-unit-show" />
+              <button class="of-unit-edit hide-until-logged">Edit</button>
             </div>
           </div>
           <div class="of-unit-delete-confirm">
@@ -83,6 +85,7 @@
               </p>
               <p><label>Name<br /><input name="name" class="of-unit-name" type="text" /></label></p>
               <p><label>Physical Location<br /><input name="location" class="of-unit-loc" type="text" /></label></p>
+              <p><label>Location Code<br /><input name="loccode" class="of-unit-lc" type="text" /></label></p>
               <p><label>Requsition Number<br /><input name="reqn" class="of-unit-reqn" type="text" /></label></p>
               <p><label>Start Date<br /><input name="start" class="of-unit-start" type="text" /></label></p>
               <p><label>End Date<br /><input name="end" class="of-unit-end" type="text" /></label></p>

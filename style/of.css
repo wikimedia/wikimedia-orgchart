@@ -1,5 +1,6 @@
 body {
     background-color: #ebf3f6;
+    font-face: arial;
 }
 
 #of-filter-menu {
@@ -59,7 +60,7 @@ body>div.jOrgChart {
 }
 
 .of-title-name {
-    min-height: 70px;
+    min-height: 55px;
 }
 
 .of-unit-details:hover .of-title-name, .shown .of-title-name, .shown-temp .of-title-name {
@@ -156,6 +157,19 @@ body>div.jOrgChart {
 
 .of-unit-edit-form, .of-unit-delete-confirm, .of-unit-collapsed {
     display: none;
+}
+
+.of-unit-lc {
+    position: absolute;
+    color: white;
+    font-size: 0.8em;
+    font-weight: bold;
+    height: 30px;
+    width: 18px;
+    text-align: center;
+    background-color: #00649c;
+    right: 10px;
+    top: -10px;
 }
 
 .of-unit-type:before {
