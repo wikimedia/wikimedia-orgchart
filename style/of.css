@@ -103,6 +103,12 @@ body>div.jOrgChart {
 
 .of-unit-edit {
     position: absolute;
+    bottom: 80px;
+    right: -7px;
+}
+
+.of-unit-zoom {
+    position: absolute;
     bottom: 40px;
     right: -7px;
 }

@@ -157,6 +157,17 @@ var orgForm = function () {
             dataType: 'json',
         });
         
+        if (level) {
+            $('.of-unit-zoom', $node).click(function () {
+                refreshChart($('li#'+$(this).closest('.of-unit-box').attr('id')));
+            });
+        } else {
+            $('.of-unit-zoom', $node).html('Full chart');
+            $('.of-unit-zoom', $node).click(function () {
+                refreshChart($of);
+            });
+        }
+
         $('.of-unit-cancel-edit', $node).click(function () {
             var $this = $(this);
             var $unit = $this.closest('.of-unit-details');
