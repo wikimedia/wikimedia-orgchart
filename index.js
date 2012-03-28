@@ -22,5 +22,7 @@ handle["/jorgchart.css"] = requestHandlers.jorgchartstyle;
 handle["/login"] = requestHandlers.login;
 handle["/logout"] = requestHandlers.logout;
 handle["/isLogged"] = requestHandlers.isLogged;
+handle["/pin-pinned.png"] = requestHandlers.pinpinned;
+handle["/pin-lifted.png"] = requestHandlers.pinlifted;
 
 server.start(router.route, handle);

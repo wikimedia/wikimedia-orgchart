@@ -43,22 +43,23 @@ body>div.jOrgChart {
     display: none;
 }
 
-.of-title-name {
-    padding-bottom: 200px;
-}
-
 .of-unit-box {
     position: relative;
-    height: 75px;
+}
+
+.of-unit-view {
+    position: relative;
 }
 
 .of-unit-details {
     border: 1px solid #979998;
     border-radius: 5px;
     padding: 10px;
-    height: 80%;
-    overflow: hidden;
     background-color: #fefffd;
+}
+
+.of-all-others {
+    display: none;
 }
 
 .of-unit-add-child, .of-unit-remove-node {
@@ -72,12 +73,14 @@ body>div.jOrgChart {
 }
 
 .of-unit-show {
+    position: absolute;
     display: none;
+    cursor: pointer;
     background-image: url("/pin-lifted.png");
-    background-color: red;
-    width: 20px;
-    height: 20px;
-    float: right;
+    width: 33px;
+    height: 33px;
+    bottom: 5px;
+    right: 5px;
 }
 
 .of-unit-details:hover .of-unit-show, .of-unit-details.shown .of-unit-show {
@@ -101,8 +104,8 @@ body>div.jOrgChart {
     float: right;
 }
 
-.of-unit-details:hover, .shown, .shown-temp {
-    height: auto;
+.of-unit-details:hover .of-all-others, .shown .of-all-others, .shown-temp .of-all-others {
+    display: block;
 }
 
 .of-unit-details:hover .of-title-name, .shown .of-title-name, .shown-temp .of-title-name {
@@ -151,8 +154,8 @@ body>div.jOrgChart {
 
 .of-unit-type:before {
     position: absolute;
-    left: 15px;
-    top: 60px;
+    left: 5px;
+    bottom: 5px;
     content: "V";
     width: 1em;
     height: 1em;

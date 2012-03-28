@@ -206,6 +206,14 @@ function jorgchart(response) {
     respondWithFile(response, 'clientjs/jquery.jorgchart.js', 'text/javascript');
 }
 
+function pinlifted(response) {
+    respondWithFile(response, 'images/pin-lifted.png', 'image/png');
+}
+
+function pinpinned(response) {
+    respondWithFile(response, 'images/pin-pinned.png', 'image/png');
+}
+
 exports.modify = modify;
 exports.add = add;
 exports.style = style;
@@ -224,3 +232,5 @@ exports.login = login;
 exports.logout = logout;
 exports.isLogged = isLogged;
 exports.remove = remove;
+exports.pinlifted = pinlifted;
+exports.pinpinned = pinpinned;
