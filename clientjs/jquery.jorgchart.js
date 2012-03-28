@@ -195,9 +195,17 @@
         callbackFunction = $.noop;
     }
 
+    var exceptClass = opts.except;
+    if (!exceptClass || typeof exceptClass != typeof 'string' || exceptClass == '') {
+        exceptClass = false;
+    }
+
     if($childNodes.length > 1) {
       $nodeCell.attr("colspan", $childNodes.length * 2);
+    } else if ($childNodes.length <= 0 && exceptClass && $node.hasClass(exceptClass)) {
+      return;
     }
+
     // Draw the node
     // Get the contents - any markup except li and ul allowed
     var $nodeContent = $node.clone()
@@ -247,16 +255,23 @@
         $downLineRow.append($downLineCell);
         
         // draw the connecting line from the parent node to the horizontal line 
-        $downLine = $("<div></div>").addClass("line down");
-        $downLineCell.append($downLine);
-        $tbody.append($downLineRow);
+        if (!exceptClass || !$childNodes.hasClass(exceptClass) || $childNodes.children("ul:first").children("li").length > 0) {
+            $downLine = $("<div></div>").addClass("line down");
+            $downLineCell.append($downLine);
+            $tbody.append($downLineRow);
+        }
 
         // Draw the horizontal lines
         var $linesRow = $("<tr/>");
         $childNodes.each(function() {
-          var $left = $("<td>&nbsp;</td>").addClass("line left top");
-          var $right = $("<td>&nbsp;</td>").addClass("line right top");
-          $linesRow.append($left).append($right);
+          var $cnode = $(this);
+          if (exceptClass && $cnode.hasClass(exceptClass) && $cnode.children("ul:first").children("li").length <= 0) {
+              return;
+          } else {
+              var $left = $("<td>&nbsp;</td>").addClass("line left top");
+              var $right = $("<td>&nbsp;</td>").addClass("line right top");
+              $linesRow.append($left).append($right);
+          }
         });
 
         // horizontal line shouldn't extend beyond the first and last child branches
@@ -269,11 +284,16 @@
         $tbody.append($linesRow);
         var $childNodesRow = $("<tr/>");
         $childNodes.each(function() {
-           var $td = $("<td class='node-container'/>");
-           $td.attr("colspan", 2);
-           // recurse through children lists and items
-           buildNode($(this), $td, level+1, opts);
-           $childNodesRow.append($td);
+            var $cnode = $(this);
+            if (exceptClass && $cnode.hasClass(exceptClass) && $cnode.children("ul:first").children("li").length <= 0) {
+                return;
+            } else {
+                var $td = $("<td class='node-container'/>");
+                $td.attr("colspan", 2);
+                // recurse through children lists and items
+                buildNode($(this), $td, level+1, opts);
+                $childNodesRow.append($td);
+            }
         });
 
       }

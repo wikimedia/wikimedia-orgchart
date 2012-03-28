@@ -8,6 +8,8 @@ var orgForm = function () {
     var waiting = [];
     var session = {logged: false};
     var isLogged = false;
+    var $of = $('#of-org-form');
+
     $ucreate.attr('class', 'of-unit-create');
 
     $.get('/isLogged', function (data) {
@@ -76,7 +78,6 @@ var orgForm = function () {
         $dform.ajaxForm({
             success: function (data) {
                 if (data && data.success) {
-                    var $of = $('#of-org-form');
                     var $dnode = $('li#'+$node.attr('id'), $of);
                     var $clist = $('.of-unit-listing', $dnode);
                     if ($clist && $clist.length != 0 && $clist.children('li').length != 0) {
@@ -195,7 +196,6 @@ var orgForm = function () {
     }
 
     function addTo(data, childlist, $parent, checkLog) {
-        var $of = $('#of-org-form');
         if (data && data.title) {
             childlist = childlist || [];
             if (data && data._id) {
@@ -338,7 +338,8 @@ var orgForm = function () {
         $('.jOrgChart').remove();
         $data.jOrgChart({highlightParent: true,
                          collapse: false,
-                         cb: postAdd});
+                         cb: postAdd,
+                         except: 'render-except'});
     }
 
     function handleData(data, ddata) {
@@ -377,6 +378,7 @@ var orgForm = function () {
         if (ison) {
             $vacancies.each(function () {
                 var $node = $(this);
+                $node.removeClass('render-except');
                 $('.of-unit-view', $node).css('display','block');
                 $('.of-unit-collapsed', $node).css('display','none');
                 $node.css('width', '250px');
@@ -385,12 +387,14 @@ var orgForm = function () {
         } else {
             $vacancies.each(function () {
                 var $node = $(this);
+                $node.addClass('render-except');
                 $('.of-unit-view', $node).css('display','none');
                 $('.of-unit-collapsed', $node).css('display','block');
                 $node.css('width', '5px');
                 $node.css('height', 'auto');
             });
         }
+        refreshChart($of);
     });
 
     $('#of-filter-contract').change(function () {
@@ -400,6 +404,7 @@ var orgForm = function () {
         if (ison) {
             $contractors.each(function () {
                 var $node = $(this);
+                $node.removeClass('render-except');
                 $('.of-unit-view', $node).css('display','block');
                 $('.of-unit-collapsed', $node).css('display','none');
                 $node.css('width', '250px');
@@ -408,12 +413,14 @@ var orgForm = function () {
         } else {
             $contractors.each(function () {
                 var $node = $(this);
+                $node.addClass('render-except');
                 $('.of-unit-view', $node).css('display','none');
                 $('.of-unit-collapsed', $node).css('display','block');
                 $node.css('width', '5px');
                 $node.css('height', 'auto');
             });
         }
+        refreshChart($of);
     });
 
     $('#of-filter-employee').change(function () {
@@ -423,6 +430,7 @@ var orgForm = function () {
         if (ison) {
             $employees.each(function () {
                 var $node = $(this);
+                $node.removeClass('render-except');
                 $('.of-unit-view', $node).css('display','block');
                 $('.of-unit-collapsed', $node).css('display','none');
                 $node.css('width', '250px');
@@ -431,12 +439,14 @@ var orgForm = function () {
         } else {
             $employees.each(function () {
                 var $node = $(this);
+                $node.addClass('render-except');
                 $('.of-unit-view', $node).css('display','none');
                 $('.of-unit-collapsed', $node).css('display','block');
                 $node.css('width', '5px');
                 $node.css('height', 'auto');
             });
         }
+        refreshChart($of);
     });
 
     $('#of-expand-all').change(function () {
