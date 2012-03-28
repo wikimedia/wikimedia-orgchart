@@ -278,25 +278,30 @@ var orgForm = function () {
             }
 
             var $loc = $('span.of-unit-loc', $tc);
+            var $locc = $('span.of-unit-lc', $tc);
+
             if (data.location && data.location != '') {
                 if (locs[data.location]) {
                     $loc.css('color', locs[data.location]);
+                    $locc.css('background-color', locs[data.location]);
                 } else {
                     $loc.css('color', locs.other);
+                    $locc.css('background-color', locs.other);
                 }
                 $loc.html(data.location);
                 var loccode = '';
                 if (data.loccode && data.loccode != '') {
-                    loccode = data.loccode;
+                    loccode = data.loccode.slice(0,2);
                 } else {
                     loccode = data.location.replace(/[a-z ]/g, '').slice(0,2);
                 }
-                $('span.of-unit-lc', $tc).html(loccode);
+                $locc.html(loccode);
 
                 $('input.of-unit-loc', $tc).attr('value', data.location);
                 $('input.of-unit-lc', $tc).attr('value', loccode);
             } else {
                 $loc.parent('p').css('display', 'none');
+                $locc.css('display', 'none');
             }
 
             $ulist.append($tc);

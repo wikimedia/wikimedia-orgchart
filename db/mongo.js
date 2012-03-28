@@ -1,7 +1,7 @@
 var mgdb = require('mongodb');
 var crypto = require('crypto');
 
-var colors = ['#59c840','#aab31a','#3070ac','#886644'],
+var colors = ['#006699','#5e5e5e','#969898','#886644'],
 locs = {},
 db = new mgdb.Db('orgcharts', new mgdb.Server('127.0.0.1', 27017, {})),
 ObjectId = mgdb.ObjectID,
