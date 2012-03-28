@@ -58,6 +58,10 @@ body>div.jOrgChart {
     background-color: #fefffd;
 }
 
+.of-title-name {
+    min-height: 70px;
+}
+
 .of-all-others {
     display: none;
 }
@@ -108,10 +112,6 @@ body>div.jOrgChart {
 
 .of-unit-details:hover .of-all-others, .shown .of-all-others, .shown-temp .of-all-others {
     display: block;
-}
-
-.of-unit-details:hover .of-title-name, .shown .of-title-name, .shown-temp .of-title-name {
-    padding-bottom: 0px;
 }
 
 .of-unit-details:hover .of-unit-type:before, .shown .of-unit-type:before, .shown-temp .of-unit-type:before {
