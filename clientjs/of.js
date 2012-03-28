@@ -35,14 +35,12 @@ var orgForm = function () {
         $node.css('width', (9*longest)+'px');
         
         $('.of-unit-show', $node).click(function () {
-            var $this = $(this);
-            var state = $this.html();
-            if (state == '+') {
-                $this.closest('.of-unit-details').addClass('shown');
-                $this.html('-');
-            } else {
+            var $this = $(this).closest('.of-unit-details');
+            var state = $this.hasClass('shown');
+            if (state) {
                 $this.closest('.of-unit-details').removeClass('shown');
-                $this.html('+');
+            } else {
+                $this.closest('.of-unit-details').addClass('shown');
             }
         });
         
@@ -430,10 +428,8 @@ var orgForm = function () {
         var ison = $this.is(':checked');
         if (ison) {
             $('.of-unit-details').addClass('shown');
-            $('.of-unit-show').html('-');
         } else {
             $('.of-unit-details').removeClass('shown');
-            $('.of-unit-show').html('+');
         }
     });
 
