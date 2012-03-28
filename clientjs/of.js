@@ -30,8 +30,10 @@ var orgForm = function () {
 
         var name = $('.of-unit-name', $node).html().length;
         var title = $('.of-unit-title', $node).html().length;
+        var status = $('.of-unit-status', $node).html().length;
         
         var longest = name > title ? name : title;
+        longest = longest > status ? longest : status;
         $node.css('width', (9*longest)+'px');
         
         $('.of-unit-show', $node).click(function () {

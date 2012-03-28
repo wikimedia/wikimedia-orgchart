@@ -92,7 +92,9 @@ body>div.jOrgChart {
 }
 
 .of-unit-edit {
-    float: right;
+    position: absolute;
+    bottom: 2px;
+    left: 2px;
 }
 
 .of-req-num {
