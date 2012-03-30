@@ -207,7 +207,7 @@ var orgForm = function () {
     }
 
     function addTo(data, childlist, $parent, checkLog) {
-        if (data && data.title) {
+        if (data && (data.title || data.name || data.location || data.hours || data.reqn || data.status)) {
             childlist = childlist || [];
             if (data && data._id) {
                 data.index = data._id;
