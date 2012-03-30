@@ -332,7 +332,11 @@ var orgForm = function () {
                     });
                 }
             } else if (waiting.length == 0) {
-                refreshChart($of);
+                if (document.location.hash == '') {
+                    refreshChart($of);
+                } else {
+                    refreshChart($(document.location.hash));
+                }
                 if (checkLog) {
                     if (isLogged) {
                         $('.hide-until-logged').css('display', 'block');
@@ -350,6 +354,14 @@ var orgForm = function () {
 
     function refreshChart($data) {
         $curzm = $data;
+        var czm = $curzm.attr('id');
+        if (czm == $of.attr('id')) {
+            document.location.hash = '';
+            $('#of-zoom-out').attr('disabled', 'disabled');
+        } else {
+            document.location.hash = czm;
+            $('#of-zoom-out').removeAttr('disabled');
+        }
         $('.jOrgChart').remove();
         $data.jOrgChart({highlightParent: true,
                          collapse: false,
@@ -384,6 +396,10 @@ var orgForm = function () {
                 handleData(data.list, ddata);
             });
         }
+    });
+
+    $('#of-zoom-out').click(function () {
+        refreshChart($of);
     });
 
     $('#of-filter-vacant').change(function () {
