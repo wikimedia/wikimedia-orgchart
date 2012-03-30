@@ -9,6 +9,7 @@ var orgForm = function () {
     var session = {logged: false};
     var isLogged = false;
     var $of = $('#of-org-form');
+    var $curzm = $of;
 
     $ucreate.attr('class', 'of-unit-create');
 
@@ -87,7 +88,7 @@ var orgForm = function () {
                         });
                     }
                     $dnode.remove();
-                    refreshChart($of);
+                    refreshChart($curzm);
                 }
             },
             dataType: 'json'});
@@ -98,6 +99,7 @@ var orgForm = function () {
             success: function (data) {
                 if (data.success) {
                     var $unit = $('div#of-unit-box-for-'+data.unit._id+' .of-unit-details');
+                    $unit.removeClass('shown-temp');
                     var u = data.unit;
                     $('.of-unit-view', $unit).css('display','block');
                     $('.of-unit-edit-form', $unit).css('display','none');
@@ -197,6 +199,7 @@ var orgForm = function () {
 
             $cform.ajaxForm({
                 success: function (data) {
+                    $unit.removeClass('shown-temp');
                     $tcreate.remove();
                     $uv.css('display','block');
                     addTo(data.unit[0]);
@@ -346,6 +349,7 @@ var orgForm = function () {
     }
 
     function refreshChart($data) {
+        $curzm = $data;
         $('.jOrgChart').remove();
         $data.jOrgChart({highlightParent: true,
                          collapse: false,
@@ -405,7 +409,7 @@ var orgForm = function () {
                 $node.css('height', 'auto');
             });
         }
-        refreshChart($of);
+        refreshChart($curzm);
     });
 
     $('#of-filter-contract').change(function () {
@@ -431,7 +435,7 @@ var orgForm = function () {
                 $node.css('height', 'auto');
             });
         }
-        refreshChart($of);
+        refreshChart($curzm);
     });
 
     $('#of-filter-employee').change(function () {
@@ -457,7 +461,7 @@ var orgForm = function () {
                 $node.css('height', 'auto');
             });
         }
-        refreshChart($of);
+        refreshChart($curzm);
     });
 
     $('#of-expand-all').change(function () {
