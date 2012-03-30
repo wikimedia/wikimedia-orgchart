@@ -23,15 +23,22 @@
       <label><input type="checkbox" id="of-filter-employee" checked="checked" /> Show employees</label><br />
       <button id="of-zoom-out" disabled="disabled">Zoom out</button><br />
     </div>
-    <div id="of-login-form">
-      <div id="of-login-form-in" class="hide-when-logged">
+    <div id="of-login-form" class="login">
+      <div id="of-login-form-tip">
+        <p>[login]</p>
+      </div>
+      <div id="of-logout-form-tip">
+        <p>[logout]</p>
+      </div>
+      <div id="of-login-form-in">
         <form action="/login" method="POST">
           <p><label>Username <input type="text" name="username" /></label></p>
           <p><label>Password <input type="password" name="password" /></label></p>
           <p><input type="submit" value="Login" /></p>
+          <span class="of-login-show"></span>
         </form>
       </div>
-      <div id="of-login-form-out" class="hide-until-logged">
+      <div id="of-login-form-out">
         <form action="/logout" method="POST">
           <p><input type="submit" value="Logout" /></p>
         </form>
@@ -54,11 +61,10 @@
             </div>
             <div class="of-all-others">
               <p>(<span class="of-unit-loc"></span>)</p>
-              <p class="of-unit-status-container"><span class="of-unit-status"></span></p>
               <p class="of-req-num">Requisition Number: <span class="of-unit-reqn"></span></p>
               <p class="of-start-date">Start Date: <span class="of-unit-start"></span></p>
               <p class="of-end-date">End Date: <span class="of-unit-end"></span></p>
-              <p class="of-hours-weekly">Hours Per Week: <span class="of-unit-hrs"></span></p>
+              <p class="of-hours-weekly">Hours: <span class="of-unit-hrs"></span></p>
               <p><button class="of-unit-add-child hide-until-logged">Add Report</button></p>
               <p><button class="of-unit-remove-node hide-until-logged">Delete this Node</button></p>
               <span class="of-unit-show"></span>

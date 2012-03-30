@@ -17,10 +17,23 @@ var orgForm = function () {
         if (data.isLogged) {
             $('.hide-until-logged').css('display', 'block');
             $('.hide-when-logged').css('display', 'none');
+            $('#of-login-form').removeClass('login');
+            $('#of-login-form').addClass('logout');
             isLogged = true;
         } else {
             $('.hide-until-logged').css('display', 'none');
             $('.hide-when-logged').css('display', 'block');
+            $('#of-login-form').removeClass('logout');
+            $('#of-login-form').addClass('login');
+        }
+    });
+
+    $('.of-login-show').click(function () {
+        var $lfrm = $('#of-login-form');
+        if ($lfrm.hasClass('shown')) {
+            $lfrm.removeClass('shown');
+        } else {
+            $lfrm.addClass('shown');
         }
     });
 
@@ -31,13 +44,13 @@ var orgForm = function () {
     function postAdd($node, level) {
         $node.css('z-index', 29-level);
 
-        var name = $('.of-unit-name', $node).html().length;
-        var title = $('.of-unit-title', $node).html().length;
-        var status = $('.of-unit-status', $node).html().length;
+        // var name = $('.of-unit-name', $node).html().length;
+        // var title = $('.of-unit-title', $node).html().length;
+        // var status = $('.of-unit-status', $node).html().length;
 
-        var longest = name > title ? name : title;
-        longest = longest > status ? longest : status;
-        $node.css('width', (9*longest)+'px');
+        // var longest = name > title ? name : title;
+        // longest = longest > status ? longest : status;
+        // $node.css('width', (9*longest)+'px');
         
         $('.of-unit-show', $node).click(function () {
             var $this = $(this).closest('.of-unit-details');
@@ -109,9 +122,6 @@ var orgForm = function () {
                         $name.html(u.name);
                         $('input.of-unit-name', $unit).val(u.name);
                     }
-                    if (u.name == '') {
-                        $('.of-unit-status', $unit).html('This position is vacant.');
-                    }
                     var $title = $('span.of-unit-title', $unit);
                     if (u.title && u.title != $title.html()) {
                         $title.html(u.title);
@@ -121,6 +131,11 @@ var orgForm = function () {
                     if (u.location && u.location != $uloc.html()) {
                         $uloc.html(u.location);
                         $('input.of-unit-loc', $unit).val(u.location);
+                    }
+                    var $ulc = $('span.of-unit-lc', $unit);
+                    if (u.lc && u.lc != $ulc.html()) {
+                        $ulc.html(u.lc);
+                        $('input.of-unit-lc', $unit).val(u.lc);
                     }
                     var $reqn = $('span.of-unit-reqn', $unit);
                     if (u.reqn && u.reqn != $reqn.html()) {
@@ -222,15 +237,12 @@ var orgForm = function () {
             var $tc = $tunit.clone();
             var estat = data.status.toLowerCase();
             if (!data.name || data.name == '') {
-                $('.of-unit-status', $tc).html('This position is open');
                 $tc.addClass('vacancy');
             } else if (estat == 'employee') {
-                $('.of-unit-status', $tc).html('Status: Employee');
                 $tc.addClass(estat);
                 $('option[value='+estat+']', $tc).attr('selected', 'selected');
             } else {
                 estat = 'contractor';
-                $('.of-unit-status', $tc).html('Status: Independent contractor');
                 $tc.addClass(estat);
                 $('option[value='+estat+']', $tc).attr('selected', 'selected');
             }
@@ -341,9 +353,13 @@ var orgForm = function () {
                     if (isLogged) {
                         $('.hide-until-logged').css('display', 'block');
                         $('.hide-when-logged').css('display', 'none');
+                        $('#of-login-form').removeClass('login');
+                        $('#of-login-form').addClass('logout');
                     } else {
                         $('.hide-until-logged').css('display', 'none');
                         $('.hide-when-logged').css('display', 'block');
+                        $('#of-login-form').removeClass('logout');
+                        $('#of-login-form').addClass('login');
                     }
                 }
             }
@@ -497,6 +513,8 @@ var orgForm = function () {
                 session.name = data.name;
                 $('.hide-until-logged').css('display', 'block');
                 $('.hide-when-logged').css('display', 'none');
+                $('#of-login-form').removeClass('login');
+                $('#of-login-form').addClass('logout');
             }
         },
         dataType: 'json'});
@@ -508,6 +526,8 @@ var orgForm = function () {
                 delete session.name;
                 $('.hide-until-logged').css('display', 'none');
                 $('.hide-when-logged').css('display', 'block');
+                $('#of-login-form').removeClass('logout');
+                $('#of-login-form').addClass('login');
             }
         },
         dataType: 'json'});

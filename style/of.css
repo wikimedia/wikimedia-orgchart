@@ -24,7 +24,6 @@ body {
     border: 1px solid #979998;
     border-radius: 5px;
     padding: 10px;
-    width: 250px;
     background-color: #fefffd;
     position: fixed;
     left: 10px;
@@ -32,7 +31,35 @@ body {
     text-align: center;
 }
 
+#of-login-form.login #of-logout-form-tip {
+    display: none;
+}
+
+#of-login-form.logout #of-login-form-tip {
+    display: none;
+}
+
+#of-login-form-in {
+    display: none;
+}
+
+#of-login-form.login:hover #of-login-form-in, #of-login-form.login.shown #of-login-form-in {
+    display: block;
+}
+
+#of-login-form.login:hover #of-login-form-tip, #of-login-form.login.shown #of-login-form-tip {
+    display: none;
+}
+
 #of-login-form-out {
+    display: none;
+}
+
+#of-login-form.logout:hover #of-login-form-out, #of-login-form.logout.shown #of-login-form-out {
+    display: block;
+}
+
+#of-login-form.logout:hover #of-logout-form-tip, #of-login-form.logout.shown #of-logout-form-tip {
     display: none;
 }
 
@@ -82,7 +109,7 @@ body>div.jOrgChart {
     border: 1px dashed;
 }
 
-.of-unit-show {
+.of-unit-show, .of-login-show {
     position: absolute;
     display: none;
     cursor: pointer;
@@ -93,11 +120,11 @@ body>div.jOrgChart {
     right: 5px;
 }
 
-.of-unit-details:hover .of-unit-show, .of-unit-details.shown .of-unit-show {
+.of-unit-details:hover .of-unit-show, .of-unit-details.shown .of-unit-show, #of-login-form:hover .of-login-show, #of-login-form.shown .of-login-show {
     display: block;
 }
 
-.of-unit-details.shown .of-unit-show {
+.of-unit-details.shown .of-unit-show, #of-login-form.shown .of-login-show {
     background-image: url("/pin-pinned.png");
 }
 
@@ -127,7 +154,7 @@ body>div.jOrgChart {
 }
 
 .of-unit-details:hover .of-unit-type:before, .shown .of-unit-type:before, .shown-temp .of-unit-type:before {
-    display: none;
+    display: block;
 }
 
 .of-unit-status-container {
@@ -147,7 +174,7 @@ body>div.jOrgChart {
 }
 
 .of-unit-box.fulltime .of-hours-weekly {
-    color: rgba(0,255,0,1);
+    color: black;
 }
 
 .of-unit-box.parttime .of-hours-weekly {
@@ -169,7 +196,7 @@ body>div.jOrgChart {
 span.of-unit-lc {
     position: absolute;
     color: white;
-    font-size: 0.8em;
+    font-size: 1em;
     font-weight: bold;
     height: 30px;
     width: 20px;
@@ -180,9 +207,10 @@ span.of-unit-lc {
 }
 
 .of-unit-type:before {
+    display: none;
     position: absolute;
     right: 5px;
-    bottom: 5px;
+    top: 25px;
     content: "V";
     width: 1em;
     height: 1em;
@@ -205,3 +233,10 @@ span.of-unit-lc {
     border-color: #9c0e0c;
 }
 
+.of-unit-box.shown, .of-unit-box:hover, .of-unit-box.shown-temp {
+    color: black !important;
+}
+
+.of-unit-box.shown .of-unit-loc, .of-unit-box:hover .of-unit-loc, .of-unit-box.shown-temp .of-unit-loc {
+    color: black !important;
+}
