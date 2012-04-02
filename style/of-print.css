@@ -1,72 +1,31 @@
-#of-filter-menu {
+#of-login-form, #of-filter-menu, .hide-until-logged, .of-unit-zoom, .of-unit-show {
+    display: none !important;
+}
+
+#title-container {
+    width: auto;
+}
+
+div.jOrgChart {
     display: none;
 }
 
 #of-org-form {
-    margin-left: -30px;
+    clear: both;
+    display: block;
 }
 
-#of-org-form, .of-unit-listing {
-    margin-top: 5px;
-    margin-bottom: 5px;
+ul {
     list-style: none;
 }
 
 .of-unit-listing {
-    list-style: none;
-    border-left: 1px solid;
-    margin-left: 15px;
-    padding-left: 15px;
+    border-left: 1px solid black;
+    margin-top: 15px;
 }
 
-.of-unit-listing.super-select {
-    border-left: 1px solid white;
-}
-
-.of-title-name {
-    padding-bottom: 10px;
-}
-
-.of-unit-box {
-    width: 600px;
-}
-
-.of-unit-details {
-    border: 1px solid;
-    border-radius: 5px;
-    padding: 10px;
-    height: 25px;
-    overflow: hidden;
-}
-
-.of-unit-details.noreqn {
-    border: 1px dashed;
-}
-
-.of-unit-show {
-    display: none;
-}
-
-.of-unit-name {
-    font-weight: bold;
-}
-
-.of-unit-box p {
-    margin: 1px;
-}
-
-.of-unit-box.fulltime .of-hours-weekly {
-    color: rgba(0,255,0,1);
-}
-
-.of-unit-box.parttime .of-hours-weekly {
-    color: rgba(255,100,0,1);
-}
-
-.of-unit-box.veryparttime .of-hours-weekly {
-    color: rgba(255,0,0,1);
-}
-
-.of-unit-box.hidden>.of-unit-details {
-    display: none;
+li {
+    margin-bottom: 15px;
+    min-width: 200px;
+    max-width: 300px;
 }
