@@ -52,7 +52,8 @@
 /* The node */
 .jOrgChart .node {
   display               : inline-block;
-  min-width             : 250px;
+  min-width             : 200px;
+  max-width             : 250px;
   height                : 75px;
   z-index 		: 10;
   margin                : 0 2px;

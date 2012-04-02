@@ -93,6 +93,10 @@ body>div.jOrgChart {
     min-height: 55px;
 }
 
+.of-unit-details:hover .of-unit-view, .shown .of-unit-view {
+    width: 80%;
+}
+
 .of-unit-details:hover .of-title-name, .shown .of-title-name, .shown-temp .of-title-name {
     min-height: 0px;
 }
@@ -102,7 +106,7 @@ body>div.jOrgChart {
 }
 
 .of-unit-add-child, .of-unit-remove-node {
-    width: 120px;
+    width: 80px;
 }
 
 .of-unit-details.noreqn {
@@ -117,7 +121,7 @@ body>div.jOrgChart {
     width: 33px;
     height: 33px;
     bottom: 5px;
-    right: 5px;
+    right: -35px;
 }
 
 .of-unit-details:hover .of-unit-show, .of-unit-details.shown .of-unit-show, #of-login-form:hover .of-login-show, #of-login-form.shown .of-login-show {
@@ -131,13 +135,13 @@ body>div.jOrgChart {
 .of-unit-edit {
     position: absolute;
     bottom: 80px;
-    right: -7px;
+    right: -47px;
 }
 
 .of-unit-zoom {
     position: absolute;
     bottom: 40px;
-    right: -7px;
+    right: -47px;
 }
 
 .of-req-num {
@@ -209,7 +213,7 @@ span.of-unit-lc {
 .of-unit-type:before {
     display: none;
     position: absolute;
-    right: 5px;
+    right: -35px;
     top: 25px;
     content: "V";
     width: 1em;
@@ -233,10 +237,10 @@ span.of-unit-lc {
     border-color: #9c0e0c;
 }
 
-.of-unit-box.shown, .of-unit-box:hover, .of-unit-box.shown-temp {
+.shown, .of-unit-box:hover, .shown-temp {
     color: black !important;
 }
 
-.of-unit-box.shown .of-unit-loc, .of-unit-box:hover .of-unit-loc, .of-unit-box.shown-temp .of-unit-loc {
+.shown .of-unit-loc, .of-unit-box:hover .of-unit-loc, .shown-temp .of-unit-loc {
     color: black !important;
 }
