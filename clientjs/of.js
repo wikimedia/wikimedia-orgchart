@@ -5,6 +5,7 @@ var orgForm = function () {
     var $units = $('#of-org-form');
     var units = {};
     var locs = {};
+    var loccodes = {};
     var waiting = [];
     var session = {logged: false};
     var isLogged = false;
@@ -133,17 +134,21 @@ var orgForm = function () {
                         $('input.of-unit-loc', $unit).val(u.location);
                     }
                     var $ulc = $('span.of-unit-lc', $unit);
-                    if (u.lc && u.lc != $ulc.html()) {
-                        $ulc.html(u.lc);
-                        $('input.of-unit-lc', $unit).val(u.lc);
+                    if (u.loccode && u.loccode != $ulc.html()) {
+                        $ulc.html(u.loccode);
+                        $('input.of-unit-lc', $unit).val(u.loccode);
                     }
                     var $reqn = $('span.of-unit-reqn', $unit);
                     if (u.reqn && u.reqn != $reqn.html()) {
                         $reqn.html(u.reqn);
                         $('input.of-unit-reqn', $unit).val(u.reqn);
                     }
-                    if (u.reqn == '') {
+                    if (!u.reqn || u.reqn == '') {
+                        $unit.addClass('noreqn');
                         $reqn.closest('p').css('display', 'none');
+                    } else {
+                        $reqn.closest('p').css('display', 'block');
+                        $unit.removeClass('noreqn');
                     }
                     var $start = $('span.of-unit-start', $unit);
                     if (u.start && u.start != $start.html()) {
@@ -309,17 +314,22 @@ var orgForm = function () {
             if (data.location && data.location != '') {
                 if (locs[data.location]) {
                     $loc.css('color', locs[data.location]);
-                    $locc.css('background-color', locs[data.location]);
                 } else {
                     $loc.css('color', locs.other);
-                    $locc.css('background-color', locs.other);
+                }
+                if (data.loccode && loccodes[data.loccode]) {
+                    $locc.css('background-color', loccodes[data.loccode]);
+                } else if (data.loccode) {
+                    $locc.css('background-color', loccodes.other);
+                } else {
+                    $locc.css('display', 'none');
                 }
                 $loc.html(data.location);
                 var loccode = '';
                 if (data.loccode && data.loccode != '') {
                     loccode = data.loccode.slice(0,2);
                 } else {
-                    loccode = data.location.replace(/[a-z ]/g, '').slice(0,2);
+                    $locc.css('display', 'none');
                 }
                 $locc.html(loccode);
 
@@ -402,6 +412,7 @@ var orgForm = function () {
     $.get('/list', function (data) {
         units = data.units;
 	locs = data.colors;
+        loccodes = data.codes;
         if (data.org) {
             $('#title').html(data.org);
             $('title').html('Org Chart: ' + data.org);

@@ -3,6 +3,7 @@ var crypto = require('crypto');
 
 var colors = ['#006699','#5e5e5e','#969898','#886644'],
 locs = {},
+loccodes = {},
 db = new mgdb.Db('orgcharts', new mgdb.Server('127.0.0.1', 27017, {})),
 ObjectId = mgdb.ObjectID,
 cols = {},
@@ -90,7 +91,7 @@ function listHierarchy(cb) {
                         cb([]);
                     }
                 } else {
-                    var list = {}, lcount = {}, units = docs;
+                    var list = {}, lcount = {}, lccount = {}, units = docs;
                     list.none = [];
                     for (var ix in docs) {
                         if (!docs[ix].supervisor || docs[ix].supervisor == '') {
@@ -101,19 +102,31 @@ function listHierarchy(cb) {
                             }
                             list[docs[ix].supervisor].push(docs[ix]._id);
                         }
-                        if (lcount[docs[ix].location]) {
+                        if (docs[ix].location && docs[ix].location != '' && lcount[docs[ix].location]) {
                             lcount[docs[ix].location] += 1;
                         } else {
                             lcount[docs[ix].location] = 1;
                         }
+                        if (docs[ix].loccode && docs[ix].loccode != '' && lccount[docs[ix].loccode]) {
+                            lccount[docs[ix].loccode] += 1;
+                        } else if (docs[ix].loccode && docs[ix].loccode != '') {
+                            lccount[docs[ix].loccode] = 1;
+                        }
                     }
-                    var csort = [];
+                    var csort = [], lcsort = [];
                     for (var lx in lcount) {
                         var sx = 0;
                         while (csort[sx] && lcount[csort[sx]] > lcount[lx]) {
                             sx += 1;
                         }
                         csort.splice(sx, 0, lx);
+                    }
+                    for (var lcx in lccount) {
+                        var lccx = 0;
+                        while (lcsort[lccx] && lccount[lcsort[lccx]] > lccount[lcx]) {
+                            lccx += 1;
+                        }
+                        lcsort.splice(lccx, 0, lcx);
                     }
                     for (var lx in csort) {
                         if (lx < colors.length) {
@@ -122,8 +135,16 @@ function listHierarchy(cb) {
                             locs[csort[lx]] = colors[colors.length-1];
                         }
                     }
-                    
+                    for (var lcx in lcsort) {
+                        if (lcx < colors.length) {
+                            loccodes[lcsort[lcx]] = colors[lcx];
+                        } else {
+                            loccodes[lcsort[lcx]] = colors[colors.length-1];
+                        }
+                    }
+
                     locs.other = colors[colors.length-1];
+                    loccodes.other = locs.other;
                     
                     var dunits = {};
                     for (var ux in units) {
@@ -131,7 +152,7 @@ function listHierarchy(cb) {
                         dunits[units[ux]._id] = units[ux];
                     }
                     if (cb && typeof cb == 'function') {
-                        cb(list, locs, dunits);
+                        cb(list, locs, loccodes, dunits);
                     }
                 }
             });

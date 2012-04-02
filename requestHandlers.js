@@ -94,9 +94,9 @@ function upload(response, request) {
 }
 
 function list(response) {
-    db.listHierarchy(function (list, locs, units) {
+    db.listHierarchy(function (list, locs, loccodes, units) {
         response.writeHead(200, {'Content-Type': 'application/json'});
-        response.write(jsonify({list: list, colors: locs, units: units, org: orgName}));
+        response.write(jsonify({list: list, colors: locs, codes: loccodes, units: units, org: orgName}));
         response.end();
     });
 }
