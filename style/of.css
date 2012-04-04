@@ -7,11 +7,22 @@ body {
     border: 1px solid #979998;
     border-radius: 5px;
     padding: 10px;
-    width: 200px;
     background-color: #fefffd;
     position: fixed;
     right: 10px;
     z-index: 30;
+}
+
+#of-filter-menu.shown #of-filter-tip, #of-filter-menu:hover #of-filter-tip {
+    display: none;
+}
+
+#of-filter-menu #of-filter-full {
+    display: none;
+}
+
+#of-filter-menu.shown #of-filter-full, #of-filter-menu:hover #of-filter-full {
+    display: block;
 }
 
 #title-container {
@@ -113,9 +124,8 @@ body>div.jOrgChart {
     border: 1px dashed;
 }
 
-.of-unit-show, .of-login-show {
+.of-unit-show, .of-login-show, .of-filter-show {
     position: absolute;
-    display: none;
     cursor: pointer;
     background-image: url("/pin-lifted.png");
     width: 33px;
@@ -124,11 +134,7 @@ body>div.jOrgChart {
     right: -35px;
 }
 
-.of-unit-details:hover .of-unit-show, .of-unit-details.shown .of-unit-show, #of-login-form:hover .of-login-show, #of-login-form.shown .of-login-show {
-    display: block;
-}
-
-.of-unit-details.shown .of-unit-show, #of-login-form.shown .of-login-show {
+.of-unit-details.shown .of-unit-show, #of-login-form.shown .of-login-show, #of-filter-menu.shown .of-filter-show {
     background-image: url("/pin-pinned.png");
 }
 

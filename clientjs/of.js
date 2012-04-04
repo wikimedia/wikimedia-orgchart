@@ -38,6 +38,15 @@ var orgForm = function () {
         }
     });
 
+    $('.of-filter-show').click(function () {
+        var $lfm = $('#of-filter-menu');
+        if ($lfm.hasClass('shown')) {
+            $lfm.removeClass('shown');
+        } else {
+            $lfm.addClass('shown');
+        }
+    });
+
     function getDetails(uid, cb) {
         cb(units[uid]);
     }
@@ -112,18 +121,19 @@ var orgForm = function () {
         $form.ajaxForm({
             success: function (data) {
                 if (data.success) {
-                    var $unit = $('div#of-unit-box-for-'+data.unit._id+' .of-unit-details');
-                    $unit.removeClass('shown-temp');
+                    var $unit = $('div#of-unit-box-for-'+data.unit._id);
+                    var $ud = $('.of-unit-details', $unit);
+                    $ud.removeClass('shown-temp');
                     var u = data.unit;
                     $('.of-unit-view', $unit).css('display','block');
                     $('.of-unit-edit-form', $unit).css('display','none');
                     
-                    var $name = $('span.of-unit-name', $unit);
+                    var $name = $('p.of-unit-name', $unit);
                     if (u.name && u.name != $name.html()) {
                         $name.html(u.name);
                         $('input.of-unit-name', $unit).val(u.name);
                     }
-                    var $title = $('span.of-unit-title', $unit);
+                    var $title = $('p.of-unit-title', $unit);
                     if (u.title && u.title != $title.html()) {
                         $title.html(u.title);
                         $('input.of-unit-title', $unit).val(u.title);
@@ -134,9 +144,12 @@ var orgForm = function () {
                         $('input.of-unit-loc', $unit).val(u.location);
                     }
                     var $ulc = $('span.of-unit-lc', $unit);
-                    if (u.loccode && u.loccode != $ulc.html()) {
+                    if (u.loccode && u.loccode != $ulc.html() || u.loccode != '') {
+                        $ulc.css('display', 'block');
                         $ulc.html(u.loccode);
                         $('input.of-unit-lc', $unit).val(u.loccode);
+                    } else if (!u.loccode || u.loccode == '') {
+                        $ulc.css('display', 'none');
                     }
                     var $reqn = $('span.of-unit-reqn', $unit);
                     if (u.reqn && u.reqn != $reqn.html()) {
@@ -173,6 +186,11 @@ var orgForm = function () {
                     }
                     if (u.hours == '') {
                         $hours.closest('p').css('display', 'none');
+                    }
+                    var status = $name.html().length ? ($unit.hasClass('employee') ? 'employee' : 'contractor') : 'vacancy';
+                    if (u.status && status != u.status) {
+                        $unit.removeClass(status);
+                        $unit.addClass(u.status.toLowerCase());
                     }
                 }
             },

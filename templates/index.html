@@ -17,18 +17,24 @@
   <body>
     <div id="title-container"><h1 id="title"></h1></div>
     <div id="of-filter-menu">
-      <label><input type="checkbox" id="of-expand-all" /> Expand all</label><br />
-      <label><input type="checkbox" id="of-filter-vacant" checked="checked" /> Show vacancies</label><br />
-      <label><input type="checkbox" id="of-filter-contract" checked="checked" /> Show contractors</label><br />
-      <label><input type="checkbox" id="of-filter-employee" checked="checked" /> Show employees</label><br />
-      <button id="of-zoom-out" disabled="disabled">Zoom out</button><br />
+      <div id="of-filter-tip">
+        <p>filter</p>
+      </div>
+      <div id="of-filter-full">
+        <label><input type="checkbox" id="of-expand-all" /> Expand all</label><br />
+        <label><input type="checkbox" id="of-filter-vacant" checked="checked" /> Show vacancies</label><br />
+        <label><input type="checkbox" id="of-filter-contract" checked="checked" /> Show contractors</label><br />
+        <label><input type="checkbox" id="of-filter-employee" checked="checked" /> Show employees</label><br />
+        <button id="of-zoom-out" disabled="disabled">Zoom out</button><br />
+        <span class="of-filter-show"></span>
+      </div>
     </div>
     <div id="of-login-form" class="login">
       <div id="of-login-form-tip">
-        <p>[login]</p>
+        <p>login</p>
       </div>
       <div id="of-logout-form-tip">
-        <p>[logout]</p>
+        <p>logout</p>
       </div>
       <div id="of-login-form-in">
         <form action="/login" method="POST">
