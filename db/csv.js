@@ -1,3 +1,8 @@
+/* This file is a part of OrgCharts, copyright 2012 The Wikimedia Foundation
+   The contents of this file are licensed under the GPL version 2,
+   which can be found in full at http://www.gnu.org/licenses/gpl-2.0.txt
+   It should also have been bundled with this software. */
+
 var csv = require("csv");
 
 var colors = ['#59c840','#aab31a','#3070ac', '#886644'],
