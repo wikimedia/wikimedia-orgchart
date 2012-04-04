@@ -22,24 +22,31 @@ db.open(function (err, p_client) {
             if (!items || items.length == 0 || items.indexOf(cols[ux]) == -1) {
                 db.createCollection(cols[ux], function (err, col) {
                     colld[col.collectionName] = true;
-                    db.close();
+                    var found = false;
                     for (var cx in cols) {
                         if (!colld[cx]) {
-                            return;
+                            found = true;
                         }
                     }
-                    loaded = true;
-                    console.log('Database ready.');
+                    if (!found) {
+                        db.close();
+                        loaded = true;
+                        console.log('Database ready.');
+                    }
                 });
             } else {
                 colld[ux] = true;
+                var found = false;
                 for (var cx in cols) {
                     if (!colld[cx]) {
-                        return;
+                        found = true;
                     }
                 }
-                loaded = true;
-                console.log('Database ready.');
+                if (!found) {
+                    db.close();
+                    loaded = true;
+                    console.log('Database ready.');
+                }
             }
         }
     });
@@ -161,7 +168,7 @@ function listHierarchy(cb) {
 }
 
 function getUnit(uid, cb) {
-    if (!loaded || looking > 2) {
+    if (!loaded) {
         setTimeout(function () { getUnit(uid, cb); }, 200);
         return;
     }
@@ -280,6 +287,10 @@ function dropCollection(name) {
     });
 }
 
+function closeAll() {
+    db.close();
+}
+
 exports.dropCollection = dropCollection;
 exports.listHierarchy = listHierarchy;
 exports.addUnit = addUnit;
@@ -288,3 +299,4 @@ exports.changeUnit = changeUnit;
 exports.findAndRemove = findAndRemove;
 exports.addUser = addUser;
 exports.checkLogin = checkLogin;
+exports.closeAll = closeAll;
