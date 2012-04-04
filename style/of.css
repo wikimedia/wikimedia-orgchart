@@ -104,15 +104,24 @@ body>div.jOrgChart {
     min-height: 55px;
 }
 
-.of-unit-details:hover .of-unit-view, .shown .of-unit-view {
-    width: 80%;
+.of-unit-details:hover .of-unit-info, .shown .of-unit-info {
+    width: 70%;
+}
+
+.of-unit-actions {
+    position: absolute;
+    right: 0px;
+    top: 0px;
+    width: 30%;
+    text-align: center;
+    height: 100%;
 }
 
 .of-unit-details:hover .of-title-name, .shown .of-title-name, .shown-temp .of-title-name {
     min-height: 0px;
 }
 
-.of-all-others {
+.of-all-others, .of-unit-actions {
     display: none;
 }
 
@@ -126,28 +135,17 @@ body>div.jOrgChart {
 
 .of-unit-show, .of-login-show, .of-filter-show {
     position: absolute;
+    bottom: 15px;
+    right: 15px;
     cursor: pointer;
     background-image: url("/pin-lifted.png");
     width: 33px;
-    height: 33px;
-    bottom: 5px;
-    right: -35px;
+    height: 34px;
+    padding: 0px !important;
 }
 
 .of-unit-details.shown .of-unit-show, #of-login-form.shown .of-login-show, #of-filter-menu.shown .of-filter-show {
     background-image: url("/pin-pinned.png");
-}
-
-.of-unit-edit {
-    position: absolute;
-    bottom: 80px;
-    right: -47px;
-}
-
-.of-unit-zoom {
-    position: absolute;
-    bottom: 40px;
-    right: -47px;
 }
 
 .of-req-num {
@@ -159,8 +157,15 @@ body>div.jOrgChart {
     float: right;
 }
 
-.of-unit-details:hover .of-all-others, .shown .of-all-others, .shown-temp .of-all-others {
+.of-unit-details:hover .of-all-others, .shown .of-all-others, .shown-temp .of-all-others, .of-unit-details:hover .of-unit-actions, .shown .of-unit-actions, .shown-temp .of-unit-actions {
+
     display: block;
+}
+
+.of-unit-actions p {
+    clear: both;
+    text-align: center;
+    padding-top: 20px;
 }
 
 .of-unit-details:hover .of-unit-type:before, .shown .of-unit-type:before, .shown-temp .of-unit-type:before {
@@ -217,10 +222,6 @@ span.of-unit-lc {
 }
 
 .of-unit-type:before {
-    display: none;
-    position: absolute;
-    right: -35px;
-    top: 25px;
     content: "V";
     width: 1em;
     height: 1em;
