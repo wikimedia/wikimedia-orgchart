@@ -98,8 +98,14 @@ function upload(response, request) {
     }
 }
 
-function list(response) {
-    db.listHierarchy(function (list, locs, loccodes, units) {
+function list(response, args) {
+    var doc;
+    if (args && args.length != 0) {
+        doc = args[0];
+    } else {
+        doc = 'units';
+    }
+    db.listHierarchy(doc, function (list, locs, loccodes, units) {
         response.writeHead(200, {'Content-Type': 'application/json'});
         response.write(jsonify({list: list, colors: locs, codes: loccodes, units: units, org: orgName}));
         response.end();
@@ -179,6 +185,14 @@ function add(response, request, args) {
     });
 }
 
+function listDocs(response) {
+    db.listDocs(function (list) {
+        response.writeHead(200, {'Content-Type': 'application/json'});
+        response.write(jsonify(list));
+        response.end();
+    });
+}
+
 function start(response) {
     respondWithFile(response, 'templates/index.html');
 }
@@ -239,3 +253,4 @@ exports.isLogged = isLogged;
 exports.remove = remove;
 exports.pinlifted = pinlifted;
 exports.pinpinned = pinpinned;
+exports.listDocs = listDocs;

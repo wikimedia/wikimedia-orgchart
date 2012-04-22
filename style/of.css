@@ -256,3 +256,7 @@ span.of-unit-lc {
 .shown .of-unit-loc, .of-unit-box:hover .of-unit-loc, .shown-temp .of-unit-loc {
     color: black !important;
 }
+
+#of-documents-list {
+    display: none;
+}

@@ -30,4 +30,6 @@ handle["/isLogged"] = requestHandlers.isLogged;
 handle["/pin-pinned.png"] = requestHandlers.pinpinned;
 handle["/pin-lifted.png"] = requestHandlers.pinlifted;
 
+handle["/doclist"] = requestHandlers.listDocs;
+
 server.start(router.route, handle);
