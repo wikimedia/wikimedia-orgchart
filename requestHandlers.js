@@ -98,7 +98,7 @@ function upload(response, request) {
     }
 }
 
-function list(response, args) {
+function list(response, request, args) {
     var doc;
     if (args && args.length != 0) {
         doc = args[0];

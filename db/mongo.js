@@ -30,25 +30,20 @@ function createCollection(name, cb) {
     db.open(function (err, p_client) {
         db.collectionNames(function (err, items) {
             var found = false;
-            console.log('Looking for ' + name);
             if (items && items.length != 0) {
                 for (var ix in items) {
                     if (items[ix].name == dbname + '.' + name) {
-                        console.log('Found ' + name);
                         found = true;
                         break;
                     }
                 }
             }
             if (!items || items.length == 0 || !found) {
-                console.log('Creating collection ' + name);
                 db.createCollection(cols[name], function (err, col) {
                     db.close();
                     if (err == null) {
                         colld[col.collectionName] = true;
-                        console.log('Success.');
                     } else {
-                        console.log('Could not create collection ' + name);
                         console.log(err);
                     }
                     cb();
@@ -115,7 +110,7 @@ function findAndRemove(doc, con, cb) {
 
 function listHierarchy(doc, cb) {
     if (!loaded) {
-        setTimeout(function () { listHierarchy(cb); }, 200);
+        setTimeout(function () { listHierarchy(doc, cb); }, 200);
         return;
     }
 
@@ -128,7 +123,6 @@ function listHierarchy(doc, cb) {
                 colname = String(_id);
             }
             db.collection(colname, function (err, col) {
-                console.log('Column opened: ' + colname);
                 if (err != null) {
                     console.log(err);
                 } else {
