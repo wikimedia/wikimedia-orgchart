@@ -107,7 +107,7 @@ function list(response, request, args) {
     }
     db.listHierarchy(doc, function (list, locs, loccodes, units) {
         response.writeHead(200, {'Content-Type': 'application/json'});
-        response.write(jsonify({list: list, colors: locs, codes: loccodes, units: units, org: orgName}));
+        response.write(jsonify({list: list, colors: locs, codes: loccodes, units: units}));
         response.end();
     });
 }
@@ -188,8 +188,92 @@ function add(response, request, args) {
 function listDocs(response) {
     db.listDocs(function (list) {
         response.writeHead(200, {'Content-Type': 'application/json'});
-        response.write(jsonify(list));
+        response.write(jsonify({list: list, org: orgName}));
         response.end();
+    });
+}
+
+function deleteDoc(response, request) {
+    function endDelete (message) {
+        response.writeHead(200, {'Content-Type': 'application/json'});
+        response.write(jsonify(message));
+        response.end();
+    }
+    checkAuth(response, request, function (isLogged) {
+        if (isLogged) {
+            var form = new formidable.IncomingForm();
+            form.parse(request, function (error, fields, files) {
+                var docid;
+                if (fields && fields.docid) {
+                    docid = fields.docid;
+                    db.deleteDoc(docid, function () {
+                        endDelete({success: true});
+                    });
+                } else {
+                    endDelete({success: false, error: 'No docid found'});
+                }
+            });
+        } else {
+            endDelete({success: false, error: 'Not logged in'});
+        }
+    });
+}
+
+function renameDoc(response, request, args) {
+    var docid;
+
+    function endRename (message) {
+        response.writeHead(200, {'Content-Type': 'application/json'});
+        response.write(jsonify(message));
+        response.end();
+    }
+
+    checkAuth(response, request, function (isLogged) {
+        if (isLogged) {
+            if (args && args.length != 0) {
+                docid = args[0];
+                var form = new formidable.IncomingForm();
+                form.parse(request, function (error, fields, files) {
+                    var newname;
+                    if (fields && fields.name) {
+                        newname = fields.name;
+                        db.renameDoc(docid, newname, function () {
+                            endRename({success: true, name: newname, docid: docid});
+                        });
+                    } else {
+                        endRename({success: false, error: 'No new name found'});
+                    }
+                });
+            } else {
+                endRename({success: false, error: 'No docid found'});
+            }
+        } else {
+            endRename({success: false, error: 'Not logged in'});
+        }
+    });
+}
+
+function copyDoc(response, request) {
+    function endCopy (message) {
+        response.writeHead(200, {'Content-Type': 'application/json'});
+        response.write(jsonify(message));
+        response.end();
+    }
+    checkAuth(response, request, function (isLogged) {
+        if (isLogged) {
+            var form = new formidable.IncomingForm();
+            form.parse(request, function (error, fields, files) {
+                if (fields && fields.docid && fields.name) {
+                    db.copyDoc(fields.docid, fields.name + ' (copy)', function () {
+                        endCopy({success: true});
+                    });
+                } else {
+                    endCopy({success: false, error: 'No name or docid found'});
+                }
+            });
+        } else {
+            endCopy({success: false, error: 'Not logged in'});
+        }
     });
 }
 
@@ -233,24 +317,35 @@ function pinpinned(response) {
     respondWithFile(response, 'images/pin-pinned.png', 'image/png');
 }
 
-exports.modify = modify;
-exports.add = add;
 exports.style = style;
 exports.pstyle = pstyle;
 exports.jorgchartstyle = jorgchartstyle;
+
 exports.details = details;
 exports.list = list;
+
 exports.jquery = jquery;
 exports.jqueryform = jqueryform;
 exports.jorgchart = jorgchart;
 exports.script = script;
+
 exports.start = start;
+
 exports.upload = upload;
 exports.upform = upform;
+
 exports.login = login;
 exports.logout = logout;
 exports.isLogged = isLogged;
+
+exports.modify = modify;
+exports.add = add;
 exports.remove = remove;
+
 exports.pinlifted = pinlifted;
 exports.pinpinned = pinpinned;
+
 exports.listDocs = listDocs;
+exports.deleteDoc = deleteDoc;
+exports.renameDoc = renameDoc;
+exports.copyDoc = copyDoc;

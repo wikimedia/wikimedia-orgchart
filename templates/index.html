@@ -23,15 +23,17 @@
     <div id="title-container"><h1 id="title"></h1></div>
     <div id="of-filter-menu">
       <div id="of-filter-tip">
-        <p>filter</p>
+        <p>main menu</p>
       </div>
       <div id="of-filter-full">
-        <label><input type="checkbox" id="of-expand-all" /> Expand all</label><br />
-        <label><input type="checkbox" id="of-filter-vacant" checked="checked" /> Show vacancies</label><br />
-        <label><input type="checkbox" id="of-filter-contract" checked="checked" /> Show contractors</label><br />
-        <label><input type="checkbox" id="of-filter-employee" checked="checked" /> Show employees</label><br />
-        <button id="of-zoom-out" disabled="disabled">Zoom out</button><br />
-        <span class="of-filter-show"></span>
+        <div id="of-filter-options">
+          <label><input type="checkbox" id="of-expand-all" /> Expand all</label><br />
+          <label><input type="checkbox" id="of-filter-vacant" checked="checked" /> Show vacancies</label><br />
+          <label><input type="checkbox" id="of-filter-contract" checked="checked" /> Show contractors</label><br />
+          <label><input type="checkbox" id="of-filter-employee" checked="checked" /> Show employees</label><br />
+          <button id="of-zoom-out" disabled="disabled">Zoom out</button><br />
+        </div>
+        <button id="of-home-page">Home page</button><br />
       </div>
     </div>
     <div id="of-login-form" class="login">
@@ -57,8 +59,12 @@
     </div>
     <ul id="of-documents-list">
       <li class="of-doc-box">
-        <p><span class="of-doc-title"></span> &dash; <span class="of-doc-number"></span> nodes</p>
+        <p><span class="of-doc-title"></span><form action="/docrename" method="POST"><input name="name" class="of-doc-rename" type="text" style="display: none" /></form><span class="of-doc-number"></span> nodes</p>
         <p>Created <span class="of-doc-created"></span></p>
+        <p class="hide-until-logged">
+          <a href="javascript:" class="of-doc-delete">Delete</a> -
+          <a href="javascript:" class="of-doc-copy">Copy</a>
+        </p>
       </li>
     </ul>
     <div id="of-org-form-display">

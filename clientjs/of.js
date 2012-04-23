@@ -22,21 +22,6 @@ var orgForm = function () {
 
     $ucreate.attr('class', 'of-unit-create');
 
-    $.get('/isLogged', function (data) {
-        if (data.isLogged) {
-            $('.hide-until-logged').css('display', 'block');
-            $('.hide-when-logged').css('display', 'none');
-            $('#of-login-form').removeClass('login');
-            $('#of-login-form').addClass('logout');
-            isLogged = true;
-        } else {
-            $('.hide-until-logged').css('display', 'none');
-            $('.hide-when-logged').css('display', 'block');
-            $('#of-login-form').removeClass('logout');
-            $('#of-login-form').addClass('login');
-        }
-    });
-
     $('.of-login-show').click(function () {
         var $lfrm = $('#of-login-form');
         if ($lfrm.hasClass('shown')) {
@@ -46,13 +31,29 @@ var orgForm = function () {
         }
     });
 
-    $('.of-filter-show').click(function () {
-        var $lfm = $('#of-filter-menu');
-        if ($lfm.hasClass('shown')) {
-            $lfm.removeClass('shown');
-        } else {
-            $lfm.addClass('shown');
+    function checkIfLogged(cb) {
+        if (typeof cb != 'function') {
+            cb = function () {};
         }
+        $.get('/isLogged', function (data) {
+            if (data.isLogged) {
+                cb(true);
+                $('.hide-until-logged').css('display', 'block');
+                $('.hide-when-logged').css('display', 'none');
+                $('#of-login-form').removeClass('login');
+                $('#of-login-form').addClass('logout');
+            } else {
+                cb(false);
+                $('.hide-until-logged').css('display', 'none');
+                $('.hide-when-logged').css('display', 'block');
+                $('#of-login-form').removeClass('logout');
+                $('#of-login-form').addClass('login');
+            }
+        });
+    }
+
+    checkIfLogged(function (result) {
+        isLogged = result;
     });
 
     function setLocation(wholeLocation) {
@@ -467,36 +468,113 @@ var orgForm = function () {
     }
 
     function loadDocs() {
+        $('#of-filter-options').css('display', 'none');
+        $dlist.empty();
         $.get('/doclist', function (data) {
-            docs = data;
+            if (data.org) {
+                $('#title').html(data.org);
+                $('title').html('Org Chart: ' + data.org);
+            }
+            docs = data.list;
             for (var dx in docs) {
                 var doc = docs[dx];
                 var $doc = $doctpl.clone();
-                $('.of-doc-title', $doc).html(doc.title);
-                $('.of-doc-number', $doc).html(doc.number);
-                $('.of-doc-created', $doc).html(doc.created);
+                $doc.attr('id', 'of-doc-box-for-' + doc._id);
+                var isLogged = isLogged || false;
+                if (!isLogged) {
+                    checkIfLogged(function (result) {
+                        isLogged = result;
+                    });
+                }
+
+                if (!isLogged) {
+                    $('.hide-until-logged', $doc).css('display', 'none');
+                }
+                
+                var $renameForm = $('form', $doc);
+                $renameForm.attr('action', '/renamedoc/' + doc._id);
+                $renameForm.ajaxForm({
+                    success: function (data) {
+                        if (data && data.success && data.success !== false) {
+                            var $tdoc = $('#of-doc-box-for-' + data.docid);
+                            var $dname = $('.of-doc-title', $tdoc);
+                            $dname.html(data.name);
+                            $('.of-doc-rename', $tdoc).css('display', 'none');
+                            $dname.css('display', 'block');
+                        }
+                    },
+                    dataType: 'json'});
+                
+                $renameForm.click(function (event) {
+                    event.stopPropagation();
+                });
+
+                var $dname = $('.of-doc-title', $doc);
+                $dname.html(doc.name);
+                $dname.click(function (event) {
+                    if (session.logged) {
+                        event.stopPropagation();
+                        var $this = $(this);
+                        $this.css('display', 'none');
+                        var $namein = $('.of-doc-rename', $this.closest('.of-doc-box'));
+                        $namein.val($this.html());
+                        $namein.css('display', 'block');
+                        $namein.focus();
+                        $namein.select();
+                    }
+                });
+
+                if (!doc.count) {
+                    doc.count = 0;
+                }
+                $('.of-doc-number', $doc).html(doc.count);
+                var ddate = new Date(doc.created-0);
+                $('.of-doc-created', $doc).html(ddate.toDateString() + ' at ' + ddate.toTimeString());
                 $doc.attr('data-docid', doc._id);
                 $doc.click(function () {
                     var docid = $(this).attr('data-docid');
                     loadDoc(docid);
                 });
+
+                $('.of-doc-delete', $doc).click(function (event) {
+                    event.stopPropagation();
+                    var $pdoc = $(this).closest('.of-doc-box');
+                    $.post('/deletedoc', {docid: $pdoc.attr('data-docid')}, function (data) {
+                        if (data.success) {
+                            $pdoc.remove();
+                        }
+                    });
+                });
+
+                $('.of-doc-copy', $doc).click(function (event) {
+                    event.stopPropagation();
+                    var $pdoc = $(this).closest('.of-doc-box');
+                    $.post('/copydoc', {name: $('.of-doc-title', $pdoc).html(), docid: $pdoc.attr('data-docid')}, function (data) {
+                        if (data.success) {
+                            loadDocs();
+                        }
+                    });
+                });
+
                 $dlist.append($doc);
             }
+            var $orgchart = $('div.jOrgChart');
+            if ($orgchart && $orgchart.length) {
+                $orgchart.remove();
+            }
+            setLocation([]);
             $dlist.css('display', 'block');
         });
     }
 
     function loadDoc(docid) {
+        $('#of-filter-options').css('display', 'block');
         setLocation([docid]);
         $dlist.css('display', 'none');
         $.get('/list/' + docid, function (data) {
             units = data.units;
 	    locs = data.colors;
             loccodes = data.codes;
-            if (data.org) {
-                $('#title').html(data.org);
-                $('title').html('Org Chart: ' + data.org);
-            }
             addWait(waiting, data.list.none, data.list);
             for (var ix in data.list.none) {
                 getDetails(data.list.none[ix], function (ddata) {
@@ -515,6 +593,10 @@ var orgForm = function () {
 
     $('#of-zoom-out').click(function () {
         refreshChart($of);
+    });
+    
+    $('#of-home-page').click(function () {
+        loadDocs();
     });
 
     $('#of-filter-vacant').change(function () {
@@ -608,6 +690,7 @@ var orgForm = function () {
     $('#of-login-form-in>form').ajaxForm({
         success: function (data) {
             if (data && data.success && data.success !== false) {
+                isLogged = true;
                 session.logged = true;
                 session.name = data.name;
                 $('.hide-until-logged').css('display', 'block');
@@ -621,6 +704,7 @@ var orgForm = function () {
     $('#of-login-form-out>form').ajaxForm({
         success: function (data) {
             if (data && data.success && data.success !== false) {
+                isLogged = false;
                 session.logged = false;
                 delete session.name;
                 $('.hide-until-logged').css('display', 'none');

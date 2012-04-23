@@ -22,7 +22,7 @@ body {
     display: none;
 }
 
-#of-filter-menu #of-filter-full {
+#of-filter-full {
     display: none;
 }
 
@@ -259,4 +259,22 @@ span.of-unit-lc {
 
 #of-documents-list {
     display: none;
+    list-style: none;
+    margin-left: -40px;
+}
+
+.of-doc-box {
+    border: 4px solid #969898;
+    box-shadow: 4px 4px 4px #6e7375;
+    text-align: center;
+    border-radius: 8px;
+    margin: 10px;
+    padding: 10px;
+    background-color: #fefffd;
+    cursor: pointer;
+    clear: both;
+}
+
+.of-doc-title {
+    cursor: text;
 }

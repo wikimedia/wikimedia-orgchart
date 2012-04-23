@@ -31,5 +31,8 @@ handle["/pin-pinned.png"] = requestHandlers.pinpinned;
 handle["/pin-lifted.png"] = requestHandlers.pinlifted;
 
 handle["/doclist"] = requestHandlers.listDocs;
+handle["/deletedoc"] = requestHandlers.deleteDoc;
+handle["/renamedoc"] = requestHandlers.renameDoc;
+handle["/copydoc"] = requestHandlers.copyDoc;
 
 server.start(router.route, handle);
