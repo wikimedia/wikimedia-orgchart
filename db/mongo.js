@@ -58,21 +58,23 @@ function createCollection(name, cb) {
 }
 
 function checkIfLoaded() {
-    for (var ux in cols) {
-        createCollection(ux, function () {
-            var found = false;
-            for (var cx in cols) {
-                if (!colld[cx]) {
-                    found = true;
+    if (!loaded) {
+        for (var ux in cols) {
+            createCollection(ux, function () {
+                var found = false;
+                for (var cx in cols) {
+                    if (!colld[cx]) {
+                        found = true;
+                    }
                 }
-            }
-            if (!found) {
-                loaded = true;
-                console.log('Database ready.');
-            } else {
-                setTimeout(checkIfLoaded, 200);
-            }
-        });
+                if (!found) {
+                    loaded = true;
+                    console.log('Database ready.');
+                } else {
+                    setTimeout(checkIfLoaded, 200);
+                }
+            });
+        }
     }
 }
 
