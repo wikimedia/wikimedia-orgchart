@@ -481,6 +481,9 @@ var orgForm = function () {
             if (data.org) {
                 $('#title').html(data.org);
                 $('title').html('Org Chart: ' + data.org);
+            } else {
+                $('#title').html('Org Chart');
+                $('title').html('Org Chart');
             }
             docs = data.list;
             for (var dx in docs) {
@@ -585,6 +588,13 @@ var orgForm = function () {
         setLocation([docid]);
         $dlist.css('display', 'none');
         $.get('/list/' + docid, function (data) {
+            if (data.org) {
+                $('#title').html(data.org);
+                $('title').html('Org Chart: ' + data.org);
+            } else {
+                $('#title').html('Org Chart');
+                $('title').html('Org Chart');
+            }
             units = data.units;
 	    locs = data.colors;
             loccodes = data.codes;
