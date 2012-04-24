@@ -9,6 +9,7 @@ var orgForm = function () {
     var $tlist = $('.of-unit-listing').detach();
     var $dlist = $('#of-documents-list');
     var $doctpl = $('.of-doc-box').detach();
+    var $docctpl = $('.of-doc-create').detach();
     var $units = $('#of-org-form');
     var docs = [];
     var units = {};
@@ -133,7 +134,7 @@ var orgForm = function () {
         });
         
         var $dform = $('.of-unit-delete-confirm-form', $node);
-        $dform.attr('action', '/remove/' + $('li#'+$node.attr('id')).attr('data-ofid'));
+        $dform.attr('action', '/remove/' + getDocId() + '/' + $('li#'+$node.attr('id')).attr('data-ofid'));
 
         $dform.ajaxForm({
             success: function (data) {
@@ -269,7 +270,7 @@ var orgForm = function () {
 
             var $cform = $('form', $tcreate);
             
-            $cform.attr('action', '/addto/' + $('li#'+$node.attr('id')).attr('data-ofid'));
+            $cform.attr('action', '/addto/' + getDocId() + '/' + $('li#'+$node.attr('id')).attr('data-ofid'));
 
             $cform.ajaxForm({
                 success: function (data) {
@@ -307,7 +308,7 @@ var orgForm = function () {
             }
             $tc.attr('id', 'of-unit-box-for-'+data.index);
             $tc.attr('data-ofid', data.index);
-            $('form', $tc).attr('action', '/modify/'+data.index);
+            $('form', $tc).attr('action', '/modify/'+getDocId()+'/'+data.index);
             $('p.of-unit-title', $tc).html(data.title);
             $('input.of-unit-title', $tc).attr('value', data.title);
             $('p.of-unit-name', $tc).html(data.name);
@@ -597,6 +598,23 @@ var orgForm = function () {
     
     $('#of-home-page').click(function () {
         loadDocs();
+    });
+
+    $('#of-new-doc').click(function () {
+        var $dcc = $docctpl.clone();
+        var $dcfrm = $('form', $dcc);
+        
+        $dcfrm.ajaxForm({
+            success: function (data) {
+                loadDocs();
+            },
+            dataType: 'json'});
+        
+        $('.of-doc-create-cancel', $dcc).click(function () {
+            $(this).closest('li').remove();
+        });
+        
+        $dlist.prepend($dcc);
     });
 
     $('#of-filter-vacant').change(function () {

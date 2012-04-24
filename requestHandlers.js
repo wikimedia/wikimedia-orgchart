@@ -128,12 +128,13 @@ function details(response, request, args) {
 }
 
 function remove(response, request, args) {
-    var thenum = args[0],
+    var thenum = args[1],
+    thedoc = args[0],
     form = new formidable.IncomingForm();
 
     checkAuth(response, request, function (isLogged) {
         if (isLogged) {
-            db.findAndRemove(thenum, function () {
+            db.findAndRemove(thedoc, thenum, function () {
                 response.writeHead(200, {'Content-Type': 'application/json'});
                 response.write(jsonify({success: true}));
                 response.end();
@@ -143,13 +144,14 @@ function remove(response, request, args) {
 }
 
 function modify(response, request, args) {
-    var thenum = args[0],
+    var thenum = args[1],
+    thedoc = args[0]
     form = new formidable.IncomingForm();
 
     checkAuth(response, request, function (isLogged) {
         if (isLogged) {
             form.parse(request, function(error, fields, files) {
-                db.changeUnit(thenum, fields, function (unit) {
+                db.changeUnit(thedoc, thenum, fields, function (unit) {
                     response.writeHead(200, {'Content-Type': 'application/json'});
                     response.write(jsonify({'success': true, 'unit': unit}));
                     response.end();
@@ -168,14 +170,15 @@ function add(response, request, args) {
 
     checkAuth(response, request, function (isLogged) {
         if (isLogged) {
-            var superv = args[0];
+            var docid = args[0];
+            var superv = args[1];
             form.parse(request, function(error, fields, files) {
                 if (superv) {
                     fields['supervisor'] = superv;
                 } else {
                     fields['supervisor'] = '';
                 }
-                db.addUnit(fields, function (unit) {
+                db.addUnit(docid, fields, function (unit) {
                     response.writeHead(200, {'Content-Type': 'application/json'});
                     response.write(jsonify({'success': true, 'unit': unit}));
                     response.end();
@@ -277,6 +280,37 @@ function copyDoc(response, request) {
     });
 }
 
+function newDoc(response, request) {
+    function endNew (message) {
+        response.writeHead(200, {'Content-Type': 'application/json'});
+        response.write(jsonify(message));
+        response.end();
+    }
+
+    checkAuth(response, request, function (isLogged) {
+        if (isLogged) {
+            var form = new formidable.IncomingForm();
+            form.parse(request, function (error, fields, files) {
+                if (fields && fields.name) {
+                    db.createDoc(fields.name, function (_newid) {
+                        var sdata = {title: 'Root Element',
+                                     supervisor: '',
+                                     name: '',
+                                     status: 'Employee'};
+                        db.addUnit(String(_newid), sdata, function () {
+                            endNew({success: true, docid: String(_newid)});
+                        });
+                    });
+                } else {
+                    endNew({success: false, error: 'No name found'});
+                }
+            });
+        } else {
+            endNew({success: false, error: 'Not logged in'});
+        }
+    });
+}
+
 function start(response) {
     respondWithFile(response, 'templates/index.html');
 }
@@ -349,3 +383,4 @@ exports.listDocs = listDocs;
 exports.deleteDoc = deleteDoc;
 exports.renameDoc = renameDoc;
 exports.copyDoc = copyDoc;
+exports.newDoc = newDoc;

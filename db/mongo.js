@@ -93,14 +93,15 @@ function findAndRemove(doc, con, cb) {
         cb = function () {};
     }
     if (typeof con != 'object') {
-        con = {_id: new ObjectId(con)};
+        con = {$or: [{_id: new ObjectId(con)}, {_id: con}]};
     }
     
     getDoc(doc, function(_id) {
         db.open(function (err, p_client) {
-            db.collection(cols[_id], function (err, col) {
+            db.collection(String(_id), function (err, col) {
                 col.remove(con, {safe: true}, function (err, num) {
                     db.close();
+                    addToDocCount(String(_id), -1 * num);
                     cb();
                 });
             });
@@ -235,7 +236,7 @@ function getUnit(doc, uid, cb) {
     });
 }
 
-function changeUnit(doc, uid, mods, cb) {
+function changeUnit(docid, uid, mods, cb) {
     if (!loaded) {
         setTimeout(function () { changeUnit(uid, mods, cb); }, 200);
         return;
@@ -244,13 +245,17 @@ function changeUnit(doc, uid, mods, cb) {
     for (var ix in mods) {
         modDic.$set[ix] = mods[ix];
     }
-    getDoc(doc, function (_id) {
+    getDoc(docid, function (_id) {
         db.open(function (err, p_client) {
-            db.collection(cols[_id], function (err, col) {
-                col.findAndModify({_id: new ObjectId(uid)}, [['_id', 1]], modDic, {new: true}, function (err, doc) {
+            db.collection(String(_id), function (err, col) {
+                col.findAndModify({$or: [{_id: (new ObjectId(uid))}, {_id: uid}]}, [['_id', 1]], modDic, {new: true}, function (err, doc) {
                     db.close();
-                    if (cb && typeof cb == 'function') {
-                        cb(doc);
+                    if (err != null) {
+                        console.log(err);
+                    } else {
+                        if (cb && typeof cb == 'function') {
+                            cb(doc);
+                        }
                     }
                 });
             });
@@ -310,14 +315,18 @@ function addUnit(docid, data, cb) {
     }
     getDoc(docid, function (_id) {
         db.open(function (err, p_client) {
-            db.collection(cols[_id], function (err, col) {
-                col.insert([data], {safe: true}, function (err, doc) {
-                    db.close();
-                    addToDocCount(docid, 1);
-                    if (cb && typeof cb == 'function') {
-                        cb(doc); // I don't know what gets sent here, but do it anyway!
-                    }
-                });
+            db.collection(String(_id), function (err, col) {
+                if (err != null) {
+                    console.log(err);
+                } else {
+                    col.insert([data], {safe: true}, function (err, doc) {
+                        db.close();
+                        addToDocCount(docid, 1);
+                        if (cb && typeof cb == 'function') {
+                            cb(doc); // I don't know what gets sent here, but do it anyway!
+                        }
+                    });
+                }
             });
         });
     });
@@ -334,13 +343,18 @@ function addUnits(docid, data, cb) {
             db.collection(cols[_id], function (err, col) {
                 if (col != null) {
                     col.insert(data, {safe: true}, function (err, doc) {
-                        db.close();
                         if (err != null) {
                             console.log(err);
                         }
-                        addToDocCount(docid, data.length);
-                        if (cb && typeof cb == 'function') {
-                            cb(doc); // I don't know what gets sent here, but do it anyway!
+                        else {
+                            if (cb && typeof cb == 'function') {
+                                cb(doc); // I don't know what gets sent here, but do it anyway!
+                            }
+                            var count = 0;
+                            for (var cx in data) {
+                                count += 1;
+                            }
+                            addToDocCount(docid, count);
                         }
                     });
                 }
@@ -480,6 +494,9 @@ function copyDoc(orig, dest, cb) {
         listHierarchy(_id, function (list, locs, loccodes, dunits) {
             var unitdata = [];
             for (var lx in dunits) {
+                if (typeof dunits._id != typeof (new ObjectId())) {
+                    dunits._id = new ObjectId(dunits._id);
+                }
                 unitdata.push(dunits[lx]);
             }
             addUnits(_newid, unitdata, function (err, doc) {

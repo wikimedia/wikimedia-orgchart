@@ -34,5 +34,6 @@ handle["/doclist"] = requestHandlers.listDocs;
 handle["/deletedoc"] = requestHandlers.deleteDoc;
 handle["/renamedoc"] = requestHandlers.renameDoc;
 handle["/copydoc"] = requestHandlers.copyDoc;
+handle["/newdoc"] = requestHandlers.newDoc;
 
 server.start(router.route, handle);

@@ -263,7 +263,7 @@ span.of-unit-lc {
     margin-left: -40px;
 }
 
-.of-doc-box {
+.of-doc-box, .of-doc-create {
     border: 4px solid #969898;
     box-shadow: 4px 4px 4px #6e7375;
     text-align: center;
