@@ -15,6 +15,7 @@ ObjectId = mgdb.ObjectID,
 cols = {},
 colld = {},
 looking = 0,
+dbfs = [],
 loaded = false;
 
 cols.units = 'units';
@@ -22,6 +23,22 @@ cols.users = 'users';
 cols.docs = 'docs';
 
 var initusers = [{username: 'admin', password: crypto.createHash('sha512').update(''+Math.random()).digest('hex')}];
+
+function indexOf (arr, elt /*, from*/) {
+    var len = arr.length >>> 0;
+    
+    var from = Number(arguments[2]) || 0;
+    from = (from < 0) ? Math.ceil(from) : Math.floor(from);
+    
+    if (from < 0)
+        from += len;
+    
+    for (; from < len; from++) {
+        if (from in arr && arr[from] === elt)
+            return from;
+    }
+    return -1;
+}
 
 function createCollection(name, cb) {
     if (!cols[name] || cols[name] == '') {
@@ -43,10 +60,10 @@ function createCollection(name, cb) {
                     db.close();
                     if (err == null) {
                         colld[name] = true;
+			cb(null);
                     } else {
-                        console.log(err);
+			cb(err);
                     }
-                    cb();
                 });
             } else {
                 db.close();
@@ -57,31 +74,29 @@ function createCollection(name, cb) {
     });
 }
 
-function checkIfLoaded() {
-    if (!loaded) {
-        for (var ux in cols) {
-            createCollection(ux, function () {
-                var found = false;
-                for (var cx in cols) {
-                    if (!colld[cx]) {
-                        found = true;
-                    }
-                }
-                if (!found) {
-                    loaded = true;
-                    console.log('Database ready.');
-                } else {
-                    setTimeout(checkIfLoaded, 200);
-                }
-            });
-        }
+function makeDbCalls() {
+    for (var fx in dbfs) {
+	dbfs[fx]();
     }
 }
 
-checkIfLoaded();
+for (var ux in cols) {
+    createCollection(ux, function (err) {
+	if (err !== null) {
+	    console.log(err);
+	}
+	var cx = indexOf(colld, false);
+        if (!loaded && cx == -1) {
+            loaded = true;
+            console.log('Database ready.');
+	    makeDbCalls();
+        }
+    });
+}
 
 for (var ux in initusers) {
     addUser(initusers[ux], function (user) {
+        console.log(user);
         if (user && user[0] && user[0].username) {
             console.log('Database: Added default user ' + user[0].username + ' with password ' + user[0].password);
         } else if (user && user.ename) {
@@ -94,7 +109,7 @@ for (var ux in initusers) {
 
 function findAndRemove(doc, con, cb) {
     if (!loaded) {
-        setTimeout(function () { findAndRemove(con, cb); }, 200);
+        dbfs.push(function () { findAndRemove(doc, con, cb); });
         return;
     }
     if (typeof cb != 'function') {
@@ -119,7 +134,7 @@ function findAndRemove(doc, con, cb) {
 
 function listHierarchy(doc, cb) {
     if (!loaded) {
-        setTimeout(function () { listHierarchy(doc, cb); }, 200);
+        dbfs.push(function () { listHierarchy(doc, cb); });
         return;
     }
 
@@ -222,7 +237,7 @@ function listHierarchy(doc, cb) {
 
 function getUnit(doc, uid, cb) {
     if (!loaded) {
-        setTimeout(function () { getUnit(uid, cb); }, 200);
+        dbfs.push(function () { getUnit(doc, uid, cb); });
         return;
     }
     looking += 1;
@@ -246,7 +261,7 @@ function getUnit(doc, uid, cb) {
 
 function changeUnit(docid, uid, mods, cb) {
     if (!loaded) {
-        setTimeout(function () { changeUnit(uid, mods, cb); }, 200);
+        dbfs.push(function () { changeUnit(docid, uid, mods, cb); });
         return;
     }
     modDic = {$set:{}};
@@ -273,7 +288,7 @@ function changeUnit(docid, uid, mods, cb) {
 
 function addUser(data, cb) {
     if (!loaded) {
-        setTimeout(function () { addUser(data, cb); }, 200);
+        dbfs.push(function () { addUser(data, cb); });
         return;
     }
     db.open(function (err, p_client) {
@@ -318,7 +333,7 @@ function checkLogin(data, cb) {
 
 function addUnit(docid, data, cb) {
     if (!loaded) {
-        setTimeout(function () { addUnit(docid, data, cb); }, 200);
+        dbfs.push(function () { addUnit(docid, data, cb); });
         return;
     }
     getDoc(docid, function (_id) {
@@ -342,7 +357,7 @@ function addUnit(docid, data, cb) {
 
 function addUnits(docid, data, cb) {
     if (!loaded) {
-        setTimeout(function () { addUnits(docid, data, cb); }, 200);
+        dbfs.push(function () { addUnits(docid, data, cb); });
         return;
     }
 
@@ -379,7 +394,7 @@ function addUnits(docid, data, cb) {
 
 function addToDocCount(doc, num) {
     if (!loaded) {
-        setTimeout(function () { addToDocCount(doc, num); }, 200);
+        dbfs.push(function () { addToDocCount(doc, num); });
         return;
     }
     getDoc(doc, function (_id) {
@@ -433,7 +448,7 @@ function dropCollection(name, cb) {
 
 function listDocs(cb) {
     if (!loaded) {
-        setTimeout(function () { listDocs(cb); }, 200);
+        dbfs.push(function () { listDocs(cb); });
         return;
     }
     db.open(function (err, p_client) {
@@ -447,7 +462,7 @@ function listDocs(cb) {
 
 function getDoc(did, cb) {
     if (!loaded) {
-        setTimeout(function () { getDoc(did, cb); }, 200);
+        dbfs.push(function () { getDoc(did, cb); });
         return;
     }
     if (did == 'units') {
@@ -472,7 +487,7 @@ function getDoc(did, cb) {
 
 function createDoc(name, cb) {
     if (!loaded) {
-        setTimeout(function () { createDoc(name, cb); }, 200);
+        dbfs.push(function () { createDoc(name, cb); });
         return;
     }
     db.open(function (err, p_client) {
@@ -492,7 +507,7 @@ function createDoc(name, cb) {
 
 function copyDoc(orig, dest, cb) {
     if (!loaded) {
-        setTimeout(function () { copyDoc(orig, dest, cb); }, 200);
+        dbfs.push(function () { copyDoc(orig, dest, cb); });
         return;
     }
     if (!cb || typeof cb != 'function') {
@@ -526,7 +541,7 @@ function copyDoc(orig, dest, cb) {
 
 function deleteDoc(doc, cb) {
     if (!loaded) {
-        setTimeout(function () { deleteDoc(doc, cb); }, 200);
+        dbfs.push(function () { deleteDoc(doc, cb); });
         return;
     }
     if (!cb || typeof cb != 'function') {
@@ -547,7 +562,7 @@ function deleteDoc(doc, cb) {
 
 function renameDoc(doc, name, cb) {
     if (!loaded) {
-        setTimeout(function () { deleteDoc(doc, cb); }, 200);
+        dbfs.push(function () { deleteDoc(doc, cb); });
         return;
     }
     if (!cb || typeof cb != 'function') {
