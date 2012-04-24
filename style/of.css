@@ -83,7 +83,7 @@ body>div.jOrgChart {
     clear: both;
 }
 
-#of-org-form {
+#of-org-form, #of-org-list-display {
     display: none;
 }
 

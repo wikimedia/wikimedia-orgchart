@@ -6,7 +6,18 @@
 var mgdb = require('mongodb');
 var crypto = require('crypto');
 
-var colors = ['#006699','#5e5e5e','#969898','#886644'],
+var colors = ['#006699', // 1
+              '#5e5e5e', // 2
+              '#969898', // 3
+              '#58bf81', // 4
+              '#51ac28', // 5
+              '#b9c34d', // 6
+              '#ea6422', // 7
+              '#cf5a86', // 8
+              '#bc31c1', // 9
+              '#8a2ac1', // 10
+              '#886644' // other
+             ],
 locs = {},
 loccodes = {},
 dbname = 'orgcharts',

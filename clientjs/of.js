@@ -20,6 +20,10 @@ var orgForm = function () {
     var isLogged = false;
     var $of = $('#of-org-form');
     var $curzm = $of;
+    var $curlist = $of.clone();
+    var $oflist = $('#of-org-list-display');
+
+    $oflist.html($curlist);
 
     $ucreate.attr('class', 'of-unit-create');
 
@@ -437,6 +441,8 @@ var orgForm = function () {
     function refreshChart($data) {
         $curzm = $data;
         var czm = $curzm.attr('id');
+        $curlist = $curzm.clone();
+        $oflist.html($curlist);
         var wholeLocation = getLocation();
         if (czm == $of.attr('id')) {
             wholeLocation = wholeLocation.slice(0,1);
@@ -561,7 +567,7 @@ var orgForm = function () {
             }
             var $orgchart = $('div.jOrgChart');
             if ($orgchart && $orgchart.length) {
-                $orgchart.remove();
+                $orgchart.empty();
             }
             setLocation([]);
             $dlist.css('display', 'block');
@@ -569,6 +575,12 @@ var orgForm = function () {
     }
 
     function loadDoc(docid) {
+        var $orgchart = $('div.jOrgChart');
+        if ($orgchart && $orgchart.length) {
+            $orgchart.empty();
+        }
+        $units.empty();
+        
         $('#of-filter-options').css('display', 'block');
         setLocation([docid]);
         $dlist.css('display', 'none');
