@@ -82,7 +82,7 @@ function makeDbCalls() {
 
 for (var ux in cols) {
     createCollection(ux, function (err) {
-	if (err !== null) {
+	if (err != null) {
 	    console.log(err);
 	}
 	var cx = indexOf(colld, false);
@@ -96,7 +96,6 @@ for (var ux in cols) {
 
 for (var ux in initusers) {
     addUser(initusers[ux], function (user) {
-        console.log(user);
         if (user && user[0] && user[0].username) {
             console.log('Database: Added default user ' + user[0].username + ' with password ' + user[0].password);
         } else if (user && user.ename) {
@@ -513,6 +512,7 @@ function copyDoc(orig, dest, cb) {
     if (!cb || typeof cb != 'function') {
         cb = function () {};
     }
+    console.log('Database: Copying ' + orig + ' to ' + dest);
     function doTheRest(_id, _newid) {
         listHierarchy(_id, function (list, locs, loccodes, dunits) {
             var unitdata = [];

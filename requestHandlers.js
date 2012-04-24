@@ -256,7 +256,7 @@ function renameDoc(response, request, args) {
     });
 }
 
-function copyDoc(response, request) {
+function copyDoc(response, request, args) {
     function endCopy (message) {
         response.writeHead(200, {'Content-Type': 'application/json'});
         response.write(jsonify(message));
@@ -264,16 +264,22 @@ function copyDoc(response, request) {
     }
     checkAuth(response, request, function (isLogged) {
         if (isLogged) {
-            var form = new formidable.IncomingForm();
-            form.parse(request, function (error, fields, files) {
-                if (fields && fields.docid && fields.name) {
-                    db.copyDoc(fields.docid, fields.name + ' (copy)', function () {
-                        endCopy({success: true});
-                    });
-                } else {
-                    endCopy({success: false, error: 'No name or docid found'});
-                }
-            });
+	    if (args && args.length == 2) {
+		db.copyDoc(args[0], args[1] + ' (copy)', function () {
+		    endCopy({success: true});
+		});
+	    } else {
+		var form = new formidable.IncomingForm();
+		form.parse(request, function (error, fields, files) {
+                    if (fields && fields.docid && fields.name) {
+			db.copyDoc(fields.docid, fields.name + ' (copy)', function () {
+                            endCopy({success: true});
+			});
+                    } else {
+			endCopy({success: false, error: 'No name or docid found'});
+                    }
+		});
+	    }
         } else {
             endCopy({success: false, error: 'Not logged in'});
         }

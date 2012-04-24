@@ -5,4 +5,7 @@
 
 var db = require('../db/mongo');
 
-db.copyDoc('units', 'units');
+console.log('Copying....');
+db.copyDoc('units', 'units', function () {
+    console.log('Copied');
+});
