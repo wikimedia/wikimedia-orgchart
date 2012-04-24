@@ -42,7 +42,7 @@ function createCollection(name, cb) {
                 db.createCollection(cols[name], function (err, col) {
                     db.close();
                     if (err == null) {
-                        colld[col.collectionName] = true;
+                        colld[name] = true;
                     } else {
                         console.log(err);
                     }
@@ -57,20 +57,26 @@ function createCollection(name, cb) {
     });
 }
 
-for (var ux in cols) {
-    createCollection(ux, function () {
-        var found = false;
-        for (var cx in cols) {
-            if (!colld[cx]) {
-                found = true;
+function checkIfLoaded() {
+    for (var ux in cols) {
+        createCollection(ux, function () {
+            var found = false;
+            for (var cx in cols) {
+                if (!colld[cx]) {
+                    found = true;
+                }
             }
-        }
-        if (!found) {
-            loaded = true;
-            console.log('Database ready.');
-        }
-    });
+            if (!found) {
+                loaded = true;
+                console.log('Database ready.');
+            } else {
+                setTimeout(checkIfLoaded, 200);
+            }
+        });
+    }
 }
+
+checkIfLoaded();
 
 for (var ux in initusers) {
     addUser(initusers[ux], function (user) {
