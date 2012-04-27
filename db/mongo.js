@@ -143,6 +143,9 @@ function findAndRemove(doc, con, cb) {
 }
 
 function listHierarchy(doc, cb) {
+    if (typeof doc != typeof 'string') {
+        doc = '' + doc;
+    }
     if (!loaded) {
         dbfs.push(function () { listHierarchy(doc, cb); });
         return;
@@ -151,12 +154,10 @@ function listHierarchy(doc, cb) {
     function doTheRest(_id) {
         db.open(function (err, p_client) {
             var colname;
-            if (cols && cols[_id]) {
-                colname = String(cols[_id]);
-            } else {
-                colname = String(_id);
+            if (typeof _id != typeof 'string') {
+                _id = '' + _id
             }
-            db.collection(colname, function (err, col) {
+            db.collection(_id, function (err, col) {
                 if (err != null) {
                     console.log(err);
                 } else {
@@ -297,10 +298,6 @@ function changeUnit(docid, uid, mods, cb) {
 }
 
 function addUser(data, cb) {
-    if (!loaded) {
-        dbfs.push(function () { addUser(data, cb); });
-        return;
-    }
     db.open(function (err, p_client) {
         db.collection(cols.users, function (err, col) {
             col.findOne({username: data.username}, function (err, doc) {
@@ -312,6 +309,7 @@ function addUser(data, cb) {
                         }
                     });
                 } else {
+                    db.close();
                     cb({ename: doc.username, epass: doc.password});
                 }
             });
@@ -464,6 +462,7 @@ function listDocs(cb) {
     db.open(function (err, p_client) {
         db.collection(cols.docs, function (err, col) {
             col.find().toArray(function (err, docs) {
+                db.close();
                 cb(docs);
             });
         });
@@ -485,6 +484,7 @@ function getDoc(did, cb) {
     db.open(function (err, p_client) {
         db.collection(cols.docs, function (err, col) {
             col.findOne({_id: did}, function (err, doc) {
+                db.close();
                 if (!err && doc != null) {
                     cb(doc._id);
                 } else {
