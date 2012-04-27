@@ -62,7 +62,16 @@ var orgForm = function () {
     });
 
     function setLocation(wholeLocation) {
-        document.location.hash = wholeLocation.join('/');
+        if (!wholeLocation || wholeLocation.length == 0) {
+            document.location.hash = '';
+            loadDocs();
+        } else {
+            document.location.hash = wholeLocation.join('/');
+            loadDoc(wholeLocation[0]);
+            if (wholeLocation.length > 1) {
+                refreshChart($(wholeLocation[1]));
+            }
+        }
     }
 
     function getLocation() {
@@ -240,12 +249,12 @@ var orgForm = function () {
         
         if (level) {
             $('.of-unit-zoom', $node).click(function () {
-                refreshChart($('li#'+$(this).closest('.of-unit-box').attr('id')));
+                setLocation([getDocId(), $(this).closest('.of-unit-box').attr('id')]);
             });
         } else {
             $('.of-unit-zoom', $node).html('Full chart');
             $('.of-unit-zoom', $node).click(function () {
-                refreshChart($of);
+                setLocation([getDocId()]);
             });
         }
 
@@ -445,12 +454,8 @@ var orgForm = function () {
         $oflist.html($curlist);
         var wholeLocation = getLocation();
         if (czm == $of.attr('id')) {
-            wholeLocation = wholeLocation.slice(0,1);
-            setLocation(wholeLocation);
             $('#of-zoom-out').attr('disabled', 'disabled');
         } else {
-            wholeLocation[1] = czm;
-            setLocation(wholeLocation);
             $('#of-zoom-out').removeAttr('disabled');
         }
         $('.jOrgChart').remove();
@@ -543,7 +548,7 @@ var orgForm = function () {
                 $doc.attr('data-docid', doc._id);
                 $doc.click(function () {
                     var docid = $(this).attr('data-docid');
-                    loadDoc(docid);
+                    setLocation([docid]);
                 });
 
                 $('.of-doc-delete', $doc).click(function (event) {
@@ -561,7 +566,7 @@ var orgForm = function () {
                     var $pdoc = $(this).closest('.of-doc-box');
                     $.post('/copydoc', {name: $('.of-doc-title', $pdoc).html(), docid: $pdoc.attr('data-docid')}, function (data) {
                         if (data.success) {
-                            loadDocs();
+                            setLocation([]);
                         }
                     });
                 });
@@ -572,12 +577,11 @@ var orgForm = function () {
             if ($orgchart && $orgchart.length) {
                 $orgchart.empty();
             }
-            setLocation([]);
             $dlist.css('display', 'block');
         });
     }
 
-    function loadDoc(docid) {
+    function loadDoc(docid, zoomlevel) {
         var $orgchart = $('div.jOrgChart');
         if ($orgchart && $orgchart.length) {
             $orgchart.empty();
@@ -585,8 +589,8 @@ var orgForm = function () {
         $units.empty();
         
         $('#of-filter-options').css('display', 'block');
-        setLocation([docid]);
         $dlist.css('display', 'none');
+
         $.get('/list/' + docid, function (data) {
             if (data.org) {
                 $('#title').html(data.org);
@@ -608,8 +612,13 @@ var orgForm = function () {
     }
 
     var docId = getDocId();
+    var zoomLevel = getZoomLevel();
     if (docId != '') {
-        loadDoc(docId);
+        if (zoomLevel != '') {
+            loadDoc(docId, zoomLevel);
+        } else {
+            loadDoc(docId);
+        }
     } else {
         loadDocs();
     }
@@ -619,7 +628,7 @@ var orgForm = function () {
     });
     
     $('#of-home-page').click(function () {
-        loadDocs();
+        setLocation([]);
     });
 
     $('#of-new-doc').click(function () {
@@ -628,7 +637,7 @@ var orgForm = function () {
         
         $dcfrm.ajaxForm({
             success: function (data) {
-                loadDocs();
+                setLocation([]);
             },
             dataType: 'json'});
         
