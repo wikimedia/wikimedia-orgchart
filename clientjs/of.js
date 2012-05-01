@@ -67,7 +67,11 @@ var orgForm = function () {
             loadDocs();
         } else {
             document.location.hash = wholeLocation.join('/');
-            loadDoc(wholeLocation[0]);
+            if (wholeLocation.length == 1) {
+                loadDoc(wholeLocation[0]);
+            } else {
+                loadDoc(wholeLocation[0], wholeLocation[1]);
+            }
         }
     }
 
@@ -356,7 +360,7 @@ var orgForm = function () {
             } else {
                 $('.of-hours-weekly', $tc).css('display', 'none');
             }
-            var $ulist = $('.of-unit-listing', $parent);
+            var $ulist = $('.of-unit-listing', $parent).first();
             if (data.supervisor && data.supervisor != '') {
                 var $super = $('#of-unit-box-for-'+data.supervisor, $units);
                 $ulist = $super.children('.of-unit-listing');
