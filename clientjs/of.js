@@ -450,14 +450,15 @@ var orgForm = function () {
 
     function refreshChart($data) {
         $curzm = $data;
-        var czm = $curzm.attr('id');
-        $curlist = $curzm.clone();
-        $oflist.html($curlist);
         var wholeLocation = getLocation();
-        if (czm == $of.attr('id')) {
+        if (getZoomLevel(wholeLocation) == '') {
             $('#of-zoom-out').attr('disabled', 'disabled');
+            $curlist = $('<ul></ul').html($('li', $curzm).clone());
+            $oflist.html($curlist);
         } else {
             $('#of-zoom-out').removeAttr('disabled');
+            $curlist = $curzm.clone();
+            $oflist.html($curlist);
         }
         $('.jOrgChart').remove();
         $data.jOrgChart({highlightParent: true,
