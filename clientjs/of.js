@@ -68,9 +68,6 @@ var orgForm = function () {
         } else {
             document.location.hash = wholeLocation.join('/');
             loadDoc(wholeLocation[0]);
-            if (wholeLocation.length > 1) {
-                refreshChart($(wholeLocation[1]));
-            }
         }
     }
 
