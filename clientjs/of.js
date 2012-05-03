@@ -605,7 +605,6 @@ var orgForm = function () {
 	    locs = data.colors;
             loccodes = data.codes;
             addWait(waiting, data.list.none, data.list);
-            $of.empty();
             for (var ix in data.list.none) {
                 getDetails(data.list.none[ix], function (ddata) {
                     handleData(data.list, ddata);
