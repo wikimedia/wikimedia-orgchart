@@ -360,20 +360,12 @@ var orgForm = function () {
             } else {
                 $('.of-hours-weekly', $tc).css('display', 'none');
             }
-            var $ulist = $('.of-unit-listing', $parent).first();
+            var $ulist = $of;
             if (data.supervisor && data.supervisor != '') {
-                var $super = $('#of-unit-box-for-'+data.supervisor, $units);
-                $ulist = $super.children('.of-unit-listing');
+                $ulist = $parent.children('.of-unit-listing');
                 if (!$ulist || !$ulist.length) {
-                    $super.append($tlist.clone());
-                    $ulist = $('.of-unit-listing', $super);
-                }
-            }
-
-            if (!$ulist || !$ulist.length) {
-                $ulist = $units;
-                if (!$ulist || !$ulist.length) {
-                    return;
+                    $parent.append($tlist.clone());
+                    $ulist = $('.of-unit-listing', $parent);
                 }
             }
 
@@ -626,7 +618,7 @@ var orgForm = function () {
     }
 
     $('#of-zoom-out').click(function () {
-        refreshChart($of);
+        setLocation([getDocId()]);
     });
     
     $('#of-home-page').click(function () {
