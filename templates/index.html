@@ -8,16 +8,17 @@
     <title></title>
     <script type="text/javascript" src="/jquery.js"></script>
     <script type="text/javascript" src="/jquery.form.js"></script>
-    <script type="text/javascript" src="/jquery.jorgchart.js"></script>
+    <script type="text/javascript" src="/jquery.svg.js"></script>
+    <script type="text/javascript" src="/jquery.svggraph.js"></script>
+    <script type="text/javascript" src="/jquery.svgchart.js"></script>
     <script type="text/javascript" src="/of.js"></script>
     <script type="text/javascript">
       $(document).ready(function () {
-          var of = new orgForm();
+          var of = new orgChart();
       });
     </script>
     <link rel="stylesheet" href="/of.css" media="all" />
     <link rel="stylesheet" href="/of-print.css" media="print" />
-    <link rel="stylesheet" href="/jorgchart.css" media="all" />
   </head>
   <body>
     <div id="title-container"><h1 id="title"></h1></div>
@@ -31,6 +32,7 @@
           <label><input type="checkbox" id="of-filter-vacant" checked="checked" /> Show vacancies</label><br />
           <label><input type="checkbox" id="of-filter-contract" checked="checked" /> Show contractors</label><br />
           <label><input type="checkbox" id="of-filter-employee" checked="checked" /> Show employees</label><br />
+          <label><input type="checkbox" id="of-display-sideways" checked="checked" /> Display sideways</label><br />
           <button id="of-zoom-out" disabled="disabled">Zoom out</button><br />
           <button id="of-home-page">Home page</button><br />
         </div>
@@ -79,6 +81,8 @@
     <div id="of-org-form-display">
     </div>
     <div id="of-org-list-display">
+    </div>
+    <div id="of-org-form-svg" width="300" height="150">
     </div>
     <ul id="of-org-form">
       <ul class="of-unit-listing">

@@ -22,8 +22,11 @@ handle["/remove"] = requestHandlers.remove;
 handle["/addto"] = requestHandlers.add;
 handle["/of.css"] = requestHandlers.style;
 handle["/of-print.css"] = requestHandlers.pstyle;
-handle["/jquery.jorgchart.js"] = requestHandlers.jorgchart;
-handle["/jorgchart.css"] = requestHandlers.jorgchartstyle;
+
+handle["/jquery.svg.js"] = requestHandlers.svg;
+handle["/jquery.svggraph.js"] = requestHandlers.svggraph;
+handle["/jquery.svgchart.js"] = requestHandlers.svgchart;
+
 handle["/login"] = requestHandlers.login;
 handle["/logout"] = requestHandlers.logout;
 handle["/isLogged"] = requestHandlers.isLogged;

@@ -322,7 +322,7 @@ function start(response) {
 }
 
 function script(response) {
-    respondWithFile(response, 'clientjs/of.js', 'text/javascript');
+    respondWithFile(response, 'clientjs/wmf-orgchart.js', 'text/javascript');
 }
 
 function jquery(response) {
@@ -345,8 +345,16 @@ function jorgchartstyle(response) {
     respondWithFile(response, 'style/jquery.jorgchart.css', 'text/css');
 }
 
-function jorgchart(response) {
-    respondWithFile(response, 'clientjs/jquery.jorgchart.js', 'text/javascript');
+function svg(response) {
+    respondWithFile(response, 'clientjs/svg-oc/base/jquery.svg.js', 'text/javascript');
+}
+
+function svggraph(response) {
+    respondWithFile(response, 'clientjs/svg-oc/base/jquery.svggraph.js', 'text/javascript');
+}
+
+function svgchart(response) {
+    respondWithFile(response, 'clientjs/svg-oc/jquery.svgorgchart.js', 'text/javascript');
 }
 
 function pinlifted(response) {
@@ -366,7 +374,11 @@ exports.list = list;
 
 exports.jquery = jquery;
 exports.jqueryform = jqueryform;
-exports.jorgchart = jorgchart;
+
+exports.svg = svg;
+exports.svggraph = svggraph;
+exports.svgchart = svgchart;
+
 exports.script = script;
 
 exports.start = start;

@@ -61,12 +61,13 @@
                     orig = $('li:first', orig);
                 }
 
-                this._drawNode(w, g, orig, size, height, padding, format, clickevent, sw, cb, true);
+                this._drawNode(w, g, orig, size, height, padding, format, clickevent, sw, cb, 2);
             }
         },
 
         /* Draw a node, and all of its children, and return it */
         _drawNode: function(w, parent, $node, size, height, padding, format, click, sw, cb, isone, fns) {
+            var isFirstCall = isone === 2;
             function addToWidth(amt) {
                 addToDims(sw ? 'height' : 'width', amt);
             }
@@ -81,6 +82,14 @@
                 $cont.attr(which, newwidth);
                 $svg.attr(which, newwidth);
                 $graph.attr(which, newwidth);
+            }
+            function setDims(which, amt) {
+                var $cont = $(w._container);
+                var $svg = $(w._svg);
+                var $graph = $(w.graph._chartCont);
+                $cont.attr(which, amt);
+                $svg.attr(which, amt);
+                $graph.attr(which, amt);
             }
 
             function sizeOrHeight() {
@@ -126,6 +135,7 @@
             var innernode = w.group(nodeg, {transform: 'translate(7, 20)'});
             var result = format(w, innernode, $nodeContent);
             chart.map[0].push(1);
+            chart.csize = 0;
             var locdown = (heightOrSize() + 2 * padding);
             var tlcorner = 0;
             if ($childNodes && $childNodes.length) {
@@ -141,20 +151,21 @@
 
                     var off = fns.fbo(chart, rchart.map, 1, fns.cfc);
                     fns.mm(chart, rchart.map, [off, 1]);
-                    var wind = tsize / (sizeOrHeight() + padding);
+                    var wind = chart.csize;
                     var tloc = (off/2 * (sizeOrHeight() + padding));
                     var added = chart.added;
                     chart.added = 0;
 
-                    addToWidth(-1 * (sizeOrHeight() + padding) * (wind - added/2));
+                    addToWidth(-1 * ((sizeOrHeight() + padding) * ((wind - added) / 2) + padding));
 
                     w.change(nrg, {transform: (sw ? 'translate(0 ' : 'translate(') + tloc + (sw ? ')' : ' 0)')});
                     var cwidth = ((added) * (sizeOrHeight() + padding)) / 2;
                     childlocs.push((tloc + (chart.newpix + 1) * (sizeOrHeight() + padding) / 2) - padding / 2);
                     chart.size += cwidth;
+                    chart.csize += added;
                 });
 
-                var childsize = $childNodes.length - 1;
+                var childsize = chart.csize / 2;
                 tlcorner = (sizeOrHeight() + padding) * childsize / 2;
                 while (childsize > 0) {
                     chart.map[0].unshift(0);
@@ -163,6 +174,10 @@
                 if (tlcorner != 0) {
                     w.change(nodeg, {transform: (sw ? 'translate(0 ' : 'translate(') + tlcorner + (sw ? ')' : ' 0)')});
                 }
+            }
+
+            if (isFirstCall) {
+                setDims(sw ? 'height' : 'width', (chart.csize / 2) * (sizeOrHeight() + 2 * padding));
             }
 
             var botcenter = [(tlcorner + (size / 2)), height];
