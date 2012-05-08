@@ -120,9 +120,8 @@
 
             if (!isone) {
                 addToWidth(sizeOrHeight() + padding);
-            } else {
-                addToHeight(heightOrSize() + padding * 2);
             }
+            addToHeight(heightOrSize() + padding * 2);
 
             var $childNodes = $node.children("ul:first").children("li");
             var tg = w.group(parent, {});
@@ -156,8 +155,6 @@
                     var added = chart.added;
                     chart.added = 0;
 
-                    addToWidth(-1 * ((sizeOrHeight() + padding) * ((wind - added) / 2) + padding));
-
                     w.change(nrg, {transform: (sw ? 'translate(0 ' : 'translate(') + tloc + (sw ? ')' : ' 0)')});
                     var cwidth = ((added) * (sizeOrHeight() + padding)) / 2;
                     childlocs.push((tloc + (chart.newpix + 1) * (sizeOrHeight() + padding) / 2) - padding / 2);
@@ -177,7 +174,9 @@
             }
 
             if (isFirstCall) {
-                setDims(sw ? 'height' : 'width', (chart.csize / 2) * (sizeOrHeight() + 2 * padding));
+                w.change(tg, {transform: 'translate(' + (padding / 2) + ' ' + (padding / 2) + ')'});
+                setDims(sw ? 'height' : 'width', (chart.csize / 2) * (sizeOrHeight() + 2 * padding) + padding);
+                setDims(sw ? 'width' : 'height', (chart.map.length) * (heightOrSize() + 3 * padding) + padding);
             }
 
             var botcenter = [(tlcorner + (size / 2)), height];

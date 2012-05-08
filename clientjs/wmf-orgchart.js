@@ -377,7 +377,7 @@ function createOrgChart(opts) {
 
     function drawInitial(svg) {
         var $orig = $('#of-org-form');
-        svg.graph.noDraw().title('Org Chart Test')
+        svg.graph.noDraw()
             .type('orgchart')
             .options($.extend({orig: $orig,
                                size: 300,
