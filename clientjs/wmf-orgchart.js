@@ -1,43 +1,3 @@
-function setLocation(wholeLocation, opts) {
-    if (!opts || typeof opts != typeof {}) {
-        opts = {};
-    }
-
-    if (!wholeLocation) {
-        wholeLocation = [];
-    }
-
-    while (wholeLocation.length < 2) {
-        wholeLocation.push('');
-    }
-
-    var optstr = '?';
-    for (var ox in opts) {
-        if (optstr.length > 1) {
-            optstr += '&';
-        }
-        optstr += ox + '=' + opts[ox];
-    }
-    if (optstr.length > 1) {
-        wholeLocation.push(optstr);
-    }
-
-    document.location.hash = wholeLocation.join('/')
-
-    if (wholeLocation[0] == '') {
-        document.location.hash = '';
-        wholeLocation[1] = '';
-        document.location.hash = wholeLocation.join('/');
-        loadDocs();
-    } else {
-        if (wholeLocation[1] == '') {
-            loadDoc(wholeLocation[0]);
-        } else {
-            loadDoc(wholeLocation[0], wholeLocation[1]);
-        }
-    }
-}
-
 function getLocation() {
     var hash = document.location.hash.slice(1);
     return hash.split('/');
@@ -83,17 +43,6 @@ function getOpts(wholeLocation) {
     return opts;
 }
 
-function addToOpts(opts, wholeLocation) {
-    wholeLocation = wholeLocation || getLocation();
-    var oldopts = getOpts();
-    opts = $.extend(oldopts, opts);
-    while (wholeLocation.length < 3) {
-        wholeLocation.push('');
-    }
-    wholeLocation[2] = opts;
-    setLocation(wholeLocation);
-}
-
 function orgChart() {
     var $tunit = $('.of-unit-box').detach();
     var $tlist = $('.of-unit-listing').detach();
@@ -105,6 +54,63 @@ function orgChart() {
     var units = {};
     var locs = {};
     var loccodes = {};
+
+    function setLocation(wholeLocation, opts) {
+        if (!opts || typeof opts != typeof {}) {
+            if (wholeLocation.length > 2 && typeof wholeLocation[2] == typeof {}) {
+                opts = wholeLocation[2];
+            } else {
+                opts = {};
+            }
+        }
+
+        if (!wholeLocation) {
+            wholeLocation = [];
+        }
+
+        while (wholeLocation.length < 3) {
+            wholeLocation.push('');
+        }
+
+        var optstr = '?';
+        for (var ox in opts) {
+            if (optstr.length > 1) {
+                optstr += '&';
+            }
+            optstr += ox + '=' + opts[ox];
+        }
+        if (optstr.length > 1) {
+            wholeLocation[2] = optstr;
+        } else {
+            wholeLocation.pop();
+        }
+
+        document.location.hash = wholeLocation.join('/')
+
+        if (wholeLocation[0] == '') {
+            document.location.hash = '';
+            wholeLocation[1] = '';
+            document.location.hash = wholeLocation.join('/');
+            loadDocs();
+        } else {
+            if (wholeLocation[1] == '') {
+                loadDoc(wholeLocation[0]);
+            } else {
+                loadDoc(wholeLocation[0], wholeLocation[1]);
+            }
+        }
+    }
+
+    function addToOpts(opts, wholeLocation) {
+        wholeLocation = wholeLocation || getLocation();
+        var oldopts = getOpts();
+        opts = $.extend(oldopts, opts);
+        while (wholeLocation.length < 3) {
+            wholeLocation.push('');
+        }
+        wholeLocation[2] = opts;
+        setLocation(wholeLocation);
+    }
 
     function checkIfLogged(cb) {
         if (typeof cb != 'function') {
@@ -395,6 +401,16 @@ function orgChart() {
             loadDoc(curloc[0]);
         } else {
             loadDoc(curloc[1]);
+        }
+    }
+    if (curloc.length > 2) {
+        var loadopts = getOpts(curloc);
+        if ('sideways' in loadopts) {
+            if (loadopts.sideways === true) {
+                $('#of-display-sideways').attr('checked', 'checked');
+            } else if (loadopts.sideways === false) {
+                $('#of-display-sideways').removeAttr('checked');
+            }
         }
     }
 }
