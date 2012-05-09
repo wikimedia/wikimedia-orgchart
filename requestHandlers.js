@@ -105,9 +105,9 @@ function list(response, request, args) {
     } else {
         doc = 'units';
     }
-    db.listHierarchy(doc, function (list, locs, loccodes, units) {
+    db.listHierarchy(doc, function (list, locs, loccodes, units, docname) {
         response.writeHead(200, {'Content-Type': 'application/json'});
-        response.write(jsonify({list: list, colors: locs, codes: loccodes, units: units, org: orgName}));
+        response.write(jsonify({list: list, colors: locs, codes: loccodes, units: units, org: orgName, doc: docname}));
         response.end();
     });
 }

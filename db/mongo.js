@@ -234,7 +234,7 @@ function listHierarchy(doc, cb) {
     }
 
     if (doc == 'units') {
-        doTheRest(cols.units);
+        doTheRest(cols.units, 'legacy chart');
     } else {
         getDoc(doc, doTheRest);
     }

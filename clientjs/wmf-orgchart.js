@@ -1,3 +1,99 @@
+function setLocation(wholeLocation, opts) {
+    if (!opts || typeof opts != typeof {}) {
+        opts = {};
+    }
+
+    if (!wholeLocation) {
+        wholeLocation = [];
+    }
+
+    while (wholeLocation.length < 2) {
+        wholeLocation.push('');
+    }
+
+    var optstr = '?';
+    for (var ox in opts) {
+        if (optstr.length > 1) {
+            optstr += '&';
+        }
+        optstr += ox + '=' + opts[ox];
+    }
+    if (optstr.length > 1) {
+        wholeLocation.push(optstr);
+    }
+
+    document.location.hash = wholeLocation.join('/')
+
+    if (wholeLocation[0] == '') {
+        document.location.hash = '';
+        wholeLocation[1] = '';
+        document.location.hash = wholeLocation.join('/');
+        loadDocs();
+    } else {
+        if (wholeLocation[1] == '') {
+            loadDoc(wholeLocation[0]);
+        } else {
+            loadDoc(wholeLocation[0], wholeLocation[1]);
+        }
+    }
+}
+
+function getLocation() {
+    var hash = document.location.hash.slice(1);
+    return hash.split('/');
+}
+
+function getZoomLevel(wholeLocation) {
+    wholeLocation = wholeLocation || getLocation();
+    if (wholeLocation && wholeLocation.length > 1) {
+        return wholeLocation[1];
+    } else {
+        return '';
+    }
+}
+
+function getDocId(wholeLocation) {
+    wholeLocation = wholeLocation || getLocation();
+    if (wholeLocation && wholeLocation.length > 0) {
+        return wholeLocation[0];
+    } else {
+        return '';
+    }
+}
+
+function getOpts(wholeLocation) {
+    wholeLocation = wholeLocation || getLocation();
+    var opts = {};
+    if (wholeLocation && wholeLocation.length > 2) {
+        var optstr = wholeLocation[2];
+        if (optstr.length > 1) {
+            var olist = optstr.slice(1).split('&');
+            for (var ox in olist) {
+                var thisone = olist[ox].split('=');
+                if (thisone[1] == 'true') {
+                    thisone[1] = true;
+                } else if (thisone[1] == 'false') {
+                    thisone[1] = false;
+                }
+
+                opts[thisone[0]] = thisone[1];
+            }
+        }
+    }
+    return opts;
+}
+
+function addToOpts(opts, wholeLocation) {
+    wholeLocation = wholeLocation || getLocation();
+    var oldopts = getOpts();
+    opts = $.extend(oldopts, opts);
+    while (wholeLocation.length < 3) {
+        wholeLocation.push('');
+    }
+    wholeLocation[2] = opts;
+    setLocation(wholeLocation);
+}
+
 function orgChart() {
     var $tunit = $('.of-unit-box').detach();
     var $tlist = $('.of-unit-listing').detach();
@@ -9,43 +105,6 @@ function orgChart() {
     var units = {};
     var locs = {};
     var loccodes = {};
-
-    function setLocation(wholeLocation) {
-        if (!wholeLocation || wholeLocation.length == 0) {
-            document.location.hash = '';
-            loadDocs();
-        } else {
-            document.location.hash = wholeLocation.join('/');
-            if (wholeLocation.length == 1) {
-                loadDoc(wholeLocation[0]);
-            } else {
-                loadDoc(wholeLocation[0], wholeLocation[1]);
-            }
-        }
-    }
-
-    function getLocation() {
-        var hash = document.location.hash.slice(1);
-        return hash.split('/');
-    }
-
-    function getZoomLevel(wholeLocation) {
-        wholeLocation = wholeLocation || getLocation();
-        if (wholeLocation && wholeLocation.length > 1) {
-            return wholeLocation[1];
-        } else {
-            return '';
-        }
-    }
-
-    function getDocId(wholeLocation) {
-        wholeLocation = wholeLocation || getLocation();
-        if (wholeLocation && wholeLocation.length > 0) {
-            return wholeLocation[0];
-        } else {
-            return '';
-        }
-    }
 
     function checkIfLogged(cb) {
         if (typeof cb != 'function') {
@@ -98,7 +157,7 @@ function orgChart() {
                 if (!isLogged) {
                     $('.hide-until-logged', $doc).css('display', 'none');
                 }
-                
+
                 var $renameForm = $('form', $doc);
                 $renameForm.attr('action', '/renamedoc/' + doc._id);
                 $renameForm.ajaxForm({
@@ -112,7 +171,7 @@ function orgChart() {
                         }
                     },
                     dataType: 'json'});
-                
+
                 $renameForm.click(function (event) {
                     event.stopPropagation();
                 });
@@ -180,7 +239,7 @@ function orgChart() {
             $orgchart.empty();
         }
         $units.empty();
-        
+
         $('#of-filter-options').css('display', 'block');
         $dlist.css('display', 'none');
 
@@ -193,7 +252,7 @@ function orgChart() {
                 $('title').html('Org Chart');
             }
             units = data.units;
-	    locs = data.colors;
+            locs = data.colors;
             loccodes = data.codes;
             for (var nx in data.list.none) {
                 addTo($units, units[data.list.none[nx]], data.list, units);
@@ -202,9 +261,9 @@ function orgChart() {
             $('#of-display-sideways').click(function () {
                 var $this = $(this);
                 if ($this.is(':checked')) {
-                    createOrgChart({sideways: true});
+                    addToOpts({sideways: true});
                 } else {
-                    createOrgChart({sideways: false});
+                    addToOpts({sideways: false});
                 }
             });
         });
@@ -328,7 +387,16 @@ function orgChart() {
         }
     }
 
-    loadDocs();
+    var curloc = getLocation();
+    if (curloc[0] == '') {
+        loadDocs();
+    } else {
+        if (curloc[1] == '') {
+            loadDoc(curloc[0]);
+        } else {
+            loadDoc(curloc[1]);
+        }
+    }
 }
 
 function createOrgChart(opts) {
@@ -377,6 +445,8 @@ function createOrgChart(opts) {
 
     function drawInitial(svg) {
         var $orig = $('#of-org-form');
+        var qopts = getOpts();
+
         svg.graph.noDraw()
             .type('orgchart')
             .options($.extend({orig: $orig,
@@ -385,7 +455,7 @@ function createOrgChart(opts) {
                                height: 100,
                                draw: doNode,
                                click: clickNode,
-                               sideways: true}, opts))
+                               sideways: true}, opts, qopts))
             .redraw();
     }
 }
