@@ -16,6 +16,7 @@ handle["/of.js"] = requestHandlers.script;
 
 handle["/jquery.js"] = requestHandlers.jquery;
 handle["/jquery.form.js"] = requestHandlers.jqueryform;
+handle["/jquery.hash.js"] = requestHandlers.jqueryhash;
 
 handle["/list"] = requestHandlers.list;
 handle["/details"] = requestHandlers.details;

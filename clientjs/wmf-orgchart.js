@@ -393,26 +393,31 @@ function orgChart() {
         }
     }
 
-    var curloc = getLocation();
-    if (curloc[0] == '') {
-        loadDocs();
-    } else {
-        if (curloc[1] == '') {
-            loadDoc(curloc[0]);
+    function navigateToCurrent() {
+        var curloc = getLocation();
+        if (curloc[0] == '') {
+            loadDocs();
         } else {
-            loadDoc(curloc[1]);
+            if (curloc[1] == '') {
+                loadDoc(curloc[0]);
+            } else {
+                loadDoc(curloc[1]);
+            }
         }
-    }
-    if (curloc.length > 2) {
-        var loadopts = getOpts(curloc);
-        if ('sideways' in loadopts) {
-            if (loadopts.sideways === true) {
-                $('#of-display-sideways').attr('checked', 'checked');
-            } else if (loadopts.sideways === false) {
-                $('#of-display-sideways').removeAttr('checked');
+        if (curloc.length > 2) {
+            var loadopts = getOpts(curloc);
+            if ('sideways' in loadopts) {
+                if (loadopts.sideways === true) {
+                    $('#of-display-sideways').attr('checked', 'checked');
+                } else if (loadopts.sideways === false) {
+                    $('#of-display-sideways').removeAttr('checked');
+                }
             }
         }
     }
+    
+    $(window).hashchange(navigateToCurrent);
+    $(window).hashchange();
 }
 
 function createOrgChart(opts) {

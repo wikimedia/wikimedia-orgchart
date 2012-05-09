@@ -36,10 +36,10 @@
         /* Actually draw the graph in this type's style.
            @param  graph  (object) the SVGGraph object */
         drawGraph: function(graph) {
-            var padding = graph._chartOptions.padding || 10;
+            var padding = graph._chartOptions.padding - 0 || 10;
             var orig = graph._chartOptions.orig || null;
-            var size = graph._chartOptions.size || 100;
-            var height = graph._chartOptions.height || 75;
+            var size = graph._chartOptions.size - 0 || 100;
+            var height = graph._chartOptions.height - 0 || 75;
             var draw = graph._chartOptions.draw || function () {};
             var clickevent = graph._chartOptions.click || function () {};
             var cb = graph._chartOptions.cb || function () {};

@@ -333,6 +333,10 @@ function jqueryform(response) {
     respondWithFile(response, 'clientjs/jquery.form.js', 'text/javascript');
 }
 
+function jqueryhash(response) {
+    respondWithFile(response, 'clientjs/jquery.hash.min.js', 'text/javascript');
+}
+
 function style(response) {
     respondWithFile(response, 'style/of.css', 'text/css');
 }
@@ -374,6 +378,7 @@ exports.list = list;
 
 exports.jquery = jquery;
 exports.jqueryform = jqueryform;
+exports.jqueryhash = jqueryhash;
 
 exports.svg = svg;
 exports.svggraph = svggraph;
