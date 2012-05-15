@@ -202,9 +202,9 @@
                 w.polyline(lineg, [botcenter, justbelow, justabove, topcenter], {fill: 'none', stroke: 'black', strokeWidth: '1'});
             }
 
-            innernode.onclick = function (event) {
-                var id = this.id || null;
-                click(this, id);
+            nodeg.onclick = function (event) {
+                var id = innernode.id || null;
+                click(innernode, id);
             };
 
             cb(nodeg, nodeg.id);

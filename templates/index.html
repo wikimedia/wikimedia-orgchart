@@ -15,13 +15,48 @@
     <script type="text/javascript" src="/of.js"></script>
     <script type="text/javascript">
       $(document).ready(function () {
-          var of = new orgChart();
+      var of = new orgChart();
       });
     </script>
     <link rel="stylesheet" href="/of.css" media="all" />
     <link rel="stylesheet" href="/of-print.css" media="print" />
   </head>
   <body>
+    <div id="of-left-menus">
+      <div id="of-login-form" class="login">
+        <div id="of-login-form-tip">
+          <p>login</p>
+        </div>
+        <div id="of-logout-form-tip">
+          <p>logout</p>
+        </div>
+        <div id="of-login-form-in">
+          <form action="/login" method="POST">
+            <p><label>Username <input type="text" name="username" /></label></p>
+            <p><label>Password <input type="password" name="password" /></label></p>
+            <p><input type="submit" value="Login" /></p>
+          </form>
+        </div>
+        <div id="of-login-form-out">
+          <form action="/logout" method="POST">
+            <p><input type="submit" value="Logout" /></p>
+          </form>
+        </div>
+      </div>
+      <div id="of-inspector">
+        <div id="of-inspector-tip"><p>inspector</p></div>
+        <div id="of-inspector-full">
+          <div id="of-inspector-title"><span class="value">(title)</span></div>
+          <div id="of-inspector-name"><span class="value">(name)</span></div>
+          <div id="of-inspector-loc">(<span class="value">location</span>)</div>
+          <div id="of-inspector-reqn">Requisition #: <span class="value"></span></div>
+          <div id="of-inspector-start">Start Date: <span class="value"></span></div>
+          <div id="of-inspector-end">End Date: <span class="value"></span></div>
+          <div id="of-inspector-hrs">Hours/week: <span class="value"></span></div>
+          <span id="of-inspector-type-tag"></span>
+        </div>
+      </div>
+    </div>
     <div id="title-container"><h1 id="title"></h1></div>
     <div id="of-filter-menu">
       <div id="of-filter-tip">
@@ -40,27 +75,6 @@
         <div id="of-docs-options">
           <button id="of-new-doc" class="hide-until-logged">New document</button><br />
         </div>
-      </div>
-    </div>
-    <div id="of-login-form" class="login">
-      <div id="of-login-form-tip">
-        <p>login</p>
-      </div>
-      <div id="of-logout-form-tip">
-        <p>logout</p>
-      </div>
-      <div id="of-login-form-in">
-        <form action="/login" method="POST">
-          <p><label>Username <input type="text" name="username" /></label></p>
-          <p><label>Password <input type="password" name="password" /></label></p>
-          <p><input type="submit" value="Login" /></p>
-          <span class="of-login-show"></span>
-        </form>
-      </div>
-      <div id="of-login-form-out">
-        <form action="/logout" method="POST">
-          <p><input type="submit" value="Logout" /></p>
-        </form>
       </div>
     </div>
     <ul id="of-documents-list">

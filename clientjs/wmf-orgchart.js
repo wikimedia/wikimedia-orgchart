@@ -263,7 +263,38 @@ function orgChart() {
             for (var nx in data.list.none) {
                 addTo($units, units[data.list.none[nx]], data.list, units);
             }
-            createOrgChart();
+
+            createOrgChart({
+                lccolors: loccodes,
+                click: function (node, id) {
+                    var oldid = id.substr(4);
+                    var $ob = $('#' + oldid);
+                    var $on = $('.of-unit-view', $ob); // old node
+                    var fields = ['name', 'title', 'loc', 'reqn', 'start', 'end', 'hrs'];
+                    for (var fx in fields) {
+                        var f = fields[fx];
+                        var $ov = $('.of-unit-'+f, $on);
+                        var $ofi = $('#of-inspector-' + f);
+                        if ($ov && $ov.html().length) {
+                            $ofi.show();
+                            $('.value', $ofi).html($ov.html());
+                        } else {
+                            $ofi.hide();
+                        }
+                    }
+                    var $itt = $('#of-inspector-type-tag');
+                    $itt.show();
+                    $itt.removeClass('employee').removeClass('contractor').removeClass('vacancy');
+                    if ($ob.hasClass('employee')) {
+                        $itt.addClass('employee');
+                    } else if ($ob.hasClass('contractor')) {
+                        $itt.addClass('contractor');
+                    } else {
+                        $itt.addClass('vacancy');
+                    }
+                    $('#of-inspector').addClass('filled');
+                }
+            });
             $('#of-display-sideways').click(function () {
                 var $this = $(this);
                 if ($this.is(':checked')) {
@@ -415,7 +446,7 @@ function orgChart() {
             }
         }
     }
-    
+
     $(window).hashchange(navigateToCurrent);
     $(window).hashchange();
 }
@@ -445,6 +476,9 @@ function createOrgChart(opts) {
         var name = $('.of-unit-name', $nc).html();
         var location = $('.of-unit-loc', $nc).html();
 
+        var loccode = $('.of-unit-lc', $nc).html();
+        var lcc = opts.lccolors[loccode] || opts.lccolors.other || 'grey';
+
         var id = $nc.attr('id');
         if (id && id != '') {
             ng.id = 'svg-' + id;
@@ -458,10 +492,13 @@ function createOrgChart(opts) {
 
         var locg = w.group(ng, {transform: 'translate(0, 60)'});
         w.text(locg, location);
-    }
 
-    function clickNode(node, id) {
-        console.log(id);
+        if (loccode != '') {
+            var lcg = w.group(ng, {transform: 'translate(' + (opts.size - 50) + ' -40)'});
+            w.rect(lcg, 0, 0, 30, 30, {fill: lcc});
+            var lctg = w.group(lcg, {transform: 'translate(5 15)'});
+            w.text(lctg, loccode, {fill: 'white'});
+        }
     }
 
     function drawInitial(svg) {
@@ -472,10 +509,9 @@ function createOrgChart(opts) {
             .type('orgchart')
             .options($.extend({orig: $orig,
                                size: 300,
-                               padding: 20,
+                               padding: 25,
                                height: 100,
                                draw: doNode,
-                               click: clickNode,
                                sideways: true}, opts, qopts))
             .redraw();
     }
