@@ -172,6 +172,23 @@ function orgChart() {
                 $('title').html('Org Chart');
             }
             docs = data.list;
+            $('#of-new-doc').click(function () {
+                var $dcc = $docctpl.clone();
+                var $dcfrm = $('form', $dcc);
+
+                $dcfrm.ajaxForm({
+                    success: function (data) {
+                        setLocation([]);
+                    },
+                    dataType: 'json'});
+
+                $('.of-doc-create-cancel', $dcc).click(function () {
+                    $(this).closest('li').remove();
+                });
+
+                $dlist.prepend($dcc);
+            });
+
             for (var dx in docs) {
                 var doc = docs[dx];
                 var $doc = $doctpl.clone();
@@ -288,22 +305,28 @@ function orgChart() {
             }
 
             createOrgChart({
-                lccolors: loccodes,
+                lccolors: loccodes || {},
                 click: function (node, id) {
                     var oldid = id.substr(4);
                     var $ob = $('#' + oldid);
                     var $on = $('.of-unit-view', $ob); // old node
                     var fields = ['name', 'title', 'loc', 'reqn', 'start', 'end', 'hrs'];
+                    var fieldcount = 0;
                     for (var fx in fields) {
                         var f = fields[fx];
                         var $ov = $('.of-unit-'+f, $on);
                         var $ofi = $('#of-inspector-' + f);
                         if ($ov && $ov.html().length) {
+                            fieldcount += 1;
                             $ofi.show();
                             $('.value', $ofi).html($ov.html());
                         } else {
                             $ofi.hide();
                         }
+                    }
+                    if (fieldcount < 3) {
+                        $('#of-inspector-full').css('padding', 30);
+                        $('#of-inspector-full').css('padding-top', 10);
                     }
                     var $itt = $('#of-inspector-type-tag');
                     $itt.show();
@@ -507,16 +530,22 @@ function createOrgChart(opts) {
             ng.id = 'svg-' + id;
         }
 
-        var titleg = w.group(ng);
-        w.text(titleg, title);
+        if (title && title != '') {
+            var titleg = w.group(ng);
+            w.text(titleg, title);
+        }
 
-        var nameg = w.group(ng, {transform: 'translate(0, 30)'});
-        w.text(nameg, name);
+        if (name && name != '') {
+            var nameg = w.group(ng, {transform: 'translate(0, 30)'});
+            w.text(nameg, name);
+        }
 
-        var locg = w.group(ng, {transform: 'translate(0, 60)'});
-        w.text(locg, location);
+        if (location && location != '') {
+            var locg = w.group(ng, {transform: 'translate(0, 60)'});
+            w.text(locg, location);
+        }
 
-        if (loccode != '') {
+        if (loccode && loccode != '') {
             var lcg = w.group(ng, {transform: 'translate(' + (opts.size - 50) + ' -40)'});
             w.rect(lcg, 0, 0, 30, 30, {fill: lcc});
             var lctg = w.group(lcg, {transform: 'translate(5 15)'});

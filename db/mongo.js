@@ -130,7 +130,6 @@ function findAndRemove(doc, con, cb) {
     getDoc(doc, function(_id) {
         db.collection(String(_id), function (err, col) {
             col.remove(con, {safe: true}, function (err, num) {
-                db.close();
                 addToDocCount(String(_id), -1 * num);
                 cb();
             });
@@ -157,7 +156,6 @@ function listHierarchy(doc, cb) {
                 console.log(err);
             } else {
                 col.find().toArray(function (err, docs) {
-                    db.close();
                     if (err != null) {
                         console.log(err);
                         if (cb && typeof cb == 'function') {

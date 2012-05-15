@@ -55,7 +55,7 @@
                 var w = graph._wrapper;
                 var g = w.group(this._chart,
                                 $.extend({class_: 'graph', fill: graph._fill, stroke: graph._stroke,
-                                          transform: 'translate(0 70)', strokeWidth: graph._strokeWidth}, graph._settings || {}));
+                                          transform: 'translate(0 0)', strokeWidth: graph._strokeWidth}, graph._settings || {}));
 
                 if (orig.is('ul')) {
                     orig = $('li:first', orig);
@@ -134,7 +134,7 @@
             var innernode = w.group(nodeg, {transform: 'translate(7, 20)'});
             var result = format(w, innernode, $nodeContent);
             chart.map[0].push(1);
-            chart.csize = 0;
+            chart.csize = 2;
             var locdown = (heightOrSize() + 2 * padding);
             var tlcorner = 0;
             if ($childNodes && $childNodes.length) {
@@ -175,8 +175,8 @@
 
             if (isFirstCall) {
                 w.change(tg, {transform: 'translate(' + (padding / 2) + ' ' + (padding / 2) + ')'});
-                setDims(sw ? 'height' : 'width', (chart.csize / 2) * (sizeOrHeight() + 2 * padding) + padding);
-                setDims(sw ? 'width' : 'height', (chart.map.length) * (heightOrSize() + 3 * padding) + padding);
+                setDims(sw ? 'height' : 'width', (chart.csize / 2) * (sizeOrHeight() + padding) + padding);
+                setDims(sw ? 'width' : 'height', (chart.map.length) * (heightOrSize() + 2 * padding) + padding);
             }
 
             var botcenter = [(tlcorner + (size / 2)), height];
