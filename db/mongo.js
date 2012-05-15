@@ -37,13 +37,13 @@ var initusers = [{username: 'admin', password: crypto.createHash('sha512').updat
 
 function indexOf (arr, elt /*, from*/) {
     var len = arr.length >>> 0;
-    
+
     var from = Number(arguments[2]) || 0;
     from = (from < 0) ? Math.ceil(from) : Math.floor(from);
-    
+
     if (from < 0)
         from += len;
-    
+
     for (; from < len; from++) {
         if (from in arr && arr[from] === elt)
             return from;
@@ -69,9 +69,9 @@ function createCollection(name, cb) {
             db.createCollection(cols[name], function (err, col) {
                 if (err == null) {
                     colld[name] = true;
-		    cb(null);
+                    cb(null);
                 } else {
-		    cb(err);
+                    cb(err);
                 }
             });
         } else {
@@ -83,35 +83,35 @@ function createCollection(name, cb) {
 
 function makeDbCalls() {
     for (var fx in dbfs) {
-	dbfs[fx]();
+        dbfs[fx]();
     }
 }
 
 db.open(function (err, p_client) {
     for (var ux in cols) {
-	createCollection(ux, function (err) {
-	    if (err != null) {
-		console.log(err);
-	    }
-	    var cx = indexOf(colld, false);
+        createCollection(ux, function (err) {
+            if (err != null) {
+                console.log(err);
+            }
+            var cx = indexOf(colld, false);
             if (!loaded && cx == -1) {
-		loaded = true;
-		console.log('Database ready.');
-		makeDbCalls();
+                loaded = true;
+                console.log('Database ready.');
+                makeDbCalls();
             }
-	});
+        });
     }
-    
+
     for (var ux in initusers) {
-	addUser(initusers[ux], function (user) {
+        addUser(initusers[ux], function (user) {
             if (user && user[0] && user[0].username) {
-		console.log('Database: Added default user ' + user[0].username + ' with password ' + user[0].password);
+                console.log('Database: Added default user ' + user[0].username + ' with password ' + user[0].password);
             } else if (user && user.ename) {
-		console.log('Database: Default user ' + user.ename + ' exists with password ' + user.epass);
+                console.log('Database: Default user ' + user.ename + ' exists with password ' + user.epass);
             } else {
-		console.log('Database error, no default user created');
+                console.log('Database error, no default user created');
             }
-	});
+        });
     }
 });
 
@@ -126,7 +126,7 @@ function findAndRemove(doc, con, cb) {
     if (typeof con != 'object') {
         con = {$or: [{_id: new ObjectId(con)}, {_id: con}]};
     }
-    
+
     getDoc(doc, function(_id) {
         db.collection(String(_id), function (err, col) {
             col.remove(con, {safe: true}, function (err, num) {
@@ -215,10 +215,10 @@ function listHierarchy(doc, cb) {
                                 loccodes[lcsort[lcx]] = colors[colors.length-1];
                             }
                         }
-                        
+
                         locs.other = colors[colors.length-1];
                         loccodes.other = locs.other;
-                        
+
                         var dunits = {};
                         for (var ux in units) {
                             units[ux].index = units[ux]._id;
@@ -295,7 +295,7 @@ function addUser(data, cb) {
                     }
                 });
             } else {
-                    cb({ename: doc.username, epass: doc.password});
+                cb({ename: doc.username, epass: doc.password});
             }
         });
     });
@@ -395,7 +395,7 @@ function emptyCollection(name, cb) {
     if (!cb || typeof cb != 'function') {
         cb = function () {};
     }
-    
+
     db.collection(name, function (err, col) {
         col.remove({}, {safe: true}, function (err, count) {
             if (err != null) {
@@ -497,7 +497,7 @@ function copyDoc(orig, dest, cb) {
             });
         });
     }
-    
+
     createDoc(dest, function (_newid) {
         if (orig != cols.units) {
             getDoc(orig, function (_id) {

@@ -112,30 +112,53 @@ function orgChart() {
         setLocation(wholeLocation);
     }
 
+    function changeLoginForm(isLogged) {
+        if (isLogged) {
+            $('.hide-until-logged').css('display', 'block');
+            $('.hide-when-logged').css('display', 'none');
+            $('#of-login-form').removeClass('login');
+            $('#of-login-form').addClass('logout');
+        } else {
+            $('.hide-until-logged').css('display', 'none');
+            $('.hide-when-logged').css('display', 'block');
+            $('#of-login-form').removeClass('logout');
+            $('#of-login-form').addClass('login');
+        }
+    }
+
     function checkIfLogged(cb) {
         if (typeof cb != 'function') {
             cb = function () {};
         }
         $.get('/isLogged', function (data) {
-            if (data.isLogged) {
-                cb(true);
-                $('.hide-until-logged').css('display', 'block');
-                $('.hide-when-logged').css('display', 'none');
-                $('#of-login-form').removeClass('login');
-                $('#of-login-form').addClass('logout');
-            } else {
-                cb(false);
-                $('.hide-until-logged').css('display', 'none');
-                $('.hide-when-logged').css('display', 'block');
-                $('#of-login-form').removeClass('logout');
-                $('#of-login-form').addClass('login');
-            }
+            cb(data.isLogged || false);
+            changeLoginForm(data.isLogged || false);
         });
     }
 
     checkIfLogged(function (result) {
         session.logged = result;
+        initLogin();
     });
+
+    function initLogin() {
+        $('#of-login-form-in form').ajaxForm({
+            success: function (data) {
+                if (data && data.success && data.success === true) {
+                    session.logged = true;
+                    changeLoginForm(true);
+                }
+            }
+        });
+        $('#of-login-form-out form').ajaxForm({
+            success: function (data) {
+                if (data && data.success && data.success === true) {
+                    session.logged = false;
+                    changeLoginForm(false);
+                }
+            }
+        });
+    }
 
     function loadDocs() {
         $('#of-filter-options').css('display', 'none');

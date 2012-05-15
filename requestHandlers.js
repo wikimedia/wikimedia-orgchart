@@ -264,22 +264,22 @@ function copyDoc(response, request, args) {
     }
     checkAuth(response, request, function (isLogged) {
         if (isLogged) {
-	    if (args && args.length == 2) {
-		db.copyDoc(args[0], args[1] + ' (copy)', function () {
-		    endCopy({success: true});
-		});
-	    } else {
-		var form = new formidable.IncomingForm();
-		form.parse(request, function (error, fields, files) {
+            if (args && args.length == 2) {
+                db.copyDoc(args[0], args[1] + ' (copy)', function () {
+                    endCopy({success: true});
+                });
+            } else {
+                var form = new formidable.IncomingForm();
+                form.parse(request, function (error, fields, files) {
                     if (fields && fields.docid && fields.name) {
-			db.copyDoc(fields.docid, fields.name + ' (copy)', function () {
+                        db.copyDoc(fields.docid, fields.name + ' (copy)', function () {
                             endCopy({success: true});
-			});
+                        });
                     } else {
-			endCopy({success: false, error: 'No name or docid found'});
+                        endCopy({success: false, error: 'No name or docid found'});
                     }
-		});
-	    }
+                });
+            }
         } else {
             endCopy({success: false, error: 'Not logged in'});
         }
