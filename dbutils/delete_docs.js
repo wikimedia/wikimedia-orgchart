@@ -7,6 +7,9 @@ var mongo = require('../db/mongo');
 
 mongo.listDocs(function (docs) {
     for (var dx in docs) {
-        mongo.deleteDoc(docs[dx]._id, function () {} );
+        mongo.deleteDoc(''+docs[dx]._id, function () {
+            console.log('Done');
+            mongo.closeAll();
+        });
     }
 });

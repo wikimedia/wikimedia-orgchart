@@ -329,10 +329,11 @@ function addUnit(docid, data, cb) {
                 console.log(err);
             } else {
                 col.insert([data], {safe: true}, function (err, doc) {
-                    addToDocCount(docid, 1);
-                    if (cb && typeof cb == 'function') {
-                        cb(doc); // I don't know what gets sent here, but do it anyway!
-                    }
+                    addToDocCount(docid, 1, function () {
+                        if (cb && typeof cb == 'function') {
+                            cb(doc); // I don't know what gets sent here, but do it anyway!
+                        }
+                    });
                 });
             }
         });
@@ -346,21 +347,26 @@ function addUnits(docid, data, cb) {
     }
 
     function doTheRest(_id) {
-        db.collection(cols[_id], function (err, col) {
+        if (_id != null) {
+            _id = ''+_id;
+        } else {
+            
+        }
+        db.collection(''+_id, function (err, col) {
+            if (err != null) {
+                console.log(err);
+            }
             if (col != null) {
                 col.insert(data, {safe: true}, function (err, doc) {
                     if (err != null) {
                         console.log(err);
                     }
                     else {
-                        if (cb && typeof cb == 'function') {
-                            cb(doc); // I don't know what gets sent here, but do it anyway!
-                        }
-                        var count = 0;
-                        for (var cx in data) {
-                            count += 1;
-                        }
-                        addToDocCount(docid, count);
+                        addToDocCount(''+_id, doc.length, function () {
+                            if (cb && typeof cb == 'function') {
+                                cb(doc); // I don't know what gets sent here, but do it anyway!
+                            }
+                        });
                     }
                 });
             }
@@ -374,14 +380,24 @@ function addUnits(docid, data, cb) {
     }
 }
 
-function addToDocCount(doc, num) {
+function addToDocCount(doc, num, cb) {
     if (!loaded) {
         dbfs.push(function () { addToDocCount(doc, num); });
         return;
     }
+    if (!cb || typeof cb != 'function') {
+        cb = function () {};
+    }
     getDoc(doc, function (_id) {
         db.collection(cols.docs, function (err, col) {
+            if (err != null) {
+                console.log(err);
+            }
             col.findAndModify({_id: _id}, [['_id', 1]], {$inc: {count: num}}, {new: true}, function (err, document) {
+                if (err != null) {
+                    console.log(err);
+                }
+                cb();
                 return;
             });
         });
@@ -389,18 +405,35 @@ function addToDocCount(doc, num) {
 }
 
 function emptyCollection(name, cb) {
+    if (!loaded) {
+        dbfs.push(function () { emptyCollection(name, cb) });
+        return;
+    }
     name = name || 'units';
     if (!cb || typeof cb != 'function') {
         cb = function () {};
     }
 
-    db.collection(name, function (err, col) {
-        col.remove({}, {safe: true}, function (err, count) {
-            if (err != null) {
-                console.log(err);
-            }
-            cb();
-        });
+    getDoc(name, function (_id) {
+        if (_id == null) {
+            cb(null, false);
+        } else {
+            db.collection(''+_id, function (err, col) {
+                if (col != null) {
+                    col.remove({}, {safe: true}, function (err, count) {
+                        if (err != null) {
+                            console.log(err);
+                        }
+                        cb(err, true);
+                    });
+                } else if (err == null) {
+                    cb(null, false);
+                } else {
+                    console.log(err);
+                    cb(err, false);
+                }
+            });
+        }
     });
 }
 
@@ -445,8 +478,14 @@ function getDoc(did, cb) {
         did = new ObjectId(did);
     }
     db.collection(cols.docs, function (err, col) {
+        if (err != null) {
+            console.log(err);
+        }
         col.findOne({_id: did}, function (err, doc) {
-            if (!err && doc != null) {
+            if (err != null) {
+                console.log(err);
+            }
+            if (doc != null) {
                 cb(doc._id);
             } else {
                 cb(null);
@@ -462,10 +501,11 @@ function createDoc(name, cb) {
     }
     db.collection(cols.docs, function (err, col) {
         col.insert([{name: name, count: 0, created: (new Date()).getTime()}], function (err, doc) {
+            console.log(doc);
             if (err != null) {
                 console.log(err);
             }
-            createCollection(String(doc[0]._id), function () {
+            createCollection(new String(doc[0]._id), function (err) {
                 cb(doc[0]._id);
             });
         });
