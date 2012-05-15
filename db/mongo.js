@@ -55,33 +55,29 @@ function createCollection(name, cb) {
     if (!cols[name] || cols[name] == '') {
         cols[name] = name;
     }
-    db.open(function (err, p_client) {
-        db.collectionNames(function (err, items) {
-            var found = false;
-            if (items && items.length != 0) {
-                for (var ix in items) {
-                    if (items[ix].name == dbname + '.' + name) {
-                        found = true;
-                        break;
-                    }
+    db.collectionNames(function (err, items) {
+        var found = false;
+        if (items && items.length != 0) {
+            for (var ix in items) {
+                if (items[ix].name == dbname + '.' + name) {
+                    found = true;
+                    break;
                 }
             }
-            if (!items || items.length == 0 || !found) {
-                db.createCollection(cols[name], function (err, col) {
-                    db.close();
-                    if (err == null) {
-                        colld[name] = true;
-			cb(null);
-                    } else {
-			cb(err);
-                    }
-                });
-            } else {
-                db.close();
-                colld[name] = true;
-                cb();
-            }
-        });
+        }
+        if (!items || items.length == 0 || !found) {
+            db.createCollection(cols[name], function (err, col) {
+                if (err == null) {
+                    colld[name] = true;
+		    cb(null);
+                } else {
+		    cb(err);
+                }
+            });
+        } else {
+            colld[name] = true;
+            cb();
+        }
     });
 }
 
@@ -91,31 +87,33 @@ function makeDbCalls() {
     }
 }
 
-for (var ux in cols) {
-    createCollection(ux, function (err) {
-	if (err != null) {
-	    console.log(err);
-	}
-	var cx = indexOf(colld, false);
-        if (!loaded && cx == -1) {
-            loaded = true;
-            console.log('Database ready.');
-	    makeDbCalls();
-        }
-    });
-}
-
-for (var ux in initusers) {
-    addUser(initusers[ux], function (user) {
-        if (user && user[0] && user[0].username) {
-            console.log('Database: Added default user ' + user[0].username + ' with password ' + user[0].password);
-        } else if (user && user.ename) {
-            console.log('Database: Default user ' + user.ename + ' exists with password ' + user.epass);
-        } else {
-            console.log('Database error, no default user created');
-        }
-    });
-}
+db.open(function (err, p_client) {
+    for (var ux in cols) {
+	createCollection(ux, function (err) {
+	    if (err != null) {
+		console.log(err);
+	    }
+	    var cx = indexOf(colld, false);
+            if (!loaded && cx == -1) {
+		loaded = true;
+		console.log('Database ready.');
+		makeDbCalls();
+            }
+	});
+    }
+    
+    for (var ux in initusers) {
+	addUser(initusers[ux], function (user) {
+            if (user && user[0] && user[0].username) {
+		console.log('Database: Added default user ' + user[0].username + ' with password ' + user[0].password);
+            } else if (user && user.ename) {
+		console.log('Database: Default user ' + user.ename + ' exists with password ' + user.epass);
+            } else {
+		console.log('Database error, no default user created');
+            }
+	});
+    }
+});
 
 function findAndRemove(doc, con, cb) {
     if (!loaded) {
@@ -130,13 +128,11 @@ function findAndRemove(doc, con, cb) {
     }
     
     getDoc(doc, function(_id) {
-        db.open(function (err, p_client) {
-            db.collection(String(_id), function (err, col) {
-                col.remove(con, {safe: true}, function (err, num) {
-                    db.close();
-                    addToDocCount(String(_id), -1 * num);
-                    cb();
-                });
+        db.collection(String(_id), function (err, col) {
+            col.remove(con, {safe: true}, function (err, num) {
+                db.close();
+                addToDocCount(String(_id), -1 * num);
+                cb();
             });
         });
     });
@@ -152,90 +148,88 @@ function listHierarchy(doc, cb) {
     }
 
     function doTheRest(_id) {
-        db.open(function (err, p_client) {
-            var colname;
-            if (typeof _id != typeof 'string') {
-                _id = '' + _id
-            }
-            db.collection(_id, function (err, col) {
-                if (err != null) {
-                    console.log(err);
-                } else {
-                    col.find().toArray(function (err, docs) {
-                        db.close();
-                        if (err != null) {
-                            console.log(err);
-                            if (cb && typeof cb == 'function') {
-                                cb([]);
-                            }
-                        } else {
-                            var list = {}, lcount = {}, lccount = {}, units = docs;
-                            list.none = [];
-                            for (var ix in docs) {
-                                if (!docs[ix].supervisor || docs[ix].supervisor == '') {
-                                    list.none.push(docs[ix]._id);
-                                } else {
-                                    if (!list[docs[ix].supervisor]) {
-                                        list[docs[ix].supervisor] = [];
-                                    }
-                                    list[docs[ix].supervisor].push(docs[ix]._id);
+        var colname;
+        if (typeof _id != typeof 'string') {
+            _id = '' + _id
+        }
+        db.collection(_id, function (err, col) {
+            if (err != null) {
+                console.log(err);
+            } else {
+                col.find().toArray(function (err, docs) {
+                    db.close();
+                    if (err != null) {
+                        console.log(err);
+                        if (cb && typeof cb == 'function') {
+                            cb([]);
+                        }
+                    } else {
+                        var list = {}, lcount = {}, lccount = {}, units = docs;
+                        list.none = [];
+                        for (var ix in docs) {
+                            if (!docs[ix].supervisor || docs[ix].supervisor == '') {
+                                list.none.push(docs[ix]._id);
+                            } else {
+                                if (!list[docs[ix].supervisor]) {
+                                    list[docs[ix].supervisor] = [];
                                 }
-                                if (docs[ix].location && docs[ix].location != '' && lcount[docs[ix].location]) {
-                                    lcount[docs[ix].location] += 1;
-                                } else {
-                                    lcount[docs[ix].location] = 1;
-                                }
-                                if (docs[ix].loccode && docs[ix].loccode != '' && lccount[docs[ix].loccode]) {
-                                    lccount[docs[ix].loccode] += 1;
-                                } else if (docs[ix].loccode && docs[ix].loccode != '') {
-                                    lccount[docs[ix].loccode] = 1;
-                                }
+                                list[docs[ix].supervisor].push(docs[ix]._id);
                             }
-                            var csort = [], lcsort = [];
-                            for (var lx in lcount) {
-                                var sx = 0;
-                                while (csort[sx] && lcount[csort[sx]] > lcount[lx]) {
-                                    sx += 1;
-                                }
-                                csort.splice(sx, 0, lx);
+                            if (docs[ix].location && docs[ix].location != '' && lcount[docs[ix].location]) {
+                                lcount[docs[ix].location] += 1;
+                            } else {
+                                lcount[docs[ix].location] = 1;
                             }
-                            for (var lcx in lccount) {
-                                var lccx = 0;
-                                while (lcsort[lccx] && lccount[lcsort[lccx]] > lccount[lcx]) {
-                                    lccx += 1;
-                                }
-                                lcsort.splice(lccx, 0, lcx);
-                            }
-                            for (var lx in csort) {
-                                if (lx < colors.length) {
-                                    locs[csort[lx]] = colors[lx];
-                                } else {
-                                    locs[csort[lx]] = colors[colors.length-1];
-                                }
-                            }
-                            for (var lcx in lcsort) {
-                                if (lcx < colors.length) {
-                                    loccodes[lcsort[lcx]] = colors[lcx];
-                                } else {
-                                    loccodes[lcsort[lcx]] = colors[colors.length-1];
-                                }
-                            }
-                            
-                            locs.other = colors[colors.length-1];
-                            loccodes.other = locs.other;
-                            
-                            var dunits = {};
-                            for (var ux in units) {
-                                units[ux].index = units[ux]._id;
-                                dunits[units[ux]._id] = units[ux];
-                            }
-                            if (cb && typeof cb == 'function') {
-                                cb(list, locs, loccodes, dunits);
+                            if (docs[ix].loccode && docs[ix].loccode != '' && lccount[docs[ix].loccode]) {
+                                lccount[docs[ix].loccode] += 1;
+                            } else if (docs[ix].loccode && docs[ix].loccode != '') {
+                                lccount[docs[ix].loccode] = 1;
                             }
                         }
-                    });
-                }
-            });
+                        var csort = [], lcsort = [];
+                        for (var lx in lcount) {
+                            var sx = 0;
+                            while (csort[sx] && lcount[csort[sx]] > lcount[lx]) {
+                                sx += 1;
+                            }
+                            csort.splice(sx, 0, lx);
+                        }
+                        for (var lcx in lccount) {
+                            var lccx = 0;
+                            while (lcsort[lccx] && lccount[lcsort[lccx]] > lccount[lcx]) {
+                                lccx += 1;
+                            }
+                            lcsort.splice(lccx, 0, lcx);
+                        }
+                        for (var lx in csort) {
+                            if (lx < colors.length) {
+                                locs[csort[lx]] = colors[lx];
+                            } else {
+                                locs[csort[lx]] = colors[colors.length-1];
+                            }
+                        }
+                        for (var lcx in lcsort) {
+                            if (lcx < colors.length) {
+                                loccodes[lcsort[lcx]] = colors[lcx];
+                            } else {
+                                loccodes[lcsort[lcx]] = colors[colors.length-1];
+                            }
+                        }
+                        
+                        locs.other = colors[colors.length-1];
+                        loccodes.other = locs.other;
+                        
+                        var dunits = {};
+                        for (var ux in units) {
+                            units[ux].index = units[ux]._id;
+                            dunits[units[ux]._id] = units[ux];
+                        }
+                        if (cb && typeof cb == 'function') {
+                            cb(list, locs, loccodes, dunits);
+                        }
+                    }
+                });
+            }
         });
     }
 
@@ -253,18 +247,15 @@ function getUnit(doc, uid, cb) {
     }
     looking += 1;
     getDoc(doc, function (_id) {
-        db.open(function (err, p_client) {
-            db.collection(cols[_id], function (err, col) {
-                col.findOne({_id: new ObjectId(uid)}, {}, function (err, doc) {
-                    db.close();
-                    looking -= 1;
-                    if (cb && typeof cb == 'function') {
-                        if (doc && doc._id) {
-                            doc.index = doc._id;
-                        }
-                        cb(doc);
+        db.collection(cols[_id], function (err, col) {
+            col.findOne({_id: new ObjectId(uid)}, {}, function (err, doc) {
+                looking -= 1;
+                if (cb && typeof cb == 'function') {
+                    if (doc && doc._id) {
+                        doc.index = doc._id;
                     }
-                });
+                    cb(doc);
+                }
             });
         });
     });
@@ -280,39 +271,32 @@ function changeUnit(docid, uid, mods, cb) {
         modDic.$set[ix] = mods[ix];
     }
     getDoc(docid, function (_id) {
-        db.open(function (err, p_client) {
-            db.collection(String(_id), function (err, col) {
-                col.findAndModify({$or: [{_id: (new ObjectId(uid))}, {_id: uid}]}, [['_id', 1]], modDic, {new: true}, function (err, doc) {
-                    db.close();
-                    if (err != null) {
-                        console.log(err);
-                    } else {
-                        if (cb && typeof cb == 'function') {
-                            cb(doc);
-                        }
+        db.collection(String(_id), function (err, col) {
+            col.findAndModify({$or: [{_id: (new ObjectId(uid))}, {_id: uid}]}, [['_id', 1]], modDic, {new: true}, function (err, doc) {
+                if (err != null) {
+                    console.log(err);
+                } else {
+                    if (cb && typeof cb == 'function') {
+                        cb(doc);
                     }
-                });
+                }
             });
         });
     });
 }
 
 function addUser(data, cb) {
-    db.open(function (err, p_client) {
-        db.collection(cols.users, function (err, col) {
-            col.findOne({username: data.username}, function (err, doc) {
-                if (!doc) {
-                    col.insert([data], {safe: true}, function (err, doc) {
-                        db.close();
-                        if (cb && typeof cb == 'function') {
-                            cb(doc); // I don't know what gets sent here, but do it anyway!
-                        }
-                    });
-                } else {
-                    db.close();
+    db.collection(cols.users, function (err, col) {
+        col.findOne({username: data.username}, function (err, doc) {
+            if (!doc) {
+                col.insert([data], {safe: true}, function (err, doc) {
+                    if (cb && typeof cb == 'function') {
+                        cb(doc); // I don't know what gets sent here, but do it anyway!
+                    }
+                });
+            } else {
                     cb({ename: doc.username, epass: doc.password});
-                }
-            });
+            }
         });
     });
 }
@@ -322,16 +306,13 @@ function checkLogin(data, cb) {
         cb = function () {};
     }
     if (data && data.username && data.password) {
-        db.open(function (err, p_client) {
-            db.collection(cols.users, function (err, col) {
-                col.findOne({username: data.username}, {}, function (err, doc) {
-                    db.close();
-                    if (doc && doc.username == data.username && doc.password == data.password) {
-                        cb({success: true});
-                    } else {
-                        cb({success: false});
-                    }
-                });
+        db.collection(cols.users, function (err, col) {
+            col.findOne({username: data.username}, {}, function (err, doc) {
+                if (doc && doc.username == data.username && doc.password == data.password) {
+                    cb({success: true});
+                } else {
+                    cb({success: false});
+                }
             });
         });
     } else {
@@ -345,20 +326,17 @@ function addUnit(docid, data, cb) {
         return;
     }
     getDoc(docid, function (_id) {
-        db.open(function (err, p_client) {
-            db.collection(String(_id), function (err, col) {
-                if (err != null) {
-                    console.log(err);
-                } else {
-                    col.insert([data], {safe: true}, function (err, doc) {
-                        db.close();
-                        addToDocCount(docid, 1);
-                        if (cb && typeof cb == 'function') {
-                            cb(doc); // I don't know what gets sent here, but do it anyway!
-                        }
-                    });
-                }
-            });
+        db.collection(String(_id), function (err, col) {
+            if (err != null) {
+                console.log(err);
+            } else {
+                col.insert([data], {safe: true}, function (err, doc) {
+                    addToDocCount(docid, 1);
+                    if (cb && typeof cb == 'function') {
+                        cb(doc); // I don't know what gets sent here, but do it anyway!
+                    }
+                });
+            }
         });
     });
 }
@@ -370,26 +348,24 @@ function addUnits(docid, data, cb) {
     }
 
     function doTheRest(_id) {
-        db.open(function (err, p_client) {
-            db.collection(cols[_id], function (err, col) {
-                if (col != null) {
-                    col.insert(data, {safe: true}, function (err, doc) {
-                        if (err != null) {
-                            console.log(err);
+        db.collection(cols[_id], function (err, col) {
+            if (col != null) {
+                col.insert(data, {safe: true}, function (err, doc) {
+                    if (err != null) {
+                        console.log(err);
+                    }
+                    else {
+                        if (cb && typeof cb == 'function') {
+                            cb(doc); // I don't know what gets sent here, but do it anyway!
                         }
-                        else {
-                            if (cb && typeof cb == 'function') {
-                                cb(doc); // I don't know what gets sent here, but do it anyway!
-                            }
-                            var count = 0;
-                            for (var cx in data) {
-                                count += 1;
-                            }
-                            addToDocCount(docid, count);
+                        var count = 0;
+                        for (var cx in data) {
+                            count += 1;
                         }
-                    });
-                }
-            });
+                        addToDocCount(docid, count);
+                    }
+                });
+            }
         });
     }
 
@@ -406,11 +382,9 @@ function addToDocCount(doc, num) {
         return;
     }
     getDoc(doc, function (_id) {
-        db.open(function (err, p_client) {
-            db.collection(cols.docs, function (err, col) {
-                col.findAndModify({_id: _id}, [['_id', 1]], {$inc: {count: num}}, {new: true}, function (err, document) {
-                    return;
-                });
+        db.collection(cols.docs, function (err, col) {
+            col.findAndModify({_id: _id}, [['_id', 1]], {$inc: {count: num}}, {new: true}, function (err, document) {
+                return;
             });
         });
     });
@@ -422,14 +396,12 @@ function emptyCollection(name, cb) {
         cb = function () {};
     }
     
-    db.open(function (err, p_client) {
-        db.collection(name, function (err, col) {
-            col.remove({}, {safe: true}, function (err, count) {
-                if (err != null) {
-                    console.log(err);
-                }
-                cb();
-            });
+    db.collection(name, function (err, col) {
+        col.remove({}, {safe: true}, function (err, count) {
+            if (err != null) {
+                console.log(err);
+            }
+            cb();
         });
     });
 }
@@ -439,18 +411,14 @@ function dropCollection(name, cb) {
     if (!cb || typeof cb != 'function') {
         cb = function () {};
     }
-    db.open(function (err, p_client) {
-        db.collection(cols[name], function (err, col) {
-            if (col != null) {
-                col.drop(function () {
-                    db.close();
-                    cb();
-                });
-            } else {
-                db.close();
+    db.collection(cols[name], function (err, col) {
+        if (col != null) {
+            col.drop(function () {
                 cb();
-            }
-        });
+            });
+        } else {
+            cb();
+        }
     });
 }
 
@@ -459,12 +427,9 @@ function listDocs(cb) {
         dbfs.push(function () { listDocs(cb); });
         return;
     }
-    db.open(function (err, p_client) {
-        db.collection(cols.docs, function (err, col) {
-            col.find().toArray(function (err, docs) {
-                db.close();
-                cb(docs);
-            });
+    db.collection(cols.docs, function (err, col) {
+        col.find().toArray(function (err, docs) {
+            cb(docs);
         });
     });
 }
@@ -481,16 +446,13 @@ function getDoc(did, cb) {
     if (typeof did == typeof 'string' && (did.length == 12 || did.length == 24)) {
         did = new ObjectId(did);
     }
-    db.open(function (err, p_client) {
-        db.collection(cols.docs, function (err, col) {
-            col.findOne({_id: did}, function (err, doc) {
-                db.close();
-                if (!err && doc != null) {
-                    cb(doc._id);
-                } else {
-                    cb(null);
-                }
-            });
+    db.collection(cols.docs, function (err, col) {
+        col.findOne({_id: did}, function (err, doc) {
+            if (!err && doc != null) {
+                cb(doc._id);
+            } else {
+                cb(null);
+            }
         });
     });
 }
@@ -500,16 +462,13 @@ function createDoc(name, cb) {
         dbfs.push(function () { createDoc(name, cb); });
         return;
     }
-    db.open(function (err, p_client) {
-        db.collection(cols.docs, function (err, col) {
-            col.insert([{name: name, count: 0, created: (new Date()).getTime()}], function (err, doc) {
-                if (err != null) {
-                    console.log(err);
-                }
-                db.close();
-                createCollection(String(doc[0]._id), function () {
-                    cb(doc[0]._id);
-                });
+    db.collection(cols.docs, function (err, col) {
+        col.insert([{name: name, count: 0, created: (new Date()).getTime()}], function (err, doc) {
+            if (err != null) {
+                console.log(err);
+            }
+            createCollection(String(doc[0]._id), function () {
+                cb(doc[0]._id);
             });
         });
     });
@@ -559,13 +518,10 @@ function deleteDoc(doc, cb) {
         cb = function () {};
     }
     getDoc(doc, function (_id) {
-        db.open(function (err, p_client) {
-            db.collection(cols.docs, function (err, col) {
-                col.remove({_id: _id}, {safe: true}, function (err, num) {
-                    db.close();
-                    dropCollection(_id);
-                    cb();
-                });
+        db.collection(cols.docs, function (err, col) {
+            col.remove({_id: _id}, {safe: true}, function (err, num) {
+                dropCollection(_id);
+                cb();
             });
         });
     });
@@ -579,13 +535,10 @@ function renameDoc(doc, name, cb) {
     if (!cb || typeof cb != 'function') {
         cb = function () {};
     }
-    db.open(function (err, p_client) {
-        db.collection(cols.docs, function (err, col) {
-            getDoc(doc, function (_id) {
-                col.findAndModify({_id: _id}, [['_id', 1]], {$set: {name: name}}, function (err, doc) {
-                    db.close();
-                    cb();
-                });
+    db.collection(cols.docs, function (err, col) {
+        getDoc(doc, function (_id) {
+            col.findAndModify({_id: _id}, [['_id', 1]], {$set: {name: name}}, function (err, doc) {
+                cb();
             });
         });
     });
