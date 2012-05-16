@@ -112,6 +112,7 @@ function orgChart() {
     
     $('#of-create-user').click(function () {
         window.location.pathname = '/usercreate';
+        return 0;
     });
 
     function addToOpts(opts, wholeLocation) {
@@ -300,6 +301,8 @@ function orgChart() {
             $orgchart.empty();
         }
         $units.empty();
+        
+        $('#of-docs-options').css('display', 'none');
 
         $('#of-filter-options').css('display', 'block');
         $dlist.css('display', 'none');
