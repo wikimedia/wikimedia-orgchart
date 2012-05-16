@@ -85,20 +85,10 @@ function orgChart() {
             wholeLocation.pop();
         }
 
-        document.location.hash = wholeLocation.join('/')
-
         if (wholeLocation[0] == '') {
-            document.location.hash = '';
             wholeLocation[1] = '';
-            document.location.hash = wholeLocation.join('/');
-            loadDocs();
-        } else {
-            if (wholeLocation[1] == '') {
-                loadDoc(wholeLocation[0]);
-            } else {
-                loadDoc(wholeLocation[0], wholeLocation[1]);
-            }
         }
+        document.location.hash = wholeLocation.join('/');
     }
 
     $('#of-home-page').click(function () {
@@ -184,10 +174,11 @@ function orgChart() {
     }
 
     function loadDocs() {
+        $('#of-org-form-svg').empty();
         $('#of-filter-options').css('display', 'none');
         $('#of-docs-options').css('display', 'block');
-        $dlist.empty();
         $.get('/doclist', function (data) {
+            $dlist.empty();
             if (data.org) {
                 $('#title').html(data.org);
                 $('title').html('Org Chart: ' + data.org);
