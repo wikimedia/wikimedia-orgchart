@@ -254,10 +254,6 @@ body>div.jOrgChart {
     display: none;
 }
 
-.of-unit-edit-form, .of-unit-delete-confirm, .of-unit-collapsed {
-    display: none;
-}
-
 span.of-unit-lc {
     position: absolute;
     color: white;

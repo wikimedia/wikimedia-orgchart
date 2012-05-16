@@ -93,7 +93,14 @@ function orgChart() {
         if (wholeLocation[0] == '') {
             wholeLocation[1] = '';
         }
-        document.location.hash = wholeLocation.join('/');
+        
+        var newloc = wholeLocation.join('/');
+        
+        if ('#'+newloc == document.location.hash) {
+            window.location.reload();
+        } else {
+            document.location.hash = newloc;
+        }
     }
 
     $('#of-home-page').click(function () {
@@ -123,10 +130,26 @@ function orgChart() {
     $('#of-add-report').click(function () {
         $uev.addClass('filled');
         $uev.html($ucreate.clone());
-        var $form = $('form', $uev)
+        var $form = $('form', $uev);
         var oldid = $inspector.data('oldid');
         var unitid = oldid.substr(16);
         $form.attr('action', '/addto/'+getDocId()+'/'+unitid);
+        $form.ajaxForm({
+            success: function () {
+                $uev.removeClass('filled');
+                $uev.empty();
+                setLocation(getLocation());
+            }
+        });
+    });
+    
+    $('#of-edit-node').click(function () {
+        $uev.addClass('filled');
+        $uev.html($uedit.clone());
+        var $form = $('form', $uev)
+        var oldid = $inspector.data('oldid');
+        var unitid = oldid.substr(16);
+        $form.attr('action', '/modify/'+getDocId()+'/'+unitid);
         $form.ajaxForm({
             success: function () {
                 $uev.removeClass('filled');
