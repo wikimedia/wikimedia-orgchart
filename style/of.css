@@ -69,6 +69,7 @@ body {
     width: 25%;
     height: 100%;
     float: right;
+    overflow-y: scroll;
 }
 
 #of-inspector {
