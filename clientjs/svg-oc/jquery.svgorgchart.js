@@ -134,11 +134,13 @@
             var innernode = w.group(nodeg, {transform: 'translate(7, 20)'});
             var result = format(w, innernode, $nodeContent);
             chart.map[0].push(1);
+            chart.parentid = innernode.id;
             chart.csize = 2;
             var locdown = (heightOrSize() + 2 * padding);
             var tlcorner = 0;
             if ($childNodes && $childNodes.length) {
-                var childlocs = [];
+                var childlocs = {};
+                var childcount = 0;
                 var children = w.group(tg, {transform: (sw ? 'translate(' : 'translate(0 ') + locdown + (sw ? ' 0)' : ')')});
                 chart.map.push([]);
                 var charts = [];
@@ -157,7 +159,8 @@
 
                     w.change(nrg, {transform: (sw ? 'translate(0 ' : 'translate(') + tloc + (sw ? ')' : ' 0)')});
                     var cwidth = ((added) * (sizeOrHeight() + padding)) / 2;
-                    childlocs.push((tloc + (chart.newpix + 1) * (sizeOrHeight() + padding) / 2) - padding / 2);
+                    childlocs[rchart.parentid] = ((tloc + (chart.newpix + 1) * (sizeOrHeight() + padding) / 2) - padding / 2);
+                    childcount += 1;
                     chart.size += cwidth;
                     chart.csize += added;
                 });
@@ -190,6 +193,7 @@
 
             var lineg = w.group(tg, {});
             for (var cx in childlocs) {
+                var clineg = w.group(lineg, 'lines-to-'+cx, {fill: 'none', stroke: 'black', strokeWidth: '1'});
                 var cl = childlocs[cx];
                 var topcenter = [cl, height + padding * 2];
                 if (sw) {
@@ -199,12 +203,12 @@
                 if (sw) {
                     justabove = [topcenter[0] - padding, topcenter[1]];
                 }
-                w.polyline(lineg, [botcenter, justbelow, justabove, topcenter], {fill: 'none', stroke: 'black', strokeWidth: '1'});
+                w.polyline(clineg, [botcenter, justbelow, justabove, topcenter], {});
             }
 
             nodeg.onclick = function (event) {
                 var id = innernode.id || null;
-                click(innernode, id);
+                click(innernode, id, w);
             };
 
             cb(nodeg, nodeg.id);

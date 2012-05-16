@@ -317,6 +317,7 @@ function orgChart() {
     }
 
     function loadDoc(docid, zoomlevel) {
+        var isHighlighted = null;
         var $orgchart = $('div#of-org-form-svg');
         if ($orgchart && $orgchart.length) {
             $orgchart.empty();
@@ -345,7 +346,7 @@ function orgChart() {
 
             createOrgChart({
                 lccolors: loccodes || {},
-                click: function (node, id) {
+                click: function (node, id, svg) {
                     var oldid = id.substr(4);
                     $inspector.data('oldid', oldid);
                     var $ob = $('#' + oldid);
@@ -373,6 +374,19 @@ function orgChart() {
                         $itt.addClass('contractor');
                     } else {
                         $itt.addClass('vacancy');
+                    }
+                    
+                    if (isHighlighted && isHighlighted != null) {
+                        svg.remove(isHighlighted);
+                        isHighlighted = null;
+                    }
+                    
+                    var lineg = svg.getElementById('lines-to-' + id);
+                    if (lineg && lineg != null) {
+                        var linesg = lineg.parentNode;
+                        var clineg = svg.clone(linesg, lineg)[0];
+                        isHighlighted = clineg;
+                        svg.change(clineg, {fill: 'none', stroke: 'yellow', strokeWidth: '2'});
                     }
                     $('#of-inspector').addClass('filled');
                 }
