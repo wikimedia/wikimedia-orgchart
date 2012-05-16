@@ -44,7 +44,7 @@ function getOpts(wholeLocation) {
 }
 
 function orgChart() {
-    var $uedit = $('.of-unit-edit-form').first().clone();
+    var $uedit = $('.of-unit-edit-form').first().detach().clone();
     var $ucreate = $uedit.clone().attr('class', '.of-unit-create');
     var $udelete = $('.of-unit-delete-confirm').first().clone();
     var $tunit = $('.of-unit-box').detach();
@@ -53,6 +53,7 @@ function orgChart() {
     var $doctpl = $('.of-doc-box').detach();
     var $docctpl = $('.of-doc-create').detach();
     var $inspector = $('#of-inspector');
+    var fields = ['name', 'title', 'loc', 'reqn', 'start', 'end', 'hrs'];
     var $uev = $('#of-edit-viewport');
     var session = {};
     var $units = $('#of-org-form');
@@ -141,14 +142,30 @@ function orgChart() {
                 setLocation(getLocation());
             }
         });
+        $('.of-unit-cancel-edit', $form).click(function () {
+            $uev.removeClass('filled');
+            $uev.empty();
+        });
     });
     
     $('#of-edit-node').click(function () {
         $uev.addClass('filled');
         $uev.html($uedit.clone());
         var $form = $('form', $uev)
+        $('input', $form).val('');
         var oldid = $inspector.data('oldid');
         var unitid = oldid.substr(16);
+        var $old = $('#'+oldid);
+        for (var fx in fields) {
+            var fn = fields[fx];
+            var $input = $('input[name='+fn+']', $form);
+            $input.val($('#of-inspector-'+fn+' .value', $inspector).html());
+        }
+        var status = $old.hasClass('employee') ? 'employee' : ($old.hasClass('contractor') ? 'contractor' : 'vacancy');
+        $('option[value='+status+']', $form).attr('selected', 'selected');
+        $('input[name=loccode]', $form).val($('.of-unit-lc', $old).html());
+        $('input[name=location]', $form).val($('.of-unit-loc', $old).html());
+        $('input[name=hours]', $form).val($('.of-unit-hrs', $old).html());
         $form.attr('action', '/modify/'+getDocId()+'/'+unitid);
         $form.ajaxForm({
             success: function () {
@@ -156,6 +173,10 @@ function orgChart() {
                 $uev.empty();
                 setLocation(getLocation());
             }
+        });
+        $('.of-unit-cancel-edit', $form).click(function () {
+            $uev.removeClass('filled');
+            $uev.empty();
         });
     });
 
@@ -374,11 +395,13 @@ function orgChart() {
                 lccolors: loccodes || {},
                 click: function (node, id, svg) {
                     var oldid = id.substr(4);
+                    $('.value', $inspector).html('');
                     $inspector.data('oldid', oldid);
                     $inspector.show();
+                    $uev.removeClass('filled');
+                    $uev.empty();
                     var $ob = $('#' + oldid);
                     var $on = $('.of-unit-view', $ob); // old node
-                    var fields = ['name', 'title', 'loc', 'reqn', 'start', 'end', 'hrs'];
                     var fieldcount = 0;
                     for (var fx in fields) {
                         var f = fields[fx];
