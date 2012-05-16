@@ -586,18 +586,26 @@ function createOrgChart(opts) {
 
         if (title && title != '') {
             var titleg = w.group(ng);
+            if (title.length > 30) {
+                title = title.substr(0,35)+'...';
+            }
             w.text(titleg, title);
         }
 
         if (name && name != '') {
             var nameg = w.group(ng, {transform: 'translate(0, 30)'});
+            if (name.length > 30) {
+                name = name.substr(0,35)+'...';
+            }
             w.text(nameg, name);
         }
 
         if (location && location != '') {
             var locg = w.group(ng, {transform: 'translate(0, 60)'});
+            if (location.length > 30) {
+                location = location.substr(0,35)+'...';
+            }
             w.text(locg, location);
-            w.change(locg, {width: opts.size});
         }
 
         if (loccode && loccode != '') {
