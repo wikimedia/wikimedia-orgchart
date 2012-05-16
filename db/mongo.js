@@ -324,7 +324,7 @@ function addUnit(docid, data, cb) {
         return;
     }
     getDoc(docid, function (_id) {
-        db.collection(String(_id), function (err, col) {
+        db.collection(new String(_id), function (err, col) {
             if (err != null) {
                 console.log(err);
             } else {

@@ -55,7 +55,7 @@
                 var w = graph._wrapper;
                 var g = w.group(this._chart,
                                 $.extend({class_: 'graph', fill: graph._fill, stroke: graph._stroke,
-                                          transform: 'translate(0 0)', strokeWidth: graph._strokeWidth}, graph._settings || {}));
+                                          transform: 'translate(0 20)', strokeWidth: graph._strokeWidth}, graph._settings || {}));
 
                 if (orig.is('ul')) {
                     orig = $('li:first', orig);
@@ -162,8 +162,8 @@
                     chart.csize += added;
                 });
 
-                var childsize = chart.csize / 2;
-                tlcorner = (sizeOrHeight() + padding) * childsize / 2;
+                var childsize = (chart.csize / 2) - 1;
+                tlcorner = ((sizeOrHeight() + padding) * childsize / 2);
                 while (childsize > 0) {
                     chart.map[0].unshift(0);
                     childsize -= 1;

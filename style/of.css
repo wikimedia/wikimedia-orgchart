@@ -33,12 +33,21 @@ body {
     z-index: 30;
 }
 
-#of-login-form, #of-inspector, #of-filter-full {
+#of-edit-viewport {
+    display: none;
+}
+
+#of-edit-viewport.filled {
+    display: block;
+}
+
+#of-login-form, #of-inspector, #of-filter-full, #of-edit-viewport {
     border: 1px solid #979998;
     border-radius: 5px;
     padding: 10px;
     background-color: #fefffd;
     text-align: center;
+    position: relative;
 }
 
 .menubutton {
@@ -269,7 +278,7 @@ span.of-unit-lc {
     border: 4px solid black;
     border-radius: 1em;
     position: absolute;
-    bottom: 2px;
+    top: 2px;
     right: 2px;
     text-align: center;
 }

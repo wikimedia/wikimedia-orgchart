@@ -44,11 +44,16 @@ function getOpts(wholeLocation) {
 }
 
 function orgChart() {
+    var $uedit = $('.of-unit-edit-form').first().clone();
+    var $ucreate = $uedit.clone().attr('class', '.of-unit-create');
+    var $udelete = $('.of-unit-delete-confirm').first().clone();
     var $tunit = $('.of-unit-box').detach();
     var $tlist = $('.of-unit-listing').detach();
     var $dlist = $('#of-documents-list');
     var $doctpl = $('.of-doc-box').detach();
     var $docctpl = $('.of-doc-create').detach();
+    var $inspector = $('#of-inspector');
+    var $uev = $('#of-edit-viewport');
     var session = {};
     var $units = $('#of-org-form');
     var units = {};
@@ -113,6 +118,22 @@ function orgChart() {
     $('#of-create-user').click(function () {
         window.location.pathname = '/usercreate';
         return 0;
+    });
+
+    $('#of-add-report').click(function () {
+        $uev.addClass('filled');
+        $uev.html($ucreate.clone());
+        var $form = $('form', $uev)
+        var oldid = $inspector.data('oldid');
+        var unitid = oldid.substr(16);
+        $form.attr('action', '/addto/'+getDocId()+'/'+unitid);
+        $form.ajaxForm({
+            success: function () {
+                $uev.removeClass('filled');
+                $uev.empty();
+                setLocation(getLocation());
+            }
+        });
     });
 
     function addToOpts(opts, wholeLocation) {
@@ -326,6 +347,7 @@ function orgChart() {
                 lccolors: loccodes || {},
                 click: function (node, id) {
                     var oldid = id.substr(4);
+                    $inspector.data('oldid', oldid);
                     var $ob = $('#' + oldid);
                     var $on = $('.of-unit-view', $ob); // old node
                     var fields = ['name', 'title', 'loc', 'reqn', 'start', 'end', 'hrs'];
@@ -341,9 +363,6 @@ function orgChart() {
                         } else {
                             $ofi.hide();
                         }
-                    }
-                    if (fieldcount < 3) {
-                        $('#of-inspector-full').css('padding-bottom', 30);
                     }
                     var $itt = $('#of-inspector-type-tag');
                     $itt.show();
@@ -560,13 +579,17 @@ function createOrgChart(opts) {
         if (location && location != '') {
             var locg = w.group(ng, {transform: 'translate(0, 60)'});
             w.text(locg, location);
+            w.change(locg, {width: opts.size});
         }
 
         if (loccode && loccode != '') {
             var lcg = w.group(ng, {transform: 'translate(' + (opts.size - 50) + ' -40)'});
-            w.rect(lcg, 0, 0, 30, 30, {fill: lcc});
-            var lctg = w.group(lcg, {transform: 'translate(5 15)'});
-            w.text(lctg, loccode, {fill: 'white'});
+            w.rect(lcg, 0, 0, 30, 40, {fill: lcc});
+            var lctg = w.group(lcg);
+            w.text(lctg, loccode.substr(0,2), {fill: 'white'});
+            var newx = (lcg.getBBox().width - lctg.getBBox().width) / 2;
+            var newy = (lctg.getBBox().height - 2);
+            w.change(lctg, {transform: 'translate('+newx+' '+newy+')'});
         }
     }
 
