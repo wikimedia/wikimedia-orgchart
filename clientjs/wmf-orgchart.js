@@ -149,13 +149,13 @@ function orgChart() {
 
     function changeLoginForm(isLogged) {
         if (isLogged) {
-            $('.hide-until-logged').css('display', 'block');
-            $('.hide-when-logged').css('display', 'none');
+            $('.hide-until-logged').show();
+            $('.hide-when-logged').hide();
             $('#of-login-form').removeClass('login');
             $('#of-login-form').addClass('logout');
         } else {
-            $('.hide-until-logged').css('display', 'none');
-            $('.hide-when-logged').css('display', 'block');
+            $('.hide-until-logged').hide();
+            $('.hide-when-logged').show();
             $('#of-login-form').removeClass('logout');
             $('#of-login-form').addClass('login');
         }
@@ -197,8 +197,11 @@ function orgChart() {
 
     function loadDocs() {
         $('#of-org-form-svg').empty();
-        $('#of-filter-options').css('display', 'none');
-        $('#of-docs-options').css('display', 'block');
+        $('.value', $inspector).empty();
+        $inspector.removeClass('filled');
+        $('#of-filter-options').hide();
+        $('#of-docs-options').show();
+        $inspector.hide();
         $.get('/doclist', function (data) {
             $dlist.empty();
             if (data.org) {
@@ -238,7 +241,7 @@ function orgChart() {
                 }
 
                 if (!isLogged) {
-                    $('.hide-until-logged', $doc).css('display', 'none');
+                    $('.hide-until-logged', $doc).hide();
                 }
 
                 var $renameForm = $('form', $doc);
@@ -249,8 +252,8 @@ function orgChart() {
                             var $tdoc = $('#of-doc-box-for-' + data.docid);
                             var $dname = $('.of-doc-title', $tdoc);
                             $dname.html(data.name);
-                            $('.of-doc-rename', $tdoc).css('display', 'none');
-                            $dname.css('display', 'block');
+                            $('.of-doc-rename', $tdoc).hide();
+                            $dname.show();
                         }
                     },
                     dataType: 'json'});
@@ -265,10 +268,10 @@ function orgChart() {
                     if (session.logged) {
                         event.stopPropagation();
                         var $this = $(this);
-                        $this.css('display', 'none');
+                        $this.hide();
                         var $namein = $('.of-doc-rename', $this.closest('.of-doc-box'));
                         $namein.val($this.html());
-                        $namein.css('display', 'block');
+                        $namein.show();
                         $namein.focus();
                         $namein.select();
                     }
@@ -312,7 +315,7 @@ function orgChart() {
             if ($orgchart && $orgchart.length) {
                 $orgchart.empty();
             }
-            $dlist.css('display', 'block');
+            $dlist.show();
         });
     }
 
@@ -324,10 +327,10 @@ function orgChart() {
         }
         $units.empty();
         
-        $('#of-docs-options').css('display', 'none');
+        $('#of-docs-options').hide();
 
-        $('#of-filter-options').css('display', 'block');
-        $dlist.css('display', 'none');
+        $('#of-filter-options').show();
+        $dlist.hide();
 
         $.get('/list/' + docid, function (data) {
             if (data.org) {
@@ -349,6 +352,7 @@ function orgChart() {
                 click: function (node, id, svg) {
                     var oldid = id.substr(4);
                     $inspector.data('oldid', oldid);
+                    $inspector.show();
                     var $ob = $('#' + oldid);
                     var $on = $('.of-unit-view', $ob); // old node
                     var fields = ['name', 'title', 'loc', 'reqn', 'start', 'end', 'hrs'];
@@ -439,20 +443,20 @@ function orgChart() {
                 $('span.of-unit-reqn', $tc).html(data.reqn);
                 $('input.of-unit-reqn', $tc).attr('value', data.reqn);
             } else {
-                $('.of-req-num', $tc).css('display', 'none');
+                $('.of-req-num', $tc).hide();
                 $('.of-unit-details', $tc).addClass('noreqn');
             }
             if (data.start && data.start != '') {
                 $('span.of-unit-start', $tc).html(data.start);
                 $('input.of-unit-start', $tc).attr('value', data.start);
             } else {
-                $('.of-start-date', $tc).css('display', 'none');
+                $('.of-start-date', $tc).hide();
             }
             if (data.end && data.end != '') {
                 $('span.of-unit-end', $tc).html(data.end);
                 $('input.of-unit-end', $tc).attr('value', data.end);
             } else {
-                $('.of-end-date', $tc).css('display', 'none');
+                $('.of-end-date', $tc).hide();
             }
             if (data.hours && data.hours != '') {
                 $('span.of-unit-hrs', $tc).html(data.hours);
@@ -465,7 +469,7 @@ function orgChart() {
                     $tc.addClass('fulltime');
                 }
             } else {
-                $('.of-hours-weekly', $tc).css('display', 'none');
+                $('.of-hours-weekly', $tc).hide();
             }
             var $ulist = $units;
             if (data.supervisor && data.supervisor != '') {
@@ -490,22 +494,22 @@ function orgChart() {
                 } else if (data.loccode) {
                     $locc.css('background-color', loccodes.other);
                 } else {
-                    $locc.css('display', 'none');
+                    $locc.hide();
                 }
                 $loc.html(data.location);
                 var loccode = '';
                 if (data.loccode && data.loccode != '') {
                     loccode = data.loccode.slice(0,2);
                 } else {
-                    $locc.css('display', 'none');
+                    $locc.hide();
                 }
                 $locc.html(loccode);
 
                 $('input.of-unit-loc', $tc).attr('value', data.location);
                 $('input.of-unit-lc', $tc).attr('value', loccode);
             } else {
-                $loc.parent('p').css('display', 'none');
-                $locc.css('display', 'none');
+                $loc.parent('p').hide();
+                $locc.hide();
             }
 
             if (childlist[data.index] && childlist[data.index].length) {

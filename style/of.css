@@ -72,16 +72,19 @@ body {
 }
 
 #of-inspector {
-    display: none;
     text-align: left;
     padding: 10px;
+}
+
+#of-inspector-full {
+    display: none;
 }
 
 #of-inspector-tip {
     display: block;
 }
 
-#of-inspector.filled {
+#of-inspector.filled #of-inspector-full {
     display: block;
 }
 
