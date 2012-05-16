@@ -6,6 +6,8 @@
 body {
     background-color: #ebf3f6;
     font-family: arial;
+    position: absolute;
+    top: 0; bottom: 0; left: 0; right: 0;
 }
 
 #of-filter-menu {
@@ -16,18 +18,6 @@ body {
     position: fixed;
     right: 10px;
     z-index: 30;
-}
-
-#of-filter-menu.shown #of-filter-tip, #of-filter-menu:hover #of-filter-tip {
-    display: none;
-}
-
-#of-filter-full {
-    display: none;
-}
-
-#of-filter-menu.shown #of-filter-full, #of-filter-menu:hover #of-filter-full {
-    display: block;
 }
 
 #title-container {
@@ -43,17 +33,32 @@ body {
     z-index: 30;
 }
 
-#of-login-form, #of-inspector {
+#of-login-form, #of-inspector, #of-filter-full {
     border: 1px solid #979998;
     border-radius: 5px;
     padding: 10px;
-    margin-right: 10px;
     background-color: #fefffd;
     text-align: center;
-    float: left;
 }
 
-#of-inspector-full {
+#of-filter-full {
+    text-align: left;
+}
+
+#of-main-display {
+    width: 75%;
+    height: 100%;
+    float: left;
+    overflow: scroll;
+}
+
+#of-details-bar {
+    width: 25%;
+    height: 100%;
+    float: right;
+}
+
+#of-inspector {
     display: none;
     text-align: left;
     padding: 10px;
@@ -63,7 +68,7 @@ body {
     display: block;
 }
 
-#of-inspector.shown.filled #of-inspector-full, #of-inspector:hover.filled #of-inspector-full, #of-inspector.shown-temp.filled #of-inspector-full {
+#of-inspector.filled {
     display: block;
 }
 
@@ -260,8 +265,8 @@ span.of-unit-lc {
     border: 4px solid black;
     border-radius: 1em;
     position: absolute;
-    bottom: 5px;
-    right: 15px;
+    bottom: 2px;
+    right: 2px;
     text-align: center;
 }
 
@@ -303,4 +308,8 @@ span.of-unit-lc {
 
 .of-doc-title {
     cursor: text;
+}
+
+tr.odd {
+    background-color: #efefef;
 }

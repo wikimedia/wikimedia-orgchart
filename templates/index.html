@@ -3,8 +3,12 @@
      which can be found in full at http://www.gnu.org/licenses/gpl-2.0.txt
      It should also have been bundled with this software. -->
 
-<html>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
   <head>
+	<meta http-equiv="content-type" content="text/html;charset=utf-8" />
+	<meta name="generator" content="Geany 0.21" />
     <title></title>
     <script type="text/javascript" src="/jquery.js"></script>
     <script type="text/javascript" src="/jquery.form.js"></script>
@@ -22,14 +26,28 @@
     <link rel="stylesheet" href="/of-print.css" media="print" />
   </head>
   <body>
-    <div id="of-left-menus">
-      <div id="of-login-form" class="login">
-        <div id="of-login-form-tip">
-          <p>login</p>
-        </div>
-        <div id="of-logout-form-tip">
-          <p>logout</p>
-        </div>
+    <div id="of-main-display">
+      <div id="title-container"><h1 id="title"></h1></div>
+      <ul id="of-documents-list">
+        <li class="of-doc-box">
+          <p><span class="of-doc-title"></span><form action="/docrename" method="POST"><input name="name" class="of-doc-rename" type="text" style="display: none" /></form><span class="of-doc-number"></span> nodes</p>
+          <p>Created <span class="of-doc-created"></span></p>
+          <p class="hide-until-logged">
+            <a href="javascript:" class="of-doc-delete">Delete</a> -
+            <a href="javascript:" class="of-doc-copy">Copy</a>
+          </p>
+        </li>
+        <li class="of-doc-create">
+          <form action="/newdoc" method="POST">
+            <p><label>Name <input class="of-doc-title" name="name" /></label></p>
+            <p><button class="of-doc-create-submit" type="submit">Create</button><button class="of-doc-create-cancel" type="cancel">Cancel</button>
+          </form>
+        </li>
+      </ul>
+      <div id="of-org-form-svg" width="300" height="150"></div>
+    </div>
+    <div id="of-details-bar">
+      <div id="of-login-form" class="login shown">
         <div id="of-login-form-in">
           <form action="/login" method="POST">
             <p><label>Username <input type="text" name="username" /></label></p>
@@ -44,8 +62,7 @@
         </div>
       </div>
       <div id="of-inspector">
-        <div id="of-inspector-tip"><p>inspector</p></div>
-        <div id="of-inspector-full">
+        <div id="of-inspector-full" style="position: relative">
           <div id="of-inspector-title"><span class="value">(title)</span></div>
           <div id="of-inspector-name"><span class="value">(name)</span></div>
           <div id="of-inspector-loc">(<span class="value">location</span>)</div>
@@ -56,48 +73,24 @@
           <span id="of-inspector-type-tag"></span>
         </div>
       </div>
-    </div>
-    <div id="title-container"><h1 id="title"></h1></div>
-    <div id="of-filter-menu">
-      <div id="of-filter-tip">
-        <p>main menu</p>
-      </div>
       <div id="of-filter-full">
         <div id="of-filter-options">
-          <label><input type="checkbox" id="of-expand-all" /> Expand all</label><br />
-          <label><input type="checkbox" id="of-filter-vacant" checked="checked" /> Show vacancies</label><br />
-          <label><input type="checkbox" id="of-filter-contract" checked="checked" /> Show contractors</label><br />
-          <label><input type="checkbox" id="of-filter-employee" checked="checked" /> Show employees</label><br />
-          <label><input type="checkbox" id="of-display-sideways" checked="checked" /> Display sideways</label><br />
+          <table width="100%">
+            <tr><td><label for="of-filter-vacant">Show vacancies</label><td><input type="checkbox" id="of-filter-vacant" /></td></tr>
+            <tr class="odd"><td><label for="of-filter-contract">Show contractors</label><td><input type="checkbox" id="of-filter-contract" /></td></tr>
+            <tr><td><label for="of-filter-employee">Show employees</label><td><input type="checkbox" id="of-filter-employee" /></td></tr>
+            <tr class="odd"><td><label for="of-display-sideways">Display sideways</label><td><input type="checkbox" id="of-display-sideways" /></td></tr>
+          </table>
           <button id="of-zoom-out" disabled="disabled">Zoom out</button><br />
-          <button id="of-home-page">Home page</button><br />
+          <button id="of-home-page">Home page</button>
         </div>
         <div id="of-docs-options">
-          <button id="of-new-doc" class="hide-until-logged">New document</button><br />
+          <button id="of-new-doc" class="hide-until-logged">New document</button>
         </div>
+        <button id="of-create-user" class="hide-until-logged">Create User</button>
       </div>
     </div>
-    <ul id="of-documents-list">
-      <li class="of-doc-box">
-        <p><span class="of-doc-title"></span><form action="/docrename" method="POST"><input name="name" class="of-doc-rename" type="text" style="display: none" /></form><span class="of-doc-number"></span> nodes</p>
-        <p>Created <span class="of-doc-created"></span></p>
-        <p class="hide-until-logged">
-          <a href="javascript:" class="of-doc-delete">Delete</a> -
-          <a href="javascript:" class="of-doc-copy">Copy</a>
-        </p>
-      </li>
-      <li class="of-doc-create">
-        <form action="/newdoc" method="POST">
-          <p><label>Name <input class="of-doc-title" name="name" /></label></p>
-          <p><button class="of-doc-create-submit" type="submit">Create</button><button class="of-doc-create-cancel" type="cancel">Cancel</button>
-        </form>
-      </li>
-    </ul>
-    <div id="of-org-form-display">
-    </div>
     <div id="of-org-list-display">
-    </div>
-    <div id="of-org-form-svg" width="300" height="150">
     </div>
     <ul id="of-org-form">
       <ul class="of-unit-listing">

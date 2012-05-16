@@ -33,6 +33,10 @@ handle["/jquery.svgchart.js"] = requestHandlers.svgchart;
 handle["/login"] = requestHandlers.login;
 handle["/logout"] = requestHandlers.logout;
 handle["/isLogged"] = requestHandlers.isLogged;
+
+handle["/createuser"] = requestHandlers.createUser;
+handle["/usercreate"] = requestHandlers.cuTemplate;
+
 handle["/pin-pinned.png"] = requestHandlers.pinpinned;
 handle["/pin-lifted.png"] = requestHandlers.pinlifted;
 

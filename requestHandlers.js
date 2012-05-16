@@ -10,6 +10,7 @@ formidable = require("formidable"),
 jsonify = require("JSON").stringify,
 loads = require("JSON").parse,
 url = require("url"),
+crypto = require('crypto'),
 sessions = require("sessions"),
 SessionHandler = new sessions(null, {expires: 3000}),
 
@@ -80,6 +81,37 @@ function logout(response, request) {
     response.writeHead(200, {'Content-Type': 'application/json'});
     response.write(jsonify({success: true}));
     response.end();
+}
+
+function createUser(response, request) {
+    checkAuth(response, request, function (result) {
+        if (result === true) {
+            var form = new formidable.IncomingForm();
+            form.parse(request, function (error, fields, files) {
+                if (fields && fields.username && fields.password) {
+                    db.addUser({username: fields.username, password: fields.password}, function () {
+                        response.writeHead(200, {'Content-Type': 'application/json'});
+                        response.write(jsonify({success: true}));
+                        response.end();
+                    });
+                } else {
+                    response.writeHead(200, {'Content-Type': 'application/json'});
+                    response.write(jsonify({success: false,
+                                            error: 'Either the username or the password was not found.'}));
+                    response.end();
+                }
+            });
+        } else {
+            response.writeHead(200, {'Content-Type': 'application/json'});
+            response.write(jsonify({success: false,
+                                    error: 'Not authorized to do that!'}));
+            response.end();
+        }
+    });
+}
+
+function cuTemplate(response) {
+    respondWithFile(response, 'templates/usercreate.html');
 }
 
 function upform(response) {
@@ -394,6 +426,9 @@ exports.upform = upform;
 exports.login = login;
 exports.logout = logout;
 exports.isLogged = isLogged;
+
+exports.createUser = createUser;
+exports.cuTemplate = cuTemplate;
 
 exports.modify = modify;
 exports.add = add;
