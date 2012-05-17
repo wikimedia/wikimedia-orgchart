@@ -324,12 +324,12 @@ function addUnit(docid, data, cb) {
         return;
     }
     getDoc(docid, function (_id) {
-        db.collection(new String(_id), function (err, col) {
+        db.collection(''+_id, function (err, col) {
             if (err != null) {
                 console.log(err);
             } else {
                 col.insert([data], {safe: true}, function (err, doc) {
-                    addToDocCount(docid, 1, function () {
+                    addToDocCount(''+_id, 1, function () {
                         if (cb && typeof cb == 'function') {
                             cb(doc); // I don't know what gets sent here, but do it anyway!
                         }
