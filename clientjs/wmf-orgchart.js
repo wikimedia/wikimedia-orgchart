@@ -179,6 +179,26 @@ function orgChart() {
             $uev.empty();
         });
     });
+    
+    $('#of-delete-node').click(function () {
+        $uev.addClass('filled');
+        $uev.html($udelete.clone());
+        var $form = $('form', $uev);
+        var oldid = $inspector.data('oldid');
+        var unitid = oldid.substr(16);
+        $form.attr('action', '/remove/'+getDocId()+'/'+unitid);
+        $form.ajaxForm({
+            success: function () {
+                $uev.removeClass('filled');
+                $uev.empty();
+                setLocation(getLocation());
+            }
+        });
+        $('.of-unit-remove-node-cancel', $uev).click(function () {
+            $uev.removeClass('filled');
+            $uev.empty();
+        });
+    });
 
     function addToOpts(opts, wholeLocation) {
         wholeLocation = wholeLocation || getLocation();
