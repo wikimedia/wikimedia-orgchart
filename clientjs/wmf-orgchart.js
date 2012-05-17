@@ -98,11 +98,16 @@ function orgChart() {
         var newloc = wholeLocation.join('/');
         
         if ('#'+newloc == document.location.hash) {
-            window.location.reload();
+            $(window).hashchange();
         } else {
             document.location.hash = newloc;
         }
     }
+
+    $('#of-resize-bar').click(function () {
+        $(this).toggleClass('resize-again');
+        $(document.body).toggleClass('hidden-details');
+    });
 
     $('#of-home-page').click(function () {
         var wholeLocation = getLocation();

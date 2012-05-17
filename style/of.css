@@ -72,9 +72,39 @@ body {
     overflow-y: scroll;
 }
 
+#of-resize-bar {
+    width: 2%;
+    height: 100%;
+    float: left;
+    cursor: e-resize;
+}
+
+#of-resize-bar.resize-again {
+    width: 100%;
+    cursor: w-resize;
+}
+
+#of-details-remainder {
+    width: 98%;
+    height: auto;
+    float: right;
+}
+
+body.hidden-details #of-details-bar {
+    width: 1%;
+    overflow-y: auto;
+}
+
+body.hidden-details #of-main-display {
+    width: 98%;
+}
+
+body.hidden-details #of-details-remainder {
+    width: 0px;
+}
+
 #of-inspector {
     text-align: left;
-    padding: 10px;
 }
 
 #of-inspector-full {
@@ -87,6 +117,7 @@ body {
 
 #of-inspector.filled #of-inspector-full {
     display: block;
+    padding-right: 40px;
 }
 
 #of-inspector.shown.filled #of-inspector-tip, #of-inspector:hover.filled #of-inspector-tip, #of-inspector.shown-temp.filled #of-inspector-tip {
