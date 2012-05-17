@@ -1,0 +1,34 @@
+<!-- This file is a part of OrgCharts, copyright 2012 The Wikimedia Foundation
+     The contents of this file are licensed under the GPL version 2,
+     which can be found in full at http://www.gnu.org/licenses/gpl-2.0.txt
+     It should also have been bundled with this software. -->
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+    <head>
+        <title>Create a User</title>
+        <meta http-equiv="content-type" content="text/html;charset=utf-8" />
+        <meta name="generator" content="Geany 0.21" />
+        <script type="text/javascript" src="/jquery.js"></script>
+        <script type="text/javascript" src="/jquery.form.js"></script>
+        <script type="text/javascript">
+            $(document).ready(function () {
+                $('form').ajaxForm({
+                    success: function () {
+                        document.location.pathname = '/';
+                    }
+                });
+            });
+        </script>
+    </head>
+    <body>
+        <p style="color: red">WARNING: DO NOT REUSE PASSWORDS!</p>
+        <p>The software to which you are submitting this data is not guaranteed to be secure against attacks, and this information will not be encrypted in any way. You have been warned.</p>
+        <form action="/createuser" method="POST">
+            <p><label>Username <input type="text" name="username" /></label></p>
+            <p><label>Password <input type="password" name="password" /></label></p>
+            <p><input type="submit" value="Create User" /></p>
+        </form>
+    </body>
+</html>
