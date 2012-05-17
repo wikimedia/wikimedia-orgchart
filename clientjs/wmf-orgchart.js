@@ -199,6 +199,16 @@ function orgChart() {
             $uev.empty();
         });
     });
+    
+    $('#of-zoom-here').click(function () {
+        var oldid = $inspector.data('oldid');
+        var location = getLocation() || [];
+        while (location.length < 2) {
+            location.push('');
+        }
+        location[1] = oldid;
+        setLocation(location);
+    });
 
     function addToOpts(opts, wholeLocation) {
         wholeLocation = wholeLocation || getLocation();
@@ -411,7 +421,14 @@ function orgChart() {
                 addTo($units, units[data.list.none[nx]], data.list, units);
             }
 
+            var $root = $units;
+
+            if (zoomlevel && zoomlevel != null) {
+                $root = $('#'+zoomlevel);
+            }
+        
             createOrgChart({
+                orig: $root,
                 lccolors: loccodes || {},
                 click: function (node, id, svg) {
                     var oldid = id.substr(4);
@@ -597,8 +614,10 @@ function orgChart() {
         } else {
             if (curloc[1] == '') {
                 loadDoc(curloc[0]);
+                $('#of-zoom-out').attr('disabled', 'disabled');
             } else {
-                loadDoc(curloc[1]);
+                loadDoc(curloc[0], curloc[1]);
+                $('#of-zoom-out').removeAttr('disabled');
             }
         }
         if (curloc.length > 2) {
