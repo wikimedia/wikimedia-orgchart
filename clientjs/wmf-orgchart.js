@@ -62,12 +62,13 @@ function orgChart() {
     var loccodes = {};
 
     function setLocation(wholeLocation, opts) {
+        var optstr = '?';
+        if (wholeLocation.length > 2 && typeof wholeLocation[2] == typeof {}) {
+            optstr = wholeLocation[2];
+        }
+        
         if (!opts || typeof opts != typeof {}) {
-            if (wholeLocation.length > 2 && typeof wholeLocation[2] == typeof {}) {
-                opts = wholeLocation[2];
-            } else {
-                opts = {};
-            }
+            opts = {};
         }
 
         if (!wholeLocation) {
@@ -78,7 +79,6 @@ function orgChart() {
             wholeLocation.push('');
         }
 
-        var optstr = '?';
         for (var ox in opts) {
             if (optstr.length > 1) {
                 optstr += '&';
@@ -121,11 +121,12 @@ function orgChart() {
     
     $('#of-zoom-out').click(function () {
         var wholeLocation = getLocation();
+        var opts = getOpts(wholeLocation);
         while (wholeLocation.length < 2) {
             wholeLocation.push('');
         }
         wholeLocation[1] = '';
-        setLocation(wholeLocation);
+        setLocation(wholeLocation, opts);
     });
     
     $('#of-create-user').click(function () {
@@ -208,22 +209,19 @@ function orgChart() {
     $('#of-zoom-here').click(function () {
         var oldid = $inspector.data('oldid');
         var location = getLocation() || [];
+        var opts = getOpts(location);
         while (location.length < 2) {
             location.push('');
         }
         location[1] = oldid;
-        setLocation(location);
+        setLocation(location, opts);
     });
 
     function addToOpts(opts, wholeLocation) {
         wholeLocation = wholeLocation || getLocation();
-        var oldopts = getOpts();
+        var oldopts = getOpts(wholeLocation);
         opts = $.extend(oldopts, opts);
-        while (wholeLocation.length < 3) {
-            wholeLocation.push('');
-        }
-        wholeLocation[2] = opts;
-        setLocation(wholeLocation);
+        setLocation(wholeLocation, opts);
     }
 
     function changeLoginForm(isLogged) {
