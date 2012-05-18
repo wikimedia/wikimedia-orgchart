@@ -305,7 +305,13 @@ function checkLogin(data, cb) {
     }
     if (data && data.username && data.password) {
         db.collection(cols.users, function (err, col) {
+            if (err != null) {
+                console.log(err);
+            }
             col.findOne({username: data.username}, {}, function (err, doc) {
+                if (err != null) {
+                    console.log(err);
+                }
                 if (doc && doc.username == data.username && doc.password == data.password) {
                     cb({success: true});
                 } else {
@@ -319,25 +325,7 @@ function checkLogin(data, cb) {
 }
 
 function addUnit(docid, data, cb) {
-    if (!loaded) {
-        dbfs.push(function () { addUnit(docid, data, cb); });
-        return;
-    }
-    getDoc(docid, function (_id) {
-        db.collection(''+_id, function (err, col) {
-            if (err != null) {
-                console.log(err);
-            } else {
-                col.insert([data], {safe: true}, function (err, doc) {
-                    addToDocCount(''+_id, 1, function () {
-                        if (cb && typeof cb == 'function') {
-                            cb(doc); // I don't know what gets sent here, but do it anyway!
-                        }
-                    });
-                });
-            }
-        });
-    });
+    addUnits(docid, [data], cb);
 }
 
 function addUnits(docid, data, cb) {
@@ -350,7 +338,7 @@ function addUnits(docid, data, cb) {
         if (_id != null) {
             _id = ''+_id;
         } else {
-            
+            _id = docid;
         }
         db.collection(''+_id, function (err, col) {
             if (err != null) {

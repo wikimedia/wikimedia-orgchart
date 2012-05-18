@@ -25,6 +25,9 @@ var orgName = "Wikimedia Foundation";
 
 function checkAuth(response, request, cb) {
     SessionHandler.httpRequest(request, response, function (err, sess) {
+        if (err != null) {
+            console.log(err);
+        }
         var uname = sess.get('username');
         cb(uname && uname != '');
     });
@@ -47,8 +50,11 @@ function login(response, request) {
     form.parse(request, function (error, fields, files) {
         if (fields && fields.username && fields.password) {
             db.checkLogin(fields, function (result) {
-                if (result.success) {
+                if (result.success === true) {
                     SessionHandler.httpRequest(request, response, function (err, sess) {
+                        if (err != null) {
+                            console.log(err);
+                        }
                         sess.set('username', fields.username);
                     });
                     response.writeHead(200, {'Content-Type': 'application/json'});
@@ -205,6 +211,9 @@ function add(response, request, args) {
             var docid = args[0];
             var superv = args[1];
             form.parse(request, function(error, fields, files) {
+                if (error != null) {
+                    console.log(error);
+                }
                 if (superv) {
                     fields['supervisor'] = superv;
                 } else {
@@ -216,6 +225,10 @@ function add(response, request, args) {
                     response.end();
                 });
             });
+        } else {
+            response.writeHead(200, {'Content-Type': 'application/json'});
+            response.write(jsonify({'success': false, 'error': 'Not authorized to do that!'}));
+            response.end();
         }
     });
 }

@@ -742,14 +742,20 @@ function createOrgChart(opts) {
         var $orig = $('#of-org-form');
         var qopts = getOpts();
 
+        var fullOpts = $.extend({orig: $orig,
+                                size: 300,
+                                padding: 25,
+                                height: 100,
+                                draw: doNode,
+                                sideways: true}, opts, qopts)
+
         svg.graph.noDraw()
             .type('orgchart')
-            .options($.extend({orig: $orig,
-                               size: 300,
-                               padding: 25,
-                               height: 100,
-                               draw: doNode,
-                               sideways: true}, opts, qopts))
+            .options(fullOpts)
             .redraw();
+
+        var md = document.getElementById('of-main-display');
+        var $svg = $('#of-org-form-svg');
+        md.scrollTop = (($svg.outerHeight() - $(md).outerHeight() + fullOpts.height) / 2);
     }
 }

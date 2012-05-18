@@ -3,4 +3,4 @@ Required node modules (use npm install):
   * JSON
   * csv // if you're using CSV files for your database stuff (not recommended)
   * mongodb // if you're using the mongodb database (which you should)
-  * sessions // for user logins, etc.
+  * sessions // for user logins, etc. NOTE: install from the github repo: https://github.com/dresende/node-sessions
