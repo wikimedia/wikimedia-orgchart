@@ -41,7 +41,7 @@ body {
     display: block;
 }
 
-#of-login-form, #of-inspector, #of-filter-full, #of-edit-viewport {
+#of-login-form, #of-inspector, #of-filter-full, #of-edit-viewport, #of-search {
     border: 1px solid #979998;
     border-radius: 5px;
     padding: 10px;

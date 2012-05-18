@@ -43,6 +43,18 @@ function getOpts(wholeLocation) {
     return opts;
 }
 
+var findAndHighlight = function (w, str) {
+    $('.of-node-text').each(function () {
+        w.change(this.nextSibling, {fill: 'none'});
+        if (str == '') {
+            return;
+        }
+        if (this.textContent.toLowerCase().indexOf(str.toLowerCase()) != -1) {
+            w.change(this.nextSibling, {fill: 'yellow'});
+        }
+    });
+};
+
 function orgChart() {
     var $uedit = $('.of-unit-edit-form').first().detach().clone();
     var $ucreate = $uedit.clone().attr('class', '.of-unit-create');
@@ -60,6 +72,7 @@ function orgChart() {
     var units = {};
     var locs = {};
     var loccodes = {};
+    var svg = null;
 
     function setLocation(wholeLocation, opts) {
         var optstr = '?';
@@ -481,6 +494,15 @@ function orgChart() {
                     $('#of-inspector').addClass('filled');
                 }
             });
+            
+            svg = $('#of-org-form-svg').svg('get');
+            
+            $('#of-search-box').keyup(function() {
+                if (svg !== null) {
+                    findAndHighlight(svg, this.value);
+                }
+            });
+            
             $('#of-display-sideways').click(function () {
                 var $this = $(this);
                 if ($this.is(':checked')) {
@@ -663,6 +685,7 @@ function createOrgChart(opts) {
         var title = $('.of-unit-title', $nc).html();
         var name = $('.of-unit-name', $nc).html();
         var location = $('.of-unit-loc', $nc).html();
+        var textClass = 'of-node-text';
 
         var loccode = $('.of-unit-lc', $nc).html();
         var lcc = opts.lccolors[loccode] || opts.lccolors.other || 'grey';
@@ -677,7 +700,9 @@ function createOrgChart(opts) {
             if (title.length > 30) {
                 title = title.substr(0,35)+'...';
             }
-            w.text(titleg, title);
+            var txt = w.text(titleg, title, {class: textClass});
+            var rct = w.rect(titleg, 0, -txt.getBBox().height+5, 0, 0, {fill: 'none', stroke: 'none', opacity: '0.4'});
+            w.change(rct, {width: txt.getBBox().width, height: txt.getBBox().height});
         }
 
         if (name && name != '') {
@@ -685,7 +710,9 @@ function createOrgChart(opts) {
             if (name.length > 30) {
                 name = name.substr(0,35)+'...';
             }
-            w.text(nameg, name);
+            var txt = w.text(nameg, name, {class: textClass});
+            var rct = w.rect(nameg, 0, -txt.getBBox().height+5, 0, 0, {fill: 'none', stroke: 'none', opacity: '0.4'});
+            w.change(rct, {width: txt.getBBox().width, height: txt.getBBox().height});
         }
 
         if (location && location != '') {
@@ -693,14 +720,18 @@ function createOrgChart(opts) {
             if (location.length > 30) {
                 location = location.substr(0,35)+'...';
             }
-            w.text(locg, location);
+            var txt = w.text(locg, location, {class: textClass});
+            var rct = w.rect(locg, 0, -txt.getBBox().height+5, 0, 0, {fill: 'none', stroke: 'none', opacity: '0.4'});
+            w.change(rct, {width: txt.getBBox().width, height: txt.getBBox().height});
         }
 
         if (loccode && loccode != '') {
             var lcg = w.group(ng, {transform: 'translate(' + (opts.size - 50) + ' -40)'});
             w.rect(lcg, 0, 0, 30, 40, {fill: lcc});
             var lctg = w.group(lcg);
-            w.text(lctg, loccode.substr(0,2), {fill: 'white'});
+            var txt = w.text(lctg, loccode.substr(0,2), {fill: 'white', class: textClass});
+            var rct = w.rect(lctg, 0, -txt.getBBox().height+5, 0, 0, {fill: 'none', stroke: 'none', opacity: '0.4'});
+            w.change(rct, {width: txt.getBBox().width, height: txt.getBBox().height});
             var newx = (lcg.getBBox().width - lctg.getBBox().width) / 2;
             var newy = (lctg.getBBox().height - 2);
             w.change(lctg, {transform: 'translate('+newx+' '+newy+')'});
