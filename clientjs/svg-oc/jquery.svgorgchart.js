@@ -53,6 +53,8 @@
         _drawChart: function(graph, size, height, padding, orig, format, clickevent, sw, cb) {
             if (orig !== null) {
                 var w = graph._wrapper;
+                var d = w.defs(this._chart);
+                w.rect(d, 0, 0, size, height, 10, 10, {fill:'white', stroke: '#969898', strokeWidth: 4, id: 'outlinerect'});
                 var g = w.group(this._chart,
                                 $.extend({class_: 'graph', fill: graph._fill, stroke: graph._stroke,
                                           transform: 'translate(0 20)', strokeWidth: graph._strokeWidth}, graph._settings || {}));
@@ -130,7 +132,7 @@
                 .children("ul,li")
                 .remove()
                 .end();
-            var rect = w.rect(nodeg, 0, 0, size, height, 10, 10, {fill:'white', stroke: '#969898', strokeWidth: 4});
+            w.use(nodeg, '#outlinerect');
             var innernode = w.group(nodeg, {transform: 'translate(7, 20)'});
             var result = format(w, innernode, $nodeContent);
             chart.map[0].push(1);
