@@ -293,6 +293,7 @@ function orgChart() {
         $inspector.removeClass('filled');
         $('#of-filter-options').hide();
         $('#of-docs-options').show();
+        $('#subtitle').hide();
         $inspector.hide();
         $.get('/doclist', function (data) {
             $dlist.empty();
@@ -429,6 +430,13 @@ function orgChart() {
             } else {
                 $('#title').html('Org Chart');
                 $('title').html('Org Chart');
+            }
+            if (data.doc) {
+                $('#subtitle h2').html(data.doc);
+                $('#subtitle').show();
+                $('title').html($('title').html() + ' - ' + data.doc);
+            } else {
+                $('#subtitle').hide();
             }
             units = data.units;
             locs = data.colors;

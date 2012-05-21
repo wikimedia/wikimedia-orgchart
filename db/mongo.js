@@ -146,7 +146,7 @@ function listHierarchy(doc, cb) {
         return;
     }
 
-    function doTheRest(_id) {
+    function doTheRest(_id, docname) {
         var colname;
         if (typeof _id != typeof 'string') {
             _id = '' + _id
@@ -223,7 +223,7 @@ function listHierarchy(doc, cb) {
                             dunits[units[ux]._id] = units[ux];
                         }
                         if (cb && typeof cb == 'function') {
-                            cb(list, locs, loccodes, dunits);
+                            cb(list, locs, loccodes, dunits, docname);
                         }
                     }
                 });
@@ -474,7 +474,7 @@ function getDoc(did, cb) {
                 console.log(err);
             }
             if (doc != null) {
-                cb(doc._id);
+                cb(doc._id, doc.name);
             } else {
                 cb(null);
             }
