@@ -374,6 +374,10 @@ function jquery(response) {
     respondWithFile(response, 'clientjs/jquery.js', 'text/javascript');
 }
 
+function jqueryui(response) {
+    respondWithFile(response, 'clientjs/jquery.ui.min.js', 'text/javascript');
+}
+
 function jqueryform(response) {
     respondWithFile(response, 'clientjs/jquery.form.js', 'text/javascript');
 }
@@ -392,6 +396,10 @@ function pstyle(response) {
 
 function jorgchartstyle(response) {
     respondWithFile(response, 'style/jquery.jorgchart.css', 'text/css');
+}
+
+function jquistyle(response) {
+    respondWithFile(response, 'style/jquery.ui.css', 'text/css');
 }
 
 function svg(response) {
@@ -414,14 +422,24 @@ function pinpinned(response) {
     respondWithFile(response, 'images/pin-pinned.png', 'image/png');
 }
 
+function jquiimage(response, request, args) {
+    if (args.length != 0) {
+        respondWithFile(response, 'images/jqui/'+args[0]);
+    } else {
+        respondWithFile(response, 'images/jqui/ui-bg_flat_0_aaaaaa_40x100.png');
+    }
+}
+
 exports.style = style;
 exports.pstyle = pstyle;
 exports.jorgchartstyle = jorgchartstyle;
+exports.jquistyle = jquistyle;
 
 exports.details = details;
 exports.list = list;
 
 exports.jquery = jquery;
+exports.jqueryui = jqueryui;
 exports.jqueryform = jqueryform;
 exports.jqueryhash = jqueryhash;
 
@@ -449,6 +467,7 @@ exports.remove = remove;
 
 exports.pinlifted = pinlifted;
 exports.pinpinned = pinpinned;
+exports.jquiimage = jquiimage;
 
 exports.listDocs = listDocs;
 exports.deleteDoc = deleteDoc;

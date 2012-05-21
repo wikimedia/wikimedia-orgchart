@@ -185,6 +185,8 @@ function orgChart() {
         $('input[name=loccode]', $form).val($('.of-unit-lc', $old).html());
         $('input[name=location]', $form).val($('.of-unit-loc', $old).html());
         $('input[name=hours]', $form).val($('.of-unit-hrs', $old).html());
+        $('input[name=end]', $form).datepicker({dateFormat: 'yy-mm-dd'});
+        $('input[name=start]', $form).datepicker({dateFormat: 'yy-mm-dd'});
         $form.attr('action', '/modify/'+getDocId()+'/'+unitid);
         $form.ajaxForm({
             success: function () {
@@ -529,8 +531,22 @@ function orgChart() {
 
             var $tc = $tunit.clone();
             var estat = data.status.toLowerCase();
-            if (!data.name || data.name == '') {
+            var isVacant = false;
+            if (data.end) {
+                var enddate = new Date(data.end);
+                if (!isNaN(enddate.getTime()) && enddate.getTime() < (new Date()).getTime()) {
+                    isVacant = true;
+                }
+            }
+            if (!isVacant && data.start) {
+                var stdate = new Date(data.start);
+                if (!isNaN(stdate.getTime()) && stdate.getTime() > (new Date()).getTime()) {
+                    isVacant = true;
+                }
+            }
+            if (!data.name || data.name == '' || isVacant) {
                 $tc.addClass('vacancy');
+                isVacant = true;
             } else if (estat == 'employee') {
                 $tc.addClass(estat);
                 $('option[value='+estat+']', $tc).attr('selected', 'selected');
@@ -543,32 +559,23 @@ function orgChart() {
             $tc.attr('data-ofid', data.index);
             $('form', $tc).attr('action', '/modify/'+getDocId()+'/'+data.index);
             $('p.of-unit-title', $tc).html(data.title);
-            $('input.of-unit-title', $tc).attr('value', data.title);
-            $('p.of-unit-name', $tc).html(data.name);
-            $('input.of-unit-name', $tc).attr('value', data.name);
+            if (!isVacant) {
+                $('p.of-unit-name', $tc).html(data.name);
+            }
 
-            if (data.reqn && data.reqn != '') {
+            if (data.reqn && data.reqn != '' && !isVacant) {
                 $('span.of-unit-reqn', $tc).html(data.reqn);
-                $('input.of-unit-reqn', $tc).attr('value', data.reqn);
             } else {
-                $('.of-req-num', $tc).hide();
                 $('.of-unit-details', $tc).addClass('noreqn');
             }
-            if (data.start && data.start != '') {
+            if (data.start && data.start != '' && !isVacant) {
                 $('span.of-unit-start', $tc).html(data.start);
-                $('input.of-unit-start', $tc).attr('value', data.start);
-            } else {
-                $('.of-start-date', $tc).hide();
             }
-            if (data.end && data.end != '') {
+            if (data.end && data.end != '' && !isVacant) {
                 $('span.of-unit-end', $tc).html(data.end);
-                $('input.of-unit-end', $tc).attr('value', data.end);
-            } else {
-                $('.of-end-date', $tc).hide();
             }
             if (data.hours && data.hours != '') {
                 $('span.of-unit-hrs', $tc).html(data.hours);
-                $('input.of-unit-hours', $tc).attr('value', data.hours);
                 if (data.hours-0 < 16) {
                     $tc.addClass('veryparttime');
                 } else if (data.hours-0 < 32) {
@@ -576,8 +583,6 @@ function orgChart() {
                 } else {
                     $tc.addClass('fulltime');
                 }
-            } else {
-                $('.of-hours-weekly', $tc).hide();
             }
             var $ulist = $units;
             if (data.supervisor && data.supervisor != '') {
@@ -591,7 +596,7 @@ function orgChart() {
             var $loc = $('span.of-unit-loc', $tc);
             var $locc = $('span.of-unit-lc', $tc);
 
-            if (data.location && data.location != '') {
+            if (data.location && data.location != '' && $tc.hasClass('employee')) {
                 if (locs[data.location]) {
                     $loc.css('color', locs[data.location]);
                 } else {

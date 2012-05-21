@@ -15,6 +15,7 @@ handle["/upform"] = requestHandlers.upform;
 handle["/of.js"] = requestHandlers.script;
 
 handle["/jquery.js"] = requestHandlers.jquery;
+handle["/jquery.ui.js"] = requestHandlers.jqueryui;
 handle["/jquery.form.js"] = requestHandlers.jqueryform;
 handle["/jquery.hash.js"] = requestHandlers.jqueryhash;
 
@@ -25,6 +26,7 @@ handle["/remove"] = requestHandlers.remove;
 handle["/addto"] = requestHandlers.add;
 handle["/of.css"] = requestHandlers.style;
 handle["/of-print.css"] = requestHandlers.pstyle;
+handle["/jqui.css"] = requestHandlers.jquistyle;
 
 handle["/jquery.svg.js"] = requestHandlers.svg;
 handle["/jquery.svggraph.js"] = requestHandlers.svggraph;
@@ -39,6 +41,7 @@ handle["/usercreate"] = requestHandlers.cuTemplate;
 
 handle["/pin-pinned.png"] = requestHandlers.pinpinned;
 handle["/pin-lifted.png"] = requestHandlers.pinlifted;
+handle["/images"] = requestHandlers.jquiimage;
 
 handle["/doclist"] = requestHandlers.listDocs;
 handle["/deletedoc"] = requestHandlers.deleteDoc;
