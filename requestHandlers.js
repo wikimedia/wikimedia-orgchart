@@ -267,6 +267,76 @@ function deleteDoc(response, request) {
     });
 }
 
+function parsePlainText(response, request, args) {
+    checkAuth(response, request, function (isLogged) {
+        if (isLogged) {
+            if (args && args.length != 0) {
+                docid = args[0];
+                var form = new formidable.IncomingForm();
+                form.parse(request, function (error, fields, files) {
+                    var units = {};
+                    var lines = fields.text.split('\n');
+                    var fields = ['_id', 'title', 'status', 'name', 'location', 'loccode', 'reqn', 'start', 'end', 'hours', 'supervisor'];
+                    lines.shift();
+                    for (var lx in lines) {
+                        var theseFields = lines[lx].split('    ');
+                        var _id = theseFields[0];
+                        var ix = 1;
+                        var thisUnit = {};
+                        while (ix < fields.length && ix < theseFields.length) {
+                            if (theseFields[ix] == 'null') {
+                                theseFields[ix] = '';
+                            }
+                            thisUnit[fields[ix]] = theseFields[ix];
+                            ix += 1;
+                        }
+                        units[_id] = thisUnit;
+                    }
+                    db.changeUnits(docid, units, function () {
+                        response.writeHead(200, {'Content-Type': 'application/json'});
+                        response.write(jsonify({success: true}));
+                        response.end();
+                    });
+                });
+            }
+        } else {
+            response.writeHead(200, {'Content-Type': 'application/json'});
+            response.write(jsonify({'success': false, 'error': 'Not authorized to do that!'}));
+            response.end();
+        }
+    });
+}
+
+function getPlainText(response, request, args) {
+    var doc;
+    if (args && args.length != 0) {
+        doc = args[0];
+    } else {
+        doc = 'units';
+    }
+    db.listHierarchy(doc, function (list, locs, loccodes, units, docname) {
+        var fullText = [];
+        var fields = ['_id', 'title', 'status', 'name', 'location', 'loccode', 'reqn', 'start', 'end', 'hours', 'supervisor'];
+        fullText.push(fields.join('    '));
+        for (var ux in units) {
+            var tu = units[ux];
+            var thisLine = [];
+            for (var fx in fields) {
+                var tf = fields[fx];
+                if (tu[tf] && tu[tf] != '') {
+                    thisLine.push(tu[fields[fx]]);
+                } else {
+                    thisLine.push('null');
+                }
+            }
+            fullText.push(thisLine.join('    '));
+        }
+        response.writeHead(200, {'Content-Type': 'application/json'});
+        response.write(jsonify({text: fullText.join('\n')}));
+        response.end();
+    });
+}
+
 function renameDoc(response, request, args) {
     var docid;
 
@@ -437,6 +507,8 @@ exports.jquistyle = jquistyle;
 
 exports.details = details;
 exports.list = list;
+exports.getPlainText = getPlainText;
+exports.parsePlainText = parsePlainText;
 
 exports.jquery = jquery;
 exports.jqueryui = jqueryui;

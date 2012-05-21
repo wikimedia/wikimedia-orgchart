@@ -20,6 +20,8 @@ handle["/jquery.form.js"] = requestHandlers.jqueryform;
 handle["/jquery.hash.js"] = requestHandlers.jqueryhash;
 
 handle["/list"] = requestHandlers.list;
+handle["/plaintext"] = requestHandlers.getPlainText;
+handle["/plainupload"] = requestHandlers.parsePlainText;
 handle["/details"] = requestHandlers.details;
 handle["/modify"] = requestHandlers.modify;
 handle["/remove"] = requestHandlers.remove;

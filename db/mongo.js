@@ -245,7 +245,7 @@ function getUnit(doc, uid, cb) {
     }
     looking += 1;
     getDoc(doc, function (_id) {
-        db.collection(cols[_id], function (err, col) {
+        db.collection(''+_id, function (err, col) {
             col.findOne({_id: new ObjectId(uid)}, {}, function (err, doc) {
                 looking -= 1;
                 if (cb && typeof cb == 'function') {
@@ -259,18 +259,36 @@ function getUnit(doc, uid, cb) {
     });
 }
 
+function changeUnits(docid, units, cb) {
+    var waiting = 0;
+    for (var ux in units) {
+        waiting += 1;
+        changeUnit(docid, ux, units[ux], function () {
+            waiting -= 1;
+            if (waiting === 0) {
+                cb();
+            }
+        });
+    }
+}
+
 function changeUnit(docid, uid, mods, cb) {
     if (!loaded) {
         dbfs.push(function () { changeUnit(docid, uid, mods, cb); });
         return;
     }
-    modDic = {$set:{}};
+    var modDic = {$set:{}};
     for (var ix in mods) {
         modDic.$set[ix] = mods[ix];
     }
     getDoc(docid, function (_id) {
-        db.collection(String(_id), function (err, col) {
-            col.findAndModify({$or: [{_id: (new ObjectId(uid))}, {_id: uid}]}, [['_id', 1]], modDic, {new: true}, function (err, doc) {
+        db.collection(''+_id, function (err, col) {
+            if (uid != null && typeof uid == typeof 'string' && (uid.length == 12 || uid.length == 24)) {
+                uid = new ObjectId(uid);
+            }
+            col.findAndModify({_id: uid}, [['_id', 1]], modDic, {new: true}, function (err, doc) {
+                console.log(uid);
+                console.log(modDic);
                 if (err != null) {
                     console.log(err);
                 } else {
@@ -581,6 +599,7 @@ exports.addUnit = addUnit;
 exports.addUnits = addUnits;
 exports.getUnit = getUnit;
 exports.changeUnit = changeUnit;
+exports.changeUnits = changeUnits;
 exports.findAndRemove = findAndRemove;
 exports.addUser = addUser;
 exports.checkLogin = checkLogin;

@@ -132,6 +132,13 @@ function orgChart() {
         setLocation(wholeLocation);
     });
     
+    $('#of-edit-plaintext').click(function() {
+        var wholeLocation = getLocation();
+        if (wholeLocation && wholeLocation.length != 0 && wholeLocation[0] != '') {
+            loadEditPlain(wholeLocation[0]);
+        }
+    });
+    
     $('#of-zoom-out').click(function () {
         var wholeLocation = getLocation();
         var opts = getOpts(wholeLocation);
@@ -295,6 +302,7 @@ function orgChart() {
         $('#of-docs-options').show();
         $('#subtitle').hide();
         $inspector.hide();
+        $('#of-edit-plain').hide();
         $.get('/doclist', function (data) {
             $dlist.empty();
             if (data.org) {
@@ -419,7 +427,7 @@ function orgChart() {
         $units.empty();
         
         $('#of-docs-options').hide();
-
+        $('#of-edit-plain').hide();
         $('#of-filter-options').show();
         $dlist.hide();
 
@@ -521,6 +529,33 @@ function orgChart() {
                     addToOpts({sideways: false});
                 }
             });
+        });
+    }
+    
+    function loadEditPlain(docid) {
+        $('body').addClass('hidden-details');
+        $('#of-documents-list').hide();
+        $('#of-org-form-svg').empty();
+        var $frm = $('#of-edit-plain form');
+        $frm.attr('action', '/plainupload/'+docid);
+        $('textarea[name=text]').empty();
+        $.get('/plaintext/'+docid, function (data) {
+            $('textarea[name=text]').html(data.text);
+            $('#of-edit-plain').show();
+        });
+        $frm.ajaxForm({
+            dataType: 'json',
+            success: function (data) {
+                if (data && data.success === true) {
+                    setLocation(getLocation());
+                    $('body').removeClass('hidden-details');
+                }
+            }
+        });
+        $('button[type=cancel]', $frm).click(function () {
+            setLocation(getLocation());
+            $('body').removeClass('hidden-details');
+            return false;
         });
     }
 
