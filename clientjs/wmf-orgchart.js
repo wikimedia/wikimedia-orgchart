@@ -448,6 +448,8 @@ function orgChart() {
             createOrgChart({
                 orig: $root,
                 lccolors: loccodes || {},
+                height: 65,
+                size: 200,
                 click: function (node, id, svg) {
                     var oldid = id.substr(4);
                     $('.value', $inspector).html('');
@@ -676,6 +678,16 @@ function createOrgChart(opts) {
         opts.sideways = true;
     }
 
+    var qopts = getOpts();
+    var $orig = $('#of-org-form');
+
+    var fullOpts = $.extend({orig: $orig,
+                            size: 300,
+                            padding: 25,
+                            height: 100,
+                            draw: doNode,
+                            sideways: true}, opts, qopts);
+
     $(function() {
         var $svg = $('#of-org-form-svg');
         $svg.svg('destroy');
@@ -683,9 +695,22 @@ function createOrgChart(opts) {
         var sw = opts.sideways;
         $svg.attr(sw ? 'height' : 'width', 10);
         $svg.attr(sw ? 'width' : 'height', 10);
-        $svg.svg({onLoad: drawInitial});
+        $svg.svg({onLoad: function (svg) {
+            drawInitial(svg, fullOpts);
+        }});
     });
-
+                            
+    function makeTextFit(w, g, title, opts) {
+        var txt = w.text(g, title, opts);
+        var idealSize = fullOpts.size - 30 - fullOpts.padding;
+        while (txt.getBBox().width > idealSize) {
+            title = title.substr(0, (title.length * (idealSize / txt.getBBox().width)) - 3) + '...';
+            w.remove(txt);
+            txt = w.text(g, title, opts);
+        }
+        return txt;
+    }
+                                
     function doNode(w, ng, $nc) {
         var title = $('.of-unit-title', $nc).html();
         var name = $('.of-unit-name', $nc).html();
@@ -702,10 +727,7 @@ function createOrgChart(opts) {
 
         if (title && title != '') {
             var titleg = w.group(ng);
-            if (title.length > 30) {
-                title = title.substr(0,35)+'...';
-            }
-            var txt = w.text(titleg, title, {class: textClass});
+            var txt = makeTextFit(w, titleg, title, {class: textClass});
             var rct = w.rect(titleg, 0, -txt.getBBox().height+5, 0, 0, {fill: 'none', stroke: 'none', opacity: '0.4'});
             w.change(rct, {width: txt.getBBox().width, height: txt.getBBox().height});
         }
@@ -715,18 +737,8 @@ function createOrgChart(opts) {
             if (name.length > 30) {
                 name = name.substr(0,35)+'...';
             }
-            var txt = w.text(nameg, name, {class: textClass});
+            var txt = makeTextFit(w, nameg, name, {class: textClass});
             var rct = w.rect(nameg, 0, -txt.getBBox().height+5, 0, 0, {fill: 'none', stroke: 'none', opacity: '0.4'});
-            w.change(rct, {width: txt.getBBox().width, height: txt.getBBox().height});
-        }
-
-        if (location && location != '') {
-            var locg = w.group(ng, {transform: 'translate(0, 60)'});
-            if (location.length > 30) {
-                location = location.substr(0,35)+'...';
-            }
-            var txt = w.text(locg, location, {class: textClass});
-            var rct = w.rect(locg, 0, -txt.getBBox().height+5, 0, 0, {fill: 'none', stroke: 'none', opacity: '0.4'});
             w.change(rct, {width: txt.getBBox().width, height: txt.getBBox().height});
         }
 
@@ -743,17 +755,7 @@ function createOrgChart(opts) {
         }
     }
 
-    function drawInitial(svg) {
-        var $orig = $('#of-org-form');
-        var qopts = getOpts();
-
-        var fullOpts = $.extend({orig: $orig,
-                                size: 300,
-                                padding: 25,
-                                height: 100,
-                                draw: doNode,
-                                sideways: true}, opts, qopts)
-
+    function drawInitial(svg, fullOpts) {
         svg.graph.noDraw()
             .type('orgchart')
             .options(fullOpts)
