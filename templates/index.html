@@ -33,6 +33,7 @@
       <ul id="of-documents-list">
         <li class="of-doc-box">
           <p><span class="of-doc-title"></span><form action="/docrename" method="POST"><input name="name" class="of-doc-rename" type="text" style="display: none" /></form><span class="of-doc-number"></span> nodes</p>
+          <p>Represents <span class="of-doc-date"></span></p>
           <p>Created <span class="of-doc-created"></span></p>
           <p class="hide-until-logged">
             <a href="javascript:" class="of-doc-delete">Delete</a> -
@@ -42,6 +43,7 @@
         <li class="of-doc-create">
           <form action="/newdoc" method="POST">
             <p><label>Name <input class="of-doc-title" name="name" /></label></p>
+            <p><label>Represents <input class="of-doc-date" name="date" type="text" /></label></p>
             <p><button class="of-doc-create-submit" type="submit">Create</button><button class="of-doc-create-cancel" type="cancel">Cancel</button>
           </form>
         </li>

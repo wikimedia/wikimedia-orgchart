@@ -307,6 +307,7 @@ function orgChart() {
             $('#of-new-doc').click(function () {
                 var $dcc = $docctpl.clone();
                 var $dcfrm = $('form', $dcc);
+                $('.of-doc-date', $dcc).datepicker({dateFormat: 'yy-mm-dd'});
 
                 $dcfrm.ajaxForm({
                     success: function (data) {
@@ -325,16 +326,7 @@ function orgChart() {
                 var doc = docs[dx];
                 var $doc = $doctpl.clone();
                 $doc.attr('id', 'of-doc-box-for-' + doc._id);
-                var isLogged = isLogged || false;
-                if (!isLogged) {
-                    checkIfLogged(function (result) {
-                        isLogged = result;
-                    });
-                }
-
-                if (!isLogged) {
-                    $('.hide-until-logged', $doc).hide();
-                }
+                var isLogged = session.logged || false;
 
                 var $renameForm = $('form', $doc);
                 $renameForm.attr('action', '/renamedoc/' + doc._id);
@@ -373,8 +365,14 @@ function orgChart() {
                     doc.count = 0;
                 }
                 $('.of-doc-number', $doc).html(doc.count);
+                var rdate = new Date(doc.date);
                 var ddate = new Date(doc.created-0);
                 $('.of-doc-created', $doc).html(ddate.toDateString() + ' at ' + ddate.toTimeString());
+                if (!isNaN(rdate.getTime())) {
+                    $('.of-doc-date', $doc).html(rdate.toDateString());
+                } else {
+                    $('.of-doc-date', $doc).closest('p').hide();
+                }
                 $doc.attr('data-docid', doc._id);
                 $doc.click(function () {
                     var docid = $(this).attr('data-docid');

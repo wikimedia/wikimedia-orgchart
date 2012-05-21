@@ -482,13 +482,13 @@ function getDoc(did, cb) {
     });
 }
 
-function createDoc(name, cb) {
+function createDoc(name, date, cb) {
     if (!loaded) {
         dbfs.push(function () { createDoc(name, cb); });
         return;
     }
     db.collection(cols.docs, function (err, col) {
-        col.insert([{name: name, count: 0, created: (new Date()).getTime()}], function (err, doc) {
+        col.insert([{date: date, name: name, count: 0, created: (new Date()).getTime()}], function (err, doc) {
             console.log(doc);
             if (err != null) {
                 console.log(err);

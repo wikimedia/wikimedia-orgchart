@@ -343,7 +343,7 @@ function newDoc(response, request) {
             var form = new formidable.IncomingForm();
             form.parse(request, function (error, fields, files) {
                 if (fields && fields.name) {
-                    db.createDoc(fields.name, function (_newid) {
+                    db.createDoc(fields.name, (fields.date || 'NaN'), function (_newid) {
                         var sdata = {title: 'Root Element',
                                      supervisor: '',
                                      name: '',
