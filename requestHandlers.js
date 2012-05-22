@@ -267,6 +267,19 @@ function deleteDoc(response, request) {
     });
 }
 
+function parseThisUnit(fields, theseFields) {
+    var ix = 1;
+    var thisUnit = {};
+    while (ix < fields.length && ix < theseFields.length) {
+        if (theseFields[ix] == 'null') {
+            theseFields[ix] = '';
+        }
+        thisUnit[fields[ix]] = theseFields[ix];
+        ix += 1;
+    }
+    return thisUnit;
+}
+
 function parsePlainText(response, request, args) {
     checkAuth(response, request, function (isLogged) {
         if (isLogged) {
@@ -275,27 +288,34 @@ function parsePlainText(response, request, args) {
                 var form = new formidable.IncomingForm();
                 form.parse(request, function (error, fields, files) {
                     var units = {};
+                    var addunits = {};
                     var lines = fields.text.split('\n');
                     var fields = ['_id', 'title', 'status', 'name', 'location', 'loccode', 'reqn', 'start', 'end', 'hours', 'supervisor'];
                     lines.shift();
                     for (var lx in lines) {
                         var theseFields = lines[lx].split('    ');
                         var _id = theseFields[0];
-                        var ix = 1;
-                        var thisUnit = {};
-                        while (ix < fields.length && ix < theseFields.length) {
-                            if (theseFields[ix] == 'null') {
-                                theseFields[ix] = '';
-                            }
-                            thisUnit[fields[ix]] = theseFields[ix];
-                            ix += 1;
+                        if (_id == 'null') {
+                            addunits.push(parseThisUnit(fields, theseFields));
+                        } else {
+                            units[_id] = parseThisUnit(fields, theseFields);
                         }
-                        units[_id] = thisUnit;
                     }
-                    db.changeUnits(docid, units, function () {
+                    
+                    function endThis() {
                         response.writeHead(200, {'Content-Type': 'application/json'});
                         response.write(jsonify({success: true}));
                         response.end();
+                    }
+                    
+                    db.changeUnits(docid, units, function () {
+                        if (addunits.length) {
+                            db.addUnits(docid, addunits, function () {
+                                endThis();
+                            });
+                        } else {
+                            endThis();
+                        }
                     });
                 });
             }

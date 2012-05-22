@@ -492,7 +492,7 @@ function getDoc(did, cb) {
                 console.log(err);
             }
             if (doc != null) {
-                cb(doc._id, doc.name);
+                cb(doc._id, doc.name, doc.date);
             } else {
                 cb(null);
             }
@@ -542,15 +542,17 @@ function copyDoc(orig, dest, cb) {
         });
     }
 
-    createDoc(dest, function (_newid) {
-        if (orig != cols.units) {
-            getDoc(orig, function (_id) {
+    if (orig != cols.units) {
+        getDoc(orig, function (_id, name, date) {
+            createDoc(dest, date, function (_newid) {
                 doTheRest(_id, _newid);
             });
-        } else {
+        });
+    } else {
+        createDoc(dest, '', function (_newid) {
             doTheRest(cols.units, _newid);
-        }
-    });
+        });
+    }
 }
 
 function deleteDoc(doc, cb) {
