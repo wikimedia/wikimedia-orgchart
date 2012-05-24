@@ -3,35 +3,23 @@
    which can be found in full at http://www.gnu.org/licenses/gpl-2.0.txt
    It should also have been bundled with this software. */
 
-#of-login-form, #of-filter-menu, .hide-until-logged, .of-unit-zoom, .of-unit-show {
+#of-login-form, #of-filter-menu, .hide-until-logged, .of-unit-zoom, .of-unit-show, #of-details-bar {
     display: none !important;
 }
 
+@media print {
+    .hasSVG {
+        height: 90%;
+        page-break-inside: avoid;
+    }
+}
+
 #title-container {
-    width: auto;
+    width: 100%;
 }
 
-div.jOrgChart {
-    display: none;
-}
-
-#of-org-list-display {
-    clear: both;
-    display: block;
-}
-
-ul {
-    list-style: none;
-}
-
-.of-unit-listing {
-    border-left: 1px solid black;
-    margin-top: 15px;
-}
-
-li {
-    list-style: none;
-    margin-bottom: 15px;
-    min-width: 200px;
-    max-width: 300px;
+#of-main-display {
+    width: 110%;
+    height: auto;
+    overflow: auto;
 }

@@ -52,7 +52,7 @@
       <div id="of-edit-plain" width="100%" height="100%">
         <form action="/plainupload" method="POST">
           <p>Careful! You're editing the raw data for this chart, and it's very fragile. Make sure each field is separated by four (4) spaces, and each node is separated by a newline (\n). Also, be sure to leave the "null" statements where they are, that indicates to the parser that the field has no value. The top line with the field names also needs to be left alone, the parser will take it into account, and deleting it might cause loss of data.</p>
-          <textarea name="text" cols="150" rows="20"></textarea>
+          <textarea name="text" cols="10" rows="20"></textarea>
           <p style="width: 100%; text-align: center"><button type="submit">Save</button><button type="cancel">Cancel</button></p>
         </form>
       </div>
@@ -103,6 +103,7 @@
               <tr class="odd"><td><label for="of-filter-contract">Show contractors</label><td><input type="checkbox" checked="checked" id="of-filter-contract" /></td></tr>
               <tr><td><label for="of-filter-employee">Show employees</label><td><input type="checkbox" checked="checked" id="of-filter-employee" /></td></tr>
               <tr class="odd"><td><label for="of-display-sideways">Display sideways</label><td><input checked="checked" type="checkbox" id="of-display-sideways" /></td></tr>
+              <tr><td><label for="of-display-printable">Display printer-friendly</label><td><input type="checkbox" id="of-display-printable" /></td></tr>
             </table>
           </div>
           <div id="of-docs-options">

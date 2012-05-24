@@ -238,7 +238,24 @@ function orgChart() {
         location[1] = oldid;
         setLocation(location, opts);
     });
-
+    $('#of-display-sideways').click(function () {
+        var $this = $(this);
+        if ($this.is(':checked')) {
+            addToOpts({sideways: true});
+        } else {
+            addToOpts({sideways: false});
+        }
+    });
+    
+    $('#of-display-printable').click(function () {
+        var $this = $(this);
+        if ($this.is(':checked')) {
+            addToOpts({printable: true});
+        } else {
+            addToOpts({printable: false});
+        }
+    });
+    
     function addToOpts(opts, wholeLocation) {
         wholeLocation = wholeLocation || getLocation();
         var oldopts = getOpts(wholeLocation);
@@ -296,6 +313,7 @@ function orgChart() {
 
     function loadDocs() {
         $('#of-org-form-svg').empty();
+        $('.othersvg').remove();
         $('.value', $inspector).empty();
         $inspector.removeClass('filled');
         $('#of-filter-options').hide();
@@ -423,6 +441,7 @@ function orgChart() {
         var $orgchart = $('div#of-org-form-svg');
         if ($orgchart && $orgchart.length) {
             $orgchart.empty();
+            $('.othersvg').remove();
         }
         $units.empty();
         
@@ -520,15 +539,6 @@ function orgChart() {
                     findAndHighlight(svg, this.value);
                 }
             });
-            
-            $('#of-display-sideways').click(function () {
-                var $this = $(this);
-                if ($this.is(':checked')) {
-                    addToOpts({sideways: true});
-                } else {
-                    addToOpts({sideways: false});
-                }
-            });
         });
     }
     
@@ -536,6 +546,7 @@ function orgChart() {
         $('body').addClass('hidden-details');
         $('#of-documents-list').hide();
         $('#of-org-form-svg').empty();
+        $('.othersvg').remove();
         var $frm = $('#of-edit-plain form');
         $frm.attr('action', '/plainupload/'+docid);
         $('textarea[name=text]').empty();
@@ -702,6 +713,13 @@ function orgChart() {
                     $('#of-display-sideways').removeAttr('checked');
                 }
             }
+            if ('printable' in loadopts) {
+                if (loadopts.printable === true) {
+                    $('#of-display-printable').attr('checked', 'checked');
+                } else if (loadopts.printable === false) {
+                    $('#of-display-printable').removeAttr('checked');
+                }
+            }
         }
     }
 
@@ -728,11 +746,15 @@ function createOrgChart(opts) {
                             height: 100,
                             draw: doNode,
                             sideways: true}, opts, qopts);
+    if (fullOpts.printable) {
+        fullOpts.maxDepth = 3;
+    }
 
     $(function() {
         var $svg = $('#of-org-form-svg');
         $svg.svg('destroy');
         $svg.empty();
+        $('.othersvg').remove();
         var sw = opts.sideways;
         $svg.attr(sw ? 'height' : 'width', 10);
         $svg.attr(sw ? 'width' : 'height', 10);
@@ -744,10 +766,14 @@ function createOrgChart(opts) {
     function makeTextFit(w, g, title, opts) {
         var txt = w.text(g, title, opts);
         var idealSize = fullOpts.size - 30 - fullOpts.padding;
-        while (txt.getBBox().width > idealSize) {
+        var bbox = txt.getBBox();
+        var tw = bbox.width;
+        while (tw > idealSize) {
             title = title.substr(0, (title.length * (idealSize / txt.getBBox().width)) - 3) + '...';
             w.remove(txt);
             txt = w.text(g, title, opts);
+            bbox = txt.getBBox();
+            tw = bbox.width;
         }
         return txt;
     }
@@ -801,6 +827,39 @@ function createOrgChart(opts) {
             .type('orgchart')
             .options(fullOpts)
             .redraw();
+            
+        if (fullOpts.printable) {
+            var $childNodes = fullOpts.orig.children("li:first");
+            var level = 1;
+            var newFOpts = $.extend(fullOpts, {printable: false});
+            while ($childNodes && $childNodes.length) {
+                if ((level) % fullOpts.maxDepth === 0) {
+                    $.each($childNodes, function () {
+                        var $this = $(this);
+                        if ($this.children('ul:first').children('li').length == 0) {
+                            return true;
+                        }
+                        var tfOpts = $.extend(newFOpts, {orig: $(this)});
+                        var $oldsvg = $('#of-org-form-svg');
+                        var $newsvg = $('<div></div').addClass('othersvg');
+                        $oldsvg.after($newsvg);
+                        $newsvg.svg({onLoad: function (svg) {
+                            drawInitial(svg, tfOpts);
+                        }});
+                    });
+                }
+                level += 1;
+                $ncn = [];
+                $.each($childNodes, function () {
+                    var $this = $(this);
+                    var $cn = $this.children('ul:first').children('li');
+                    $cn.each(function () {
+                        $ncn.push(this);
+                    });
+                });
+                $childNodes = $ncn;
+            }
+        }
 
         var md = document.getElementById('of-main-display');
         var $svg = $('#of-org-form-svg');

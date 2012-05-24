@@ -63,13 +63,14 @@
                     orig = $('li:first', orig);
                 }
 
-                this._drawNode(w, g, orig, size, height, padding, format, clickevent, sw, cb, 2);
+                this._drawNode(w, g, orig, size, height, padding, format, clickevent, sw, cb, 2, 0);
             }
         },
 
         /* Draw a node, and all of its children, and return it */
-        _drawNode: function(w, parent, $node, size, height, padding, format, click, sw, cb, isone, fns) {
-            var isFirstCall = isone === 2;
+        _drawNode: function(w, parent, $node, size, height, padding, format, click, sw, cb, isone, level, fns) {
+            var _options = w.graph._chartOptions;
+            var isFirstCall = level === 0;
             function addToWidth(amt) {
                 addToDims(sw ? 'height' : 'width', amt);
             }
@@ -140,7 +141,8 @@
             chart.csize = 2;
             var locdown = (heightOrSize() + 2 * padding);
             var tlcorner = 0;
-            if ($childNodes && $childNodes.length) {
+            var shouldContinue = (isFirstCall || !_options || !_options.maxDepth || level < _options.maxDepth - 1);
+            if ($childNodes && $childNodes.length && shouldContinue) {
                 var childlocs = {};
                 var childcount = 0;
                 var children = w.group(tg, {transform: (sw ? 'translate(' : 'translate(0 ') + locdown + (sw ? ' 0)' : ')')});
@@ -149,7 +151,7 @@
                 var lastborder = 0;
                 $childNodes.each(function (ix) {
                     var nrg = w.group(children, {});
-                    var rchart = fns.dn(w, nrg, $(this), size, height, padding, format, click, sw, cb, (ix == 0), fns);
+                    var rchart = fns.dn(w, nrg, $(this), size, height, padding, format, click, sw, cb, (ix == 0), level + 1, fns);
                     var tsize = rchart.size;
 
                     var off = fns.fbo(chart, rchart.map, 1, fns.cfc);
