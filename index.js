@@ -43,6 +43,7 @@ handle["/usercreate"] = requestHandlers.cuTemplate;
 
 handle["/pin-pinned.png"] = requestHandlers.pinpinned;
 handle["/pin-lifted.png"] = requestHandlers.pinlifted;
+handle["/orglogo.png"] = requestHandlers.orglogo;
 handle["/images"] = requestHandlers.jquiimage;
 
 handle["/doclist"] = requestHandlers.listDocs;

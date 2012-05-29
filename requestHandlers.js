@@ -22,6 +22,7 @@ mongodb = require("./db/mongo");
 var db = mongodb; // mongodb database (better)
 
 var orgName = "Wikimedia Foundation";
+var orgLogo = "/orglogo.png";
 
 function checkAuth(response, request, cb) {
     SessionHandler.httpRequest(request, response, function (err, sess) {
@@ -145,7 +146,7 @@ function list(response, request, args) {
     }
     db.listHierarchy(doc, function (list, locs, loccodes, units, docname) {
         response.writeHead(200, {'Content-Type': 'application/json'});
-        response.write(jsonify({list: list, colors: locs, codes: loccodes, units: units, org: orgName, doc: docname}));
+        response.write(jsonify({list: list, colors: locs, codes: loccodes, units: units, org: orgName, doc: docname, orglogo: orgLogo}));
         response.end();
     });
 }
@@ -236,7 +237,7 @@ function add(response, request, args) {
 function listDocs(response) {
     db.listDocs(function (list) {
         response.writeHead(200, {'Content-Type': 'application/json'});
-        response.write(jsonify({list: list, org: orgName}));
+        response.write(jsonify({list: list, org: orgName, orglogo: orgLogo}));
         response.end();
     });
 }
@@ -520,6 +521,10 @@ function jquiimage(response, request, args) {
     }
 }
 
+function orglogo(response) {
+    respondWithFile(response, 'images/orglogo.png');
+}
+
 exports.style = style;
 exports.pstyle = pstyle;
 exports.jorgchartstyle = jorgchartstyle;
@@ -560,6 +565,7 @@ exports.remove = remove;
 exports.pinlifted = pinlifted;
 exports.pinpinned = pinpinned;
 exports.jquiimage = jquiimage;
+exports.orglogo = orglogo;
 
 exports.listDocs = listDocs;
 exports.deleteDoc = deleteDoc;

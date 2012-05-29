@@ -7,6 +7,7 @@ body {
     background-color: #ebf3f6;
     font-family: arial;
     position: absolute;
+    margin: 0px;
     top: 0; bottom: 0; left: 0; right: 0;
 }
 
@@ -26,6 +27,35 @@ body {
     text-align: center;
 }
 
+#of-org-logo {
+    width: 100%;
+    text-align: center;
+}
+
+p.filter-option label {
+    cursor: pointer;
+    padding-left: 10px;
+    color: #969898;
+}
+
+p.filter-option > input:checked + label {
+    color: #434343;
+}
+
+.checkbox {
+    padding: 1px 8px;
+    margin: 0px 5px;
+    background-color: white;
+}
+
+input[type=checkbox] {
+    display: none;
+}
+
+input[type=checkbox]:checked + label > .checkbox {
+    background-color: #006699;
+}
+
 #of-left-menus {
     position: fixed;
     left: 10px;
@@ -42,15 +72,28 @@ body {
 }
 
 #of-login-form, #of-inspector, #of-filter-full, #of-edit-viewport, #of-search {
-    border: 1px solid #979998;
-    border-radius: 5px;
-    padding: 10px;
-    background-color: #fefffd;
     text-align: center;
     position: relative;
 }
 
+#of-search-box, #of-username, #of-fake-password {
+    font-style: italic;
+    padding-left: 20px;
+    color: gray;
+}
+
+#of-password {
+    padding-left: 20px;
+    display: none;
+}
+
+.edittime {
+    font-style: normal !important;
+    color: black !important;
+}
+
 .menubutton {
+    margin: 0px;
     text-align: center;
 }
 
@@ -69,23 +112,33 @@ body {
     width: 25%;
     height: 100%;
     float: right;
+    background-color: #e8e8e8;
     overflow-y: scroll;
 }
 
+#of-details-bar button {
+    width: 100%;
+    background-color: #e5e5e5;
+    margin: 0px;
+    padding: 10px 0px;
+    border: 0;
+    border-left: 6px solid #000000;
+    cursor: pointer;
+}
+
+#of-details-bar button:hover {
+    border-color: #006699;
+    background-color: #f3f4f4;
+}
+
 #of-resize-bar {
-    width: 2%;
-    height: 100%;
-    float: left;
     cursor: e-resize;
 }
 
-#of-resize-bar.resize-again {
-    width: 100%;
-    cursor: w-resize;
-}
-
 #of-details-remainder {
-    width: 98%;
+    width: 100%;
+    margin: 0px;
+    padding: 0px;
     height: auto;
     float: right;
 }
@@ -104,7 +157,12 @@ body.hidden-details #of-details-remainder {
 }
 
 #of-inspector {
+    padding: 20px;
+    background-color: white;
     text-align: left;
+    -moz-box-shadow:    inset 5px 5px 5px #bdbdbd;
+    -webkit-box-shadow: inset 5px 5px 5px #bdbdbd;
+    box-shadow:         inset 5px 5px 5px #bdbdbd;
 }
 
 #of-inspector-full {
@@ -299,7 +357,21 @@ span.of-unit-lc {
     top: -15px;
 }
 
-#of-inspector-type-tag:before {
+.type-tag.not-abs {
+    float: left;
+    line-height: 35px;
+}
+
+.type-tag.not-abs:before {
+    margin: 4px 10px;
+    position: relative;
+    top: 0px;
+    right: 0px;
+    float: left;
+    line-height: 20px;
+}
+
+.type-tag:before {
     content: "V";
     width: 1em;
     height: 1em;
@@ -308,18 +380,18 @@ span.of-unit-lc {
     font-weight: bold;
     border: 4px solid black;
     border-radius: 1em;
+    text-align: center;
     position: absolute;
     top: 2px;
     right: 2px;
-    text-align: center;
 }
 
-#of-inspector-type-tag.employee:before {
+.type-tag.employee:before {
     content: "E";
     border-color: #00699a;
 }
 
-#of-inspector-type-tag.contractor:before {
+.type-tag.contractor:before {
     content: "C";
     border-color: #9c0e0c;
 }

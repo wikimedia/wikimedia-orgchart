@@ -60,12 +60,13 @@
     <div id="of-details-bar">
       <div id="of-resize-bar"></div>
       <div id="of-details-remainder">
+        <p id="of-org-logo"><img src="/orglogo.png" /></p>
         <div id="of-login-form" class="login shown">
           <div id="of-login-form-in">
             <form action="/login" method="POST">
-              <p><label>Username <input type="text" name="username" /></label></p>
-              <p><label>Password <input type="password" name="password" /></label></p>
-              <p><input type="submit" value="Login" /></p>
+              <p><input id="of-username" type="text" name="username" value="Username" /></p>
+              <p><input id="of-fake-password" type="text" value="Password" name="fakepassword" /><input id="of-password" type="password" name="password" /></p>
+              <p><button type="submit">Login</button></p>
             </form>
           </div>
           <div id="of-login-form-out">
@@ -76,7 +77,7 @@
           </div>
         </div>
         <div id="of-search">
-          <p><label>Search: <input type="text" id="of-search-box" /></label></p>
+          <p><input type="text" id="of-search-box" value="Search" /></p>
         </div>
         <div id="of-inspector">
           <div id="of-inspector-full" style="position: relative">
@@ -88,28 +89,31 @@
               <div id="of-inspector-start">Start Date: <span class="value"></span></div>
               <div id="of-inspector-end">End Date: <span class="value"></span></div>
               <div id="of-inspector-hrs">Hours/week: <span class="value"></span></div>
-              <p class="menubutton"><button id="of-zoom-here">Zoom Here</button>&nbsp;<span class="hide-until-logged"><button id="of-add-report">Add Report</button><br />
-              <button id="of-edit-node">Edit Node</button>&nbsp;<button id="of-delete-node">Delete Node</button></span></p>
             </div>
-            <span id="of-inspector-type-tag"></span>
+            <span class="type-tag" id="of-inspector-type-tag"></span>
           </div>
         </div>
         <div id="of-edit-viewport"></div>
         <div id="of-filter-full">
           <div id="of-filter-options">
-            <p class="menubutton"><button id="of-zoom-out" disabled="disabled">Zoom out</button>&nbsp;<button id="of-home-page">Home page</button>&nbsp;<button class="hide-until-logged" id="of-edit-plaintext">Edit in Plain Text</button></p>
-            <table width="100%">
-              <tr><td><label for="of-filter-vacant">Show vacancies</label><td><input type="checkbox" id="of-filter-vacant" checked="checked" /></td></tr>
-              <tr class="odd"><td><label for="of-filter-contract">Show contractors</label><td><input type="checkbox" checked="checked" id="of-filter-contract" /></td></tr>
-              <tr><td><label for="of-filter-employee">Show employees</label><td><input type="checkbox" checked="checked" id="of-filter-employee" /></td></tr>
-              <tr class="odd"><td><label for="of-display-sideways">Display sideways</label><td><input checked="checked" type="checkbox" id="of-display-sideways" /></td></tr>
-              <tr><td><label for="of-display-printable">Display printer-friendly</label><td><input type="checkbox" id="of-display-printable" /></td></tr>
-            </table>
+            <p id="of-options-pernode" class="menubutton"><button id="of-zoom-here">Zoom Here</button><br /><span class="hide-until-logged"><button id="of-add-report">Add Report</button><br />
+            <button id="of-edit-node">Edit Node</button><br /><button id="of-delete-node">Delete Node</button></span></p>
+            <p class="menubutton"><button id="of-zoom-out" disabled="disabled">Zoom out</button><br /><button id="of-home-page">Home page</button><br /><button class="hide-until-logged" id="of-edit-plaintext">Edit in Plain Text</button></p>
+            <!-- This stuff does nothing for now, let's temporarily hide the buttons
+            <p class="filter-option"><input type="checkbox" id="of-filter-vacant" checked="checked" /><label for="of-filter-vacant">Show vacancies</label></p>
+            <p class="filter-option"><input type="checkbox" checked="checked" id="of-filter-contract" /><label for="of-filter-contract">Show contractors</label></p>
+            <p class="filter-option"><input type="checkbox" checked="checked" id="of-filter-employee" /><label for="of-filter-employee">Show employees</label></p>
+            -->
+            <p class="filter-option"><input checked="checked" type="checkbox" id="of-display-sideways" /><label for="of-display-sideways"><span class="checkbox">&nbsp;</span>Display sideways</label></p>
+            <p class="filter-option"><input type="checkbox" id="of-display-printable" /><label for="of-display-printable"><span class="checkbox">&nbsp;</span>Display printer-friendly</label></p>
           </div>
           <div id="of-docs-options">
             <p class="menubutton hide-until-logged"><button id="of-new-doc">New document</button>
           </div>
         </div>
+        <p style="position: relative;"><span class="type-tag employee not-abs">Employee</span></p>
+        <p style="position: relative; clear: both;"><span class="type-tag contractor not-abs">Contractor</span></p>
+        <p style="position: relative; clear: both;"><span class="type-tag vacancy not-abs">Vacancy</span></p>
       </div>
     </div>
     <div id="of-org-list-display">

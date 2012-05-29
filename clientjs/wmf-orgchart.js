@@ -65,6 +65,7 @@ function orgChart() {
     var $doctpl = $('.of-doc-box').detach();
     var $docctpl = $('.of-doc-create').detach();
     var $inspector = $('#of-inspector');
+    var $pernode = $('#of-options-pernode');
     var fields = ['name', 'title', 'loc', 'reqn', 'start', 'end', 'hrs'];
     var $uev = $('#of-edit-viewport');
     var session = {};
@@ -73,6 +74,42 @@ function orgChart() {
     var locs = {};
     var loccodes = {};
     var svg = null;
+    
+    $('#of-username, #of-search-box').focus(function () {
+        var $this = $(this);
+        $this.addClass('edittime');
+        var defVal = $this.data('defaultValue');
+        var curVal = $this.val();
+        if (!defVal) {
+            $this.data('defaultValue', curVal);
+            defVal = curVal;
+        }
+        if (curVal === defVal) {
+            $this.val('');
+        }
+    });
+    
+    $('#of-fake-password').focus(function () {
+        $(this).hide();
+        $('#of-password').show().focus();
+    });
+    
+    $('#of-password').blur(function () {
+        var $this = $(this);
+        if ($this.val() === '') {
+            $this.hide();
+            $('#of-fake-password').show();
+        }
+    });
+    
+    $('#of-username, #of-search-box').blur(function () {
+        var $this = $(this);
+        var defVal = $this.data('defaultValue');
+        if ($this.val() === '') {
+            $this.val(defVal);
+            $this.removeClass('edittime');
+        }
+    });
 
     function setLocation(wholeLocation, opts) {
         var optstr = '?';
@@ -291,6 +328,9 @@ function orgChart() {
         session.logged = result;
         initLogin();
     });
+    
+    $inspector.hide();
+    $pernode.hide();
 
     function initLogin() {
         $('#of-login-form-in form').ajaxForm({
@@ -329,6 +369,9 @@ function orgChart() {
             } else {
                 $('#title').html('Org Chart');
                 $('title').html('Org Chart');
+            }
+            if (data.orglogo) {
+                $('#of-org-logo img').attr('src', data.orglogo);
             }
             docs = data.list;
             $('#of-new-doc').click(function () {
@@ -458,6 +501,9 @@ function orgChart() {
                 $('#title').html('Org Chart');
                 $('title').html('Org Chart');
             }
+            if (data.orglogo) {
+                $('#of-org-logo img').attr('src', data.orglogo);
+            }
             if (data.doc) {
                 $('#subtitle h2').html(data.doc);
                 $('#subtitle').show();
@@ -488,6 +534,7 @@ function orgChart() {
                     $('.value', $inspector).html('');
                     $inspector.data('oldid', oldid);
                     $inspector.show();
+                    $pernode.show();
                     $uev.removeClass('filled');
                     $uev.empty();
                     var $ob = $('#' + oldid);
