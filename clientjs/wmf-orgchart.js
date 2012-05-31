@@ -480,7 +480,7 @@ function orgChart() {
     }
 
     function loadDoc(docid, zoomlevel) {
-        var isHighlighted = null;
+        var isHighlighted = [];
         var $orgchart = $('div#of-org-form-svg');
         if ($orgchart && $orgchart.length) {
             $orgchart.empty();
@@ -563,17 +563,19 @@ function orgChart() {
                         $itt.addClass('vacancy');
                     }
                     
-                    if (isHighlighted && isHighlighted != null) {
-                        svg.remove(isHighlighted);
-                        isHighlighted = null;
+                    for (var ix in isHighlighted) {
+                        svg.remove(isHighlighted[ix]);
+                        delete isHighlighted[ix];
                     }
                     
                     var lineg = svg.getElementById('lines-to-' + id);
-                    if (lineg && lineg != null) {
+                    while (lineg && lineg != null) {
                         var linesg = lineg.parentNode;
+                        var parentid = linesg.id.substr(11);
                         var clineg = svg.clone(linesg, lineg)[0];
-                        isHighlighted = clineg;
+                        isHighlighted.push(clineg);
                         svg.change(clineg, {fill: 'none', stroke: 'yellow', strokeWidth: '2'});
+                        lineg = svg.getElementById('lines-to-' + parentid);
                     }
                     $('#of-inspector').addClass('filled');
                 }

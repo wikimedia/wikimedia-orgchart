@@ -195,7 +195,7 @@
                 justbelow = [botcenter[0] + padding, botcenter[1]];
             }
 
-            var lineg = w.group(tg, {});
+            var lineg = w.group(tg, 'lines-from-'+chart.parentid, {});
             for (var cx in childlocs) {
                 var clineg = w.group(lineg, 'lines-to-'+cx, {fill: 'none', stroke: 'black', strokeWidth: '1'});
                 var cl = childlocs[cx];
