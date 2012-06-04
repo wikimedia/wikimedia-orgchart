@@ -54,7 +54,7 @@
             if (orig !== null) {
                 var w = graph._wrapper;
                 var d = w.defs(this._chart);
-                w.rect(d, 0, 0, size, height, 10, 10, {fill:'white', stroke: '#969898', strokeWidth: 4, id: 'outlinerect'});
+                w.rect(d, 0, 0, size, height, 5, 5, {fill:'white', stroke: '#969898', strokeWidth: 2, id: 'outlinerect'});
                 var g = w.group(this._chart,
                                 $.extend({class_: 'graph', fill: graph._fill, stroke: graph._stroke,
                                           transform: 'translate(0 20)', strokeWidth: graph._strokeWidth}, graph._settings || {}));
@@ -133,11 +133,9 @@
                 .children("ul,li")
                 .remove()
                 .end();
-            w.use(nodeg, '#outlinerect');
-            var innernode = w.group(nodeg, {transform: 'translate(7, 20)'});
-            var result = format(w, innernode, $nodeContent);
+            var result = format(w, nodeg, $nodeContent);
             chart.map[0].push(1);
-            chart.parentid = innernode.id;
+            chart.parentid = nodeg.id;
             chart.csize = 2;
             var locdown = (heightOrSize() + 2 * padding);
             var tlcorner = 0;
@@ -211,8 +209,8 @@
             }
 
             nodeg.onclick = function (event) {
-                var id = innernode.id || null;
-                click(innernode, id, w);
+                var id = nodeg.id || null;
+                click(nodeg, id, w);
             };
 
             cb(nodeg, nodeg.id);

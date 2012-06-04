@@ -527,7 +527,7 @@ function orgChart() {
             createOrgChart({
                 orig: $root,
                 lccolors: loccodes || {},
-                height: 65,
+                height: 60,
                 size: 200,
                 click: function (node, id, svg) {
                     var oldid = id.substr(4);
@@ -827,7 +827,16 @@ function createOrgChart(opts) {
         return txt;
     }
                                 
-    function doNode(w, ng, $nc) {
+    function doNode(w, nodeg, $nc) {
+        if ($nc.hasClass('contractor')) {
+            w.use(nodeg, '#outlinerect', {'stroke-dasharray': '5,5'});
+        } else if ($nc.hasClass('vacancy')) {
+            w.use(nodeg, '#outlinerect', {opacity: '0.5'});
+        } else {
+            w.use(nodeg, '#outlinerect');
+        }
+        var ng = w.group(nodeg, {transform: 'translate(14, 25)'});
+
         var title = $('.of-unit-title', $nc).html();
         var name = $('.of-unit-name', $nc).html();
         var location = $('.of-unit-loc', $nc).html();
@@ -838,8 +847,10 @@ function createOrgChart(opts) {
 
         var id = $nc.attr('id');
         if (id && id != '') {
-            ng.id = 'svg-' + id;
+            nodeg.id = 'svg-' + id;
         }
+        
+        w.change(ng, {'font-size': 14, 'font-family': 'arial'});
 
         if (title && title != '') {
             var titleg = w.group(ng);
@@ -849,18 +860,19 @@ function createOrgChart(opts) {
         }
 
         if (name && name != '') {
-            var nameg = w.group(ng, {transform: 'translate(0, 30)'});
+            var nameg = w.group(ng, {transform: 'translate(0, 16)'});
             if (name.length > 30) {
                 name = name.substr(0,35)+'...';
             }
+            w.change(nameg, {'font-weight': 'bold'});
             var txt = makeTextFit(w, nameg, name, {class: textClass});
             var rct = w.rect(nameg, 0, -txt.getBBox().height+5, 0, 0, {fill: 'none', stroke: 'none', opacity: '0.4'});
             w.change(rct, {width: txt.getBBox().width, height: txt.getBBox().height});
         }
 
         if (loccode && loccode != '') {
-            var lcg = w.group(ng, {transform: 'translate(' + (opts.size - 50) + ' -40)'});
-            w.rect(lcg, 0, 0, 30, 40, {fill: lcc});
+            var lcg = w.group(ng, {title: location, transform: 'translate(' + (opts.size - 50) + ' -40)'});
+            w.rect(lcg, 0, 0, 22, 30, {fill: lcc});
             var lctg = w.group(lcg);
             var txt = w.text(lctg, loccode.substr(0,2), {fill: 'white', class: textClass});
             var rct = w.rect(lctg, 0, -txt.getBBox().height+5, 0, 0, {fill: 'none', stroke: 'none', opacity: '0.4'});
@@ -868,6 +880,10 @@ function createOrgChart(opts) {
             var newx = (lcg.getBBox().width - lctg.getBBox().width) / 2;
             var newy = (lctg.getBBox().height - 2);
             w.change(lctg, {transform: 'translate('+newx+' '+newy+')'});
+        }
+        
+        if ($nc.hasClass('vacancy')) {
+            w.use(nodeg, '#outlinerect', {opacity: '0.5'});
         }
     }
 
