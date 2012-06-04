@@ -525,6 +525,14 @@ function orglogo(response) {
     respondWithFile(response, 'images/orglogo.png');
 }
 
+function opendetails(response) {
+    respondWithFile(response, 'images/open-details.png');
+}
+
+function closedetails(response) {
+    respondWithFile(response, 'images/close-details.png');
+}
+
 exports.style = style;
 exports.pstyle = pstyle;
 exports.jorgchartstyle = jorgchartstyle;
@@ -566,6 +574,8 @@ exports.pinlifted = pinlifted;
 exports.pinpinned = pinpinned;
 exports.jquiimage = jquiimage;
 exports.orglogo = orglogo;
+exports.opendetails = opendetails;
+exports.closedetails = closedetails;
 
 exports.listDocs = listDocs;
 exports.deleteDoc = deleteDoc;

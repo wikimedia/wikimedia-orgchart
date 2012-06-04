@@ -45,6 +45,8 @@ handle["/pin-pinned.png"] = requestHandlers.pinpinned;
 handle["/pin-lifted.png"] = requestHandlers.pinlifted;
 handle["/orglogo.png"] = requestHandlers.orglogo;
 handle["/images"] = requestHandlers.jquiimage;
+handle["/open-details.png"] = requestHandlers.opendetails;
+handle["/close-details.png"] = requestHandlers.closedetails;
 
 handle["/doclist"] = requestHandlers.listDocs;
 handle["/deletedoc"] = requestHandlers.deleteDoc;

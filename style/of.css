@@ -106,6 +106,7 @@ input[type=checkbox]:checked + label > .checkbox {
     height: 100%;
     float: left;
     overflow: scroll;
+    position: relative;
 }
 
 #of-details-bar {
@@ -132,7 +133,39 @@ input[type=checkbox]:checked + label > .checkbox {
 }
 
 #of-resize-bar {
+    position: fixed;
+    right: 26%;
+    top: 20%;
     cursor: e-resize;
+    background-color: #f3f4f4;
+    border: 1px solid #d3d4d4;
+    padding: 6px;
+}
+
+#of-resize-icon {
+    margin-left: 6px;
+    display: inline-block;
+    width: 11px;
+    height: 19px;
+    background-image: url('/close-details.png');
+    background-repeat: no-repeat;
+}
+
+#of-resize-bar:before {
+    content: "Close Details";
+}
+
+body.hidden-details #of-resize-bar:before {
+    content: "Open Details";
+}
+
+body.hidden-details #of-resize-bar {
+    cursor: w-resize;
+    right: 0px;
+}
+
+body.hidden-details #of-resize-icon {
+    background-image: url('/open-details.png');
 }
 
 #of-details-remainder {
@@ -144,12 +177,12 @@ input[type=checkbox]:checked + label > .checkbox {
 }
 
 body.hidden-details #of-details-bar {
-    width: 1%;
-    overflow-y: auto;
+    display: none;
 }
 
 body.hidden-details #of-main-display {
-    width: 98%;
+    width: 100%;
+    overflow-y: auto;
 }
 
 body.hidden-details #of-details-remainder {

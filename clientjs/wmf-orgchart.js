@@ -849,7 +849,7 @@ function createOrgChart(opts) {
         if (id && id != '') {
             nodeg.id = 'svg-' + id;
         }
-        
+
         w.change(ng, {'font-size': 14, 'font-family': 'arial'});
 
         if (title && title != '') {
