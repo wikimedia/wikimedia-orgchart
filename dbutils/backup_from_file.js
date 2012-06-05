@@ -6,8 +6,13 @@
 var mongo = require('../db/mongo');
 var json = require('JSON');
 var fs = require('fs');
+var bakfile = 'db_backup.json';
 
-fs.readFile('db_backup.json', function (err, file) {
+if (process && process.argv && process.argv.length > 2) {
+    bakfile = process.argv[2];
+}
+
+fs.readFile(bakfile, function (err, file) {
     var fdata = json.parse(file);
     console.log('Backing up to database....');
     var donelist = {};
@@ -37,7 +42,7 @@ fs.readFile('db_backup.json', function (err, file) {
             }
             
             if (_id == null) {
-                mongo.createDoc(fdbn, function (_newid) {
+                mongo.createDoc(fdbn, null, function (_newid) {
                     _id = _newid;
                     doTheRest();
                 });

@@ -76,7 +76,7 @@ function createCollection(name, cb) {
             });
         } else {
             colld[name] = true;
-            cb();
+            cb(null);
         }
     });
 }
@@ -505,13 +505,21 @@ function createDoc(name, date, cb) {
         dbfs.push(function () { createDoc(name, cb); });
         return;
     }
+    if (!cb || typeof cb != 'function') {
+        cb = function () {};
+    }
     db.collection(cols.docs, function (err, col) {
+        if (err != null) {
+            console.log(err);
+        }
         col.insert([{date: date, name: name, count: 0, created: (new Date()).getTime()}], function (err, doc) {
-            console.log(doc);
             if (err != null) {
                 console.log(err);
             }
-            createCollection(new String(doc[0]._id), function (err) {
+            createCollection(''+doc[0]._id, function (err) {
+                if (err != null) {
+                    console.log(err);
+                }
                 cb(doc[0]._id);
             });
         });

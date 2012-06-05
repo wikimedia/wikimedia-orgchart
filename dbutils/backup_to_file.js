@@ -25,6 +25,11 @@ var fs = require('fs');
 var docd = [];
 var docl = {};
 var docdb = {};
+var bakfile = 'db_backup.json';
+
+if (process && process.argv && process.argv.length > 2) {
+    bakfile = process.argv[2];
+}
 
 mongo.listDocs(function (docs) {
     for (var dx in docs) {
@@ -37,7 +42,7 @@ mongo.listDocs(function (docs) {
             var ix = indexOf(docd, docs[dx]._id);
             docd.pop(ix);
             if (docd.length == 0) {
-                fs.writeFile('db_backup.json', json.stringify({list: docl, db: docdb}), function () {
+                fs.writeFile(bakfile, json.stringify({list: docl, db: docdb}), function () {
                     console.log('Backup complete.');
                     mongo.closeAll();
                 });
