@@ -533,6 +533,18 @@ function closedetails(response) {
     respondWithFile(response, 'images/close-details.png');
 }
 
+function emptag(response) {
+    respondWithFile(response, 'images/emp-tag.png');
+}
+
+function contag(response) {
+    respondWithFile(response, 'images/con-tag.png');
+}
+
+function vactag(response) {
+    respondWithFile(response, 'images/vac-tag.png');
+}
+
 exports.style = style;
 exports.pstyle = pstyle;
 exports.jorgchartstyle = jorgchartstyle;
@@ -576,6 +588,9 @@ exports.jquiimage = jquiimage;
 exports.orglogo = orglogo;
 exports.opendetails = opendetails;
 exports.closedetails = closedetails;
+exports.emptag = emptag;
+exports.vactag = vactag;
+exports.contag = contag;
 
 exports.listDocs = listDocs;
 exports.deleteDoc = deleteDoc;

@@ -41,10 +41,11 @@
           </p>
         </li>
         <li class="of-doc-create">
-          <form action="/newdoc" method="POST">
+          <form style="width: 50%; margin-left: auto; margin-right: auto;" action="/newdoc" method="POST">
             <p><label>Name <input class="of-doc-title" name="name" /></label></p>
             <p><label>Represents <input class="of-doc-date" name="date" type="text" /></label></p>
-            <p><button class="of-doc-create-submit" type="submit">Create</button><button class="of-doc-create-cancel" type="cancel">Cancel</button>
+            <p><button style="float: left;" class="of-doc-create-submit ofbtn ofbtn-submit" type="submit">Create</button><button style="float: right;" class="ofbtn of-doc-create-cancel" type="cancel">Cancel</button>
+            <p>&nbsp;</p>
           </form>
         </li>
       </ul>
@@ -56,7 +57,7 @@
           <p style="width: 100%; text-align: center"><button type="submit">Save</button><button type="cancel">Cancel</button></p>
         </form>
       </div>
-      <div id="of-resize-bar"><div id="of-resize-icon"></div></div>
+      <div id="of-resize-bar"><span id="of-resize-bar-text"></span><span id="of-resize-icon"></span></div>
     </div>
     <div id="of-details-bar">
       <div id="of-details-remainder">
@@ -66,14 +67,14 @@
             <form action="/login" method="POST">
               <p><input id="of-username" type="text" name="username" value="Username" /></p>
               <p><input id="of-fake-password" type="text" value="Password" name="fakepassword" /><input id="of-password" type="password" name="password" /></p>
-              <p><button type="submit">Login</button></p>
+              <p><button class="bigbutton" type="submit">Login</button></p>
             </form>
           </div>
           <div id="of-login-form-out">
             <form action="/logout" method="POST">
-              <p><input type="submit" value="Logout" /></p>
+              <p><button class="bigbutton" type="submit">Logout</button></p>
             </form>
-            <p class="hide-until-logged"><button id="of-create-user">Create User</button></p>
+            <p class="hide-until-logged"><button class="bigbutton" id="of-create-user">Create User</button></p>
           </div>
         </div>
         <div id="of-search">
@@ -96,9 +97,9 @@
         <div id="of-edit-viewport"></div>
         <div id="of-filter-full">
           <div id="of-filter-options">
-            <p id="of-options-pernode" class="menubutton"><button id="of-zoom-here">Zoom Here</button><br /><span class="hide-until-logged"><button id="of-add-report">Add Report</button><br />
-            <button id="of-edit-node">Edit Node</button><br /><button id="of-delete-node">Delete Node</button></span></p>
-            <p class="menubutton"><button id="of-zoom-out" disabled="disabled">Zoom out</button><br /><button id="of-home-page">Home page</button><br /><button class="hide-until-logged" id="of-edit-plaintext">Edit in Plain Text</button></p>
+            <p id="of-options-pernode" class="menubutton"><button class="bigbutton" id="of-zoom-here">Zoom Here</button><br /><span class="hide-until-logged"><button class="bigbutton" id="of-add-report">Add Report</button><br />
+            <button class="bigbutton" id="of-edit-node">Edit Node</button><br /><button class="bigbutton" id="of-delete-node">Delete Node</button></span></p>
+            <p class="menubutton"><button class="bigbutton" id="of-zoom-out" disabled="disabled">Zoom out</button><br /><button class="bigbutton" id="of-home-page">Home page</button><br /><button class="bigbutton hide-until-logged" id="of-edit-plaintext">Edit in Plain Text</button></p>
             <!-- This stuff does nothing for now, let's temporarily hide the buttons
             <p class="filter-option"><input type="checkbox" id="of-filter-vacant" checked="checked" /><label for="of-filter-vacant">Show vacancies</label></p>
             <p class="filter-option"><input type="checkbox" checked="checked" id="of-filter-contract" /><label for="of-filter-contract">Show contractors</label></p>
@@ -108,12 +109,12 @@
             <p class="filter-option"><input type="checkbox" id="of-display-printable" /><label for="of-display-printable"><span class="checkbox">&nbsp;</span>Display printer-friendly</label></p>
           </div>
           <div id="of-docs-options">
-            <p class="menubutton hide-until-logged"><button id="of-new-doc">New document</button>
+            <p class="menubutton hide-until-logged"><button class="bigbutton" id="of-new-doc">New document</button>
           </div>
         </div>
-        <p style="position: relative;"><span class="type-tag employee not-abs">Employee</span></p>
-        <p style="position: relative; clear: both;"><span class="type-tag contractor not-abs">Contractor</span></p>
-        <p style="position: relative; clear: both;"><span class="type-tag vacancy not-abs">Vacancy</span></p>
+        <p class="type-legend"><span class="type-tag employee not-abs"></span>&nbsp;Employee</p>
+        <p class="type-legend"><span class="type-tag contractor not-abs"></span>&nbsp;Contractor</p>
+        <p class="type-legend"><span class="type-tag vacancy not-abs"></span>&nbsp;Vacancy</p>
       </div>
     </div>
     <div id="of-org-list-display">
@@ -154,8 +155,10 @@
             <form class="of-unit-delete-confirm-form" method="POST" action="/remove">
               <p>Are you sure you want to delete this node and all of its descendants?</p>
               <p class="of-unit-name"></p>
-              <p><button type="submit" class="of-unit-remove-node-confirm">I'm sure! Delete!</button></p>
-              <p><button type="button" class="of-unit-remove-node-cancel">Ah, no! Go back!</button></p>
+              <p>&nbsp;</p>
+              <p><button style="float: left;" type="submit" class="ofbtn ofbtn-submit of-unit-remove-node-confirm">I'm sure! Delete!</button>
+              <button style="float: right;" type="button" class="ofbtn of-unit-remove-node-cancel">Ah, no! Go back!</button></p>
+              <br style="clear: both;" />
             </form>
           </div>
           <div class="of-unit-edit-form">
@@ -176,7 +179,9 @@
               <p><label>Start Date<br /><input name="start" class="of-unit-start" type="text" /></label></p>
               <p><label>End Date<br /><input name="end" class="of-unit-end" type="text" /></label></p>
               <p><label>Hours Per Week<br /><input name="hours" class="of-unit-hours" type="text" /></label></p>
-              <p><button type="submit">Submit</button> <button type="button" class="of-unit-cancel-edit">Cancel</button></p>
+              <p>&nbsp;</p> <!-- don't judge me -->
+              <p><button style="float: left;" class="ofbtn ofbtn-submit" type="submit">Submit</button> <button type="button" style="float: right;" class="ofbtn of-unit-cancel-edit">Cancel</button></p>
+              <br style="clear: both;" />
             </form>
           </div>
         </div>

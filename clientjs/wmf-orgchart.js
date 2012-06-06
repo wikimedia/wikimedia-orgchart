@@ -44,6 +44,7 @@ function getOpts(wholeLocation) {
 }
 
 var findAndHighlight = function (w, str) {
+    var found = false;
     $('.of-node-text').each(function () {
         w.change(this.nextSibling, {fill: 'none'});
         if (str == '') {
@@ -51,6 +52,11 @@ var findAndHighlight = function (w, str) {
         }
         if (this.textContent.toLowerCase().indexOf(str.toLowerCase()) != -1) {
             w.change(this.nextSibling, {fill: 'yellow'});
+            if (found === false) {
+                found = true;
+                var pg = this.parentNode.parentNode.parentNode; // hackish, but it is (sort of) guaranteed to work
+                $('#of-main-display').get(0).scrollTop += $(pg).offset().top;
+            }
         }
     });
 };
@@ -192,6 +198,7 @@ function orgChart() {
     });
 
     $('#of-add-report').click(function () {
+        $inspector.hide();
         $uev.addClass('filled');
         $uev.html($ucreate.clone());
         var $form = $('form', $uev);
@@ -202,16 +209,19 @@ function orgChart() {
             success: function () {
                 $uev.removeClass('filled');
                 $uev.empty();
+                $inspector.show();
                 setLocation(getLocation());
             }
         });
         $('.of-unit-cancel-edit', $form).click(function () {
             $uev.removeClass('filled');
             $uev.empty();
+            $inspector.show();
         });
     });
     
     $('#of-edit-node').click(function () {
+        $inspector.hide();
         $uev.addClass('filled');
         $uev.html($uedit.clone());
         var $form = $('form', $uev)
@@ -236,18 +246,21 @@ function orgChart() {
             success: function () {
                 $uev.removeClass('filled');
                 $uev.empty();
+                $inspector.show();
                 setLocation(getLocation());
             }
         });
         $('.of-unit-cancel-edit', $form).click(function () {
             $uev.removeClass('filled');
             $uev.empty();
+            $inspector.show();
         });
     });
     
     $('#of-delete-node').click(function () {
         $uev.addClass('filled');
         $uev.html($udelete.clone());
+        $inspector.hide();
         var $form = $('form', $uev);
         var oldid = $inspector.data('oldid');
         var unitid = oldid.substr(16);
@@ -256,12 +269,14 @@ function orgChart() {
             success: function () {
                 $uev.removeClass('filled');
                 $uev.empty();
+                $inspector.show();
                 setLocation(getLocation());
             }
         });
         $('.of-unit-remove-node-cancel', $uev).click(function () {
             $uev.removeClass('filled');
             $uev.empty();
+            $inspector.show();
         });
     });
     
@@ -811,22 +826,13 @@ function createOrgChart(opts) {
             drawInitial(svg, fullOpts);
         }});
     });
-                            
-    function makeTextFit(w, g, title, opts) {
-        var txt = w.text(g, title, opts);
-        var idealSize = fullOpts.size - 30 - fullOpts.padding;
-        var bbox = txt.getBBox();
-        var tw = bbox.width;
-        while (tw > idealSize) {
-            title = title.substr(0, (title.length * (idealSize / txt.getBBox().width)) - 3) + '...';
-            w.remove(txt);
-            txt = w.text(g, title, opts);
-            bbox = txt.getBBox();
-            tw = bbox.width;
+
+    function makeTextFit(txt) {
+        if (txt.textContent.length > 26) {
+            txt.textContent = txt.textContent.substr(0, 23) + '...';
         }
-        return txt;
     }
-                                
+
     function doNode(w, nodeg, $nc) {
         if ($nc.hasClass('contractor')) {
             w.use(nodeg, '#outlinerect', {'stroke-dasharray': '5,5'});
@@ -835,7 +841,7 @@ function createOrgChart(opts) {
         } else {
             w.use(nodeg, '#outlinerect');
         }
-        var ng = w.group(nodeg, {transform: 'translate(14, 25)'});
+        var ng = w.group(nodeg, {transform: 'translate(14, 25)', 'font-size': 14, 'font-family': 'arial'});
 
         var title = $('.of-unit-title', $nc).html();
         var name = $('.of-unit-name', $nc).html();
@@ -850,36 +856,30 @@ function createOrgChart(opts) {
             nodeg.id = 'svg-' + id;
         }
 
-        w.change(ng, {'font-size': 14, 'font-family': 'arial'});
+        var bb = {height: 16.75, width: fullOpts.size-10};
 
         if (title && title != '') {
             var titleg = w.group(ng);
-            var txt = makeTextFit(w, titleg, title, {class: textClass});
-            var rct = w.rect(titleg, 0, -txt.getBBox().height+5, 0, 0, {fill: 'none', stroke: 'none', opacity: '0.4'});
-            w.change(rct, {width: txt.getBBox().width, height: txt.getBBox().height});
+            var txt = w.text(titleg, title, {class: textClass});
+            makeTextFit(txt);
+            var rct = w.rect(titleg, 0, -bb.height+5, 0, 0, {width: bb.width, height: bb.height, fill: 'none', stroke: 'none', opacity: '0.4'});
         }
 
         if (name && name != '') {
-            var nameg = w.group(ng, {transform: 'translate(0, 16)'});
-            if (name.length > 30) {
-                name = name.substr(0,35)+'...';
-            }
-            w.change(nameg, {'font-weight': 'bold'});
-            var txt = makeTextFit(w, nameg, name, {class: textClass});
-            var rct = w.rect(nameg, 0, -txt.getBBox().height+5, 0, 0, {fill: 'none', stroke: 'none', opacity: '0.4'});
-            w.change(rct, {width: txt.getBBox().width, height: txt.getBBox().height});
+            var nameg = w.group(ng, {transform: 'translate(0, 16)', 'font-weight': 'bold'});
+            var txt = w.text(nameg, name, {class: textClass});
+            makeTextFit(txt);
+            var rct = w.rect(nameg, 0, -bb.height+5, 0, 0, {width: bb.width, height: bb.height, fill: 'none', stroke: 'none', opacity: '0.4'});
         }
 
         if (loccode && loccode != '') {
-            var lcg = w.group(ng, {title: location, transform: 'translate(' + (opts.size - 50) + ' -40)'});
+            var lcg = w.group(ng, {title: location, transform: 'translate(' + (opts.size - 50) + ' -45)'});
             w.rect(lcg, 0, 0, 22, 30, {fill: lcc});
             var lctg = w.group(lcg);
-            var txt = w.text(lctg, loccode.substr(0,2), {fill: 'white', class: textClass});
-            var rct = w.rect(lctg, 0, -txt.getBBox().height+5, 0, 0, {fill: 'none', stroke: 'none', opacity: '0.4'});
-            w.change(rct, {width: txt.getBBox().width, height: txt.getBBox().height});
-            var newx = (lcg.getBBox().width - lctg.getBBox().width) / 2;
-            var newy = (lctg.getBBox().height - 2);
-            w.change(lctg, {transform: 'translate('+newx+' '+newy+')'});
+            var txt = w.text(lctg, loccode.substr(0,2), {fill: 'white', class: textClass, 'font-size': '8pt'});
+            var rct = w.rect(lctg, 0, -bb.height+5, 0, 0, {width: bb.width, height: bb.height, fill: 'none', stroke: 'none', opacity: '0.4'});
+            var newy = (bb.height - 2);
+            w.change(lctg, {transform: 'translate(0 '+newy+')'});
         }
         
         if ($nc.hasClass('vacancy')) {
@@ -888,11 +888,12 @@ function createOrgChart(opts) {
     }
 
     function drawInitial(svg, fullOpts) {
+        console.profile();
         svg.graph.noDraw()
             .type('orgchart')
             .options(fullOpts)
             .redraw();
-            
+        console.profileEnd();
         if (fullOpts.printable) {
             var $childNodes = fullOpts.orig.children("li:first");
             var level = 1;

@@ -47,6 +47,9 @@ handle["/orglogo.png"] = requestHandlers.orglogo;
 handle["/images"] = requestHandlers.jquiimage;
 handle["/open-details.png"] = requestHandlers.opendetails;
 handle["/close-details.png"] = requestHandlers.closedetails;
+handle["/emp-tag.png"] = requestHandlers.emptag;
+handle["/con-tag.png"] = requestHandlers.contag;
+handle["/vac-tag.png"] = requestHandlers.vactag;
 
 handle["/doclist"] = requestHandlers.listDocs;
 handle["/deletedoc"] = requestHandlers.deleteDoc;

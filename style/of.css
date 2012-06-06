@@ -71,7 +71,7 @@ input[type=checkbox]:checked + label > .checkbox {
     display: block;
 }
 
-#of-login-form, #of-inspector, #of-filter-full, #of-edit-viewport, #of-search {
+#of-login-form, #of-filter-full, #of-search {
     text-align: center;
     position: relative;
 }
@@ -117,7 +117,7 @@ input[type=checkbox]:checked + label > .checkbox {
     overflow-y: scroll;
 }
 
-#of-details-bar button {
+#of-details-bar .bigbutton {
     width: 100%;
     background-color: #e5e5e5;
     margin: 0px;
@@ -127,7 +127,7 @@ input[type=checkbox]:checked + label > .checkbox {
     cursor: pointer;
 }
 
-#of-details-bar button:hover {
+#of-details-bar .bigbutton:hover {
     border-color: #006699;
     background-color: #f3f4f4;
 }
@@ -151,11 +151,14 @@ input[type=checkbox]:checked + label > .checkbox {
     background-repeat: no-repeat;
 }
 
-#of-resize-bar:before {
+#of-resize-bar-text:before {
+    font-size: 10pt;
     content: "Close Details";
+    display: table-cell;
+    vertical-align: middle;
 }
 
-body.hidden-details #of-resize-bar:before {
+body.hidden-details #of-resize-bar-text:before {
     content: "Open Details";
 }
 
@@ -189,7 +192,7 @@ body.hidden-details #of-details-remainder {
     width: 0px;
 }
 
-#of-inspector {
+#of-inspector, #of-edit-viewport {
     padding: 20px;
     background-color: white;
     text-align: left;
@@ -390,43 +393,32 @@ span.of-unit-lc {
     top: -15px;
 }
 
-.type-tag.not-abs {
-    float: left;
-    line-height: 35px;
+.type-legend {
+    line-height: 26px;
 }
 
-.type-tag.not-abs:before {
-    margin: 4px 10px;
-    position: relative;
+.type-tag.not-abs {
+    position: static;
+    float: left;
+    margin: 0px 10px;
+}
+
+.type-tag {
+    background-image: url("/vac-tag.png");
+    display: inline-block;
+    width: 26px;
+    height: 26px;
+    position: absolute;
     top: 0px;
     right: 0px;
-    float: left;
-    line-height: 20px;
 }
 
-.type-tag:before {
-    content: "V";
-    width: 1em;
-    height: 1em;
-    padding: 2px;
-    font-size: 1em;
-    font-weight: bold;
-    border: 4px solid black;
-    border-radius: 1em;
-    text-align: center;
-    position: absolute;
-    top: 2px;
-    right: 2px;
+.type-tag.employee {
+    background-image: url("/emp-tag.png");
 }
 
-.type-tag.employee:before {
-    content: "E";
-    border-color: #00699a;
-}
-
-.type-tag.contractor:before {
-    content: "C";
-    border-color: #9c0e0c;
+.type-tag.contractor {
+    background-image: url("/con-tag.png");
 }
 
 .shown, .of-unit-box:hover, .shown-temp {
@@ -461,4 +453,34 @@ span.of-unit-lc {
 
 tr.odd {
     background-color: #efefef;
+}
+
+#of-edit-viewport p {
+    padding: 0px 30px;
+    margin: 1px;
+}
+
+#of-edit-viewport label {
+    font-size: 8pt;
+    color: grey;
+}
+
+#of-edit-viewport input {
+    font-size: 12pt;
+    color: black;
+    width: 100%;
+}
+
+.ofbtn {
+    box-shadow: -2px 2px 4px #222222;
+    padding: 6px;
+    background-color: #e5e5e5;
+    font-size: 9pt;
+    font-weight: bold;
+    border: none;
+}
+
+.ofbtn-submit {
+    color: white;
+    background-color: #006699;
 }
