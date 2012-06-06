@@ -282,13 +282,19 @@ function changeUnit(docid, uid, mods, cb) {
         modDic.$set[ix] = mods[ix];
     }
     getDoc(docid, function (_id) {
-        db.collection(''+_id, function (err, col) {
+        if (_id != null) {
+            _id = ''+_id;
+        } else {
+            _id = docid;
+        }
+        db.collection(_id, function (err, col) {
+            if (err != null) {
+                console.log(err);
+            }
             if (uid != null && typeof uid == typeof 'string' && (uid.length == 12 || uid.length == 24)) {
                 uid = new ObjectId(uid);
             }
-            col.findAndModify({_id: uid}, [['_id', 1]], modDic, {new: true}, function (err, doc) {
-                console.log(uid);
-                console.log(modDic);
+            col.findAndModify({$or: [{_id: uid}, {_id: ''+uid}]}, [['_id', 1]], modDic, {new: true}, function (err, doc) {
                 if (err != null) {
                     console.log(err);
                 } else {
