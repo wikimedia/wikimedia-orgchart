@@ -34,7 +34,7 @@ body {
 
 p.filter-option label {
     cursor: pointer;
-    padding-left: 10px;
+    padding-left: 4px;
     color: #969898;
 }
 
@@ -43,8 +43,9 @@ p.filter-option > input:checked + label {
 }
 
 .checkbox {
-    padding: 1px 8px;
-    margin: 0px 5px;
+    border: 1px solid #969898;
+    padding: 1px 10px;
+    margin: 0px 4px;
     background-color: white;
 }
 
@@ -72,17 +73,22 @@ input[type=checkbox]:checked + label > .checkbox {
 }
 
 #of-login-form, #of-filter-full, #of-search {
-    text-align: center;
-    position: relative;
+    text-align: left;
+    width: 100%;
 }
 
 #of-search-box, #of-username, #of-fake-password {
+    width: 90%;
+    margin-left: 4px;
     font-style: italic;
     padding-left: 20px;
     color: gray;
 }
 
 #of-password {
+    position: absolute;
+    left: 4px;
+    right: 4px;    
     padding-left: 20px;
     display: none;
 }
@@ -140,15 +146,16 @@ input[type=checkbox]:checked + label > .checkbox {
     background-color: #f3f4f4;
     border: 1px solid #d3d4d4;
     padding: 6px;
+    display: table;
 }
 
 #of-resize-icon {
-    margin-left: 6px;
-    display: inline-block;
     width: 11px;
     height: 19px;
     background-image: url('/close-details.png');
     background-repeat: no-repeat;
+    display: table-cell;
+    vertical-align: middle;
 }
 
 #of-resize-bar-text:before {
@@ -156,6 +163,7 @@ input[type=checkbox]:checked + label > .checkbox {
     content: "Close Details";
     display: table-cell;
     vertical-align: middle;
+    padding-right: 6px;
 }
 
 body.hidden-details #of-resize-bar-text:before {
@@ -400,14 +408,15 @@ span.of-unit-lc {
 .type-tag.not-abs {
     position: static;
     float: left;
-    margin: 0px 10px;
+    margin-left: 28px;
 }
 
 .type-tag {
     background-image: url("/vac-tag.png");
+    background-repeat: no-repeat;
     display: inline-block;
-    width: 26px;
-    height: 26px;
+    width: 25px;
+    height: 25px;
     position: absolute;
     top: 0px;
     right: 0px;

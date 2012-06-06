@@ -875,11 +875,9 @@ function createOrgChart(opts) {
         if (loccode && loccode != '') {
             var lcg = w.group(ng, {title: location, transform: 'translate(' + (opts.size - 50) + ' -45)'});
             w.rect(lcg, 0, 0, 22, 30, {fill: lcc});
-            var lctg = w.group(lcg);
+            var lctg = w.group(lcg, {transform: 'translate(4 '+bb.height+')'});
             var txt = w.text(lctg, loccode.substr(0,2), {fill: 'white', class: textClass, 'font-size': '8pt'});
             var rct = w.rect(lctg, 0, -bb.height+5, 0, 0, {width: bb.width, height: bb.height, fill: 'none', stroke: 'none', opacity: '0.4'});
-            var newy = (bb.height - 2);
-            w.change(lctg, {transform: 'translate(0 '+newy+')'});
         }
         
         if ($nc.hasClass('vacancy')) {
