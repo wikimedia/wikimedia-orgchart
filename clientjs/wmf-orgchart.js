@@ -374,6 +374,7 @@ function orgChart() {
         $('#of-org-form-svg').empty();
         $('.othersvg').remove();
         $('.value', $inspector).empty();
+        $('#of-inspector-img img').attr('src', 'placeholder');
         $inspector.removeClass('filled');
         $('#of-filter-options').hide();
         $('#of-docs-options').show();
@@ -551,6 +552,9 @@ function orgChart() {
                 click: function (node, id, svg) {
                     var oldid = id.substr(4);
                     $('.value', $inspector).html('');
+                    var $img = $('img', $inspector);
+                    $img.attr('src', 'placeholder');
+                    $img.hide();
                     $inspector.data('oldid', oldid);
                     $inspector.show();
                     $pernode.show();
@@ -581,7 +585,14 @@ function orgChart() {
                     } else {
                         $itt.addClass('vacancy');
                     }
-                    
+                    var imgurl = $('.of-unit-img', $ob).html();
+                    if (imgurl && imgurl != '') {
+                        $img.attr('src', imgurl);
+                        $img.show();
+                    } else {
+                        $img.hide();
+                    }
+
                     for (var ix in isHighlighted) {
                         svg.remove(isHighlighted[ix]);
                         delete isHighlighted[ix];
@@ -683,6 +694,10 @@ function orgChart() {
             $('p.of-unit-title', $tc).html(data.title);
             if (!isVacant) {
                 $('p.of-unit-name', $tc).html(data.name);
+            }
+
+            if (data.image && data.image != '' && !isVacant) {
+                $('.of-unit-img', $tc).html(data.image);
             }
 
             if (data.reqn && data.reqn != '' && !isVacant) {

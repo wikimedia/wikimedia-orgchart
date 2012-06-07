@@ -219,6 +219,21 @@ body.hidden-details #of-details-remainder {
     box-shadow:         inset 5px 5px 5px #bdbdbd;
 }
 
+#of-inspector-maindata {
+    width: 60%;
+    float: left;
+}
+
+#of-inspector-image {
+    width: 40%;
+    float: right;
+}
+
+#of-inspector-image img {
+    max-width: 100%;
+    max-height: 100%;
+}
+
 #of-inspector-full {
     display: none;
 }
@@ -292,7 +307,6 @@ body>div.jOrgChart {
 
 #of-inspector-add-ctrls {
     float: right;
-    width: 40%;
 }
 
 #of-add-report, #of-delete-node {

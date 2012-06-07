@@ -291,7 +291,7 @@ function parsePlainText(response, request, args) {
                     var units = {};
                     var addunits = {};
                     var lines = fields.text.split('\n');
-                    var fields = ['_id', 'title', 'status', 'name', 'location', 'loccode', 'reqn', 'start', 'end', 'hours', 'supervisor'];
+                    var fields = ['_id', 'title', 'status', 'name', 'location', 'loccode', 'reqn', 'start', 'end', 'hours', 'supervisor', 'image'];
                     lines.shift();
                     for (var lx in lines) {
                         var theseFields = lines[lx].split('    ');
@@ -337,7 +337,7 @@ function getPlainText(response, request, args) {
     }
     db.listHierarchy(doc, function (list, locs, loccodes, units, docname) {
         var fullText = [];
-        var fields = ['_id', 'title', 'status', 'name', 'location', 'loccode', 'reqn', 'start', 'end', 'hours', 'supervisor'];
+        var fields = ['_id', 'title', 'status', 'name', 'location', 'loccode', 'reqn', 'start', 'end', 'hours', 'supervisor', 'image'];
         fullText.push(fields.join('    '));
         for (var ux in units) {
             var tu = units[ux];
