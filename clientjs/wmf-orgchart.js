@@ -852,7 +852,11 @@ function createOrgChart(opts) {
         }
     }
 
-    function doNode(w, nodeg, $nc) {
+    function doNode(w, nodeg, $node, level) {
+        $nc = $node.clone()
+            .children("ul,li")
+            .remove()
+            .end();
         if ($nc.hasClass('contractor')) {
             w.use(nodeg, '#outlinerect', {'stroke-dasharray': '5,5'});
         } else if ($nc.hasClass('vacancy')) {
@@ -862,6 +866,16 @@ function createOrgChart(opts) {
         }
         var ng = w.group(nodeg, {transform: 'translate(14, 25)', 'font-size': 14, 'font-family': 'arial'});
 
+        var supervisor = null;
+        if (fullOpts.wasPrintable && level == 0) {
+            var $super = $node.parent().closest('.of-unit-box').find('.of-unit-details');
+            if ($super.length) {
+                supervisor = $('.of-unit-name', $super).html();
+                if (!supervisor || supervisor == '') {
+                    supervisor = $('.of-unit-title', $super).html();
+                }
+            }
+        }
         var title = $('.of-unit-title', $nc).html();
         var name = $('.of-unit-name', $nc).html();
         var location = $('.of-unit-loc', $nc).html();
@@ -876,6 +890,11 @@ function createOrgChart(opts) {
         }
 
         var bb = {height: 16.75, width: fullOpts.size-10};
+
+        if (supervisor && supervisor != null) {
+            var superg = w.group(ng, {transform: 'translate(0, -30)', 'font-size': '8pt'});
+            var txt = w.text(superg, 'Supervisor: ' + supervisor);
+        }
 
         if (title && title != '') {
             var titleg = w.group(ng);
@@ -914,7 +933,7 @@ function createOrgChart(opts) {
         if (fullOpts.printable) {
             var $childNodes = fullOpts.orig.children("li:first");
             var level = 1;
-            var newFOpts = $.extend(fullOpts, {printable: false});
+            var newFOpts = $.extend(fullOpts, {printable: false, wasPrintable: true});
             while ($childNodes && $childNodes.length) {
                 if ((level) % fullOpts.maxDepth === 0) {
                     $.each($childNodes, function () {

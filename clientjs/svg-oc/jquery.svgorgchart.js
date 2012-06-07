@@ -128,7 +128,7 @@
                 .children("ul,li")
                 .remove()
                 .end();
-            var result = format(w, nodeg, $nodeContent);
+            var result = format(w, nodeg, $node, level);
             chart.map[0].push(1);
             chart.parentid = nodeg.id;
             chart.csize = 2;
