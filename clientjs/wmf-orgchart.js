@@ -71,7 +71,7 @@ function orgChart() {
     var $doctpl = $('.of-doc-box').detach();
     var $docctpl = $('.of-doc-create').detach();
     var $inspector = $('#of-inspector');
-    var $pernode = $('#of-options-pernode');
+    var $pernode = $('#of-zoom-here').add($('#of-zoom-here').next());
     var fields = ['name', 'title', 'loc', 'reqn', 'start', 'end', 'hrs'];
     var $uev = $('#of-edit-viewport');
     var session = {};
@@ -350,6 +350,7 @@ function orgChart() {
     
     $inspector.hide();
     $pernode.hide();
+    $pernode.addClass('hidden-btn');
 
     function initLogin() {
         $('#of-login-form-in form').ajaxForm({
@@ -381,6 +382,8 @@ function orgChart() {
         $('#subtitle').hide();
         $inspector.hide();
         $('#of-edit-plain').hide();
+        $pernode.hide();
+        $pernode.addClass('hidden-btn');
         $.get('/doclist', function (data) {
             $dlist.empty();
             if (data.org) {
@@ -558,6 +561,7 @@ function orgChart() {
                     $inspector.data('oldid', oldid);
                     $inspector.show();
                     $pernode.show();
+                    $pernode.removeClass('hidden-btn');
                     $uev.removeClass('filled');
                     $uev.empty();
                     var $ob = $('#' + oldid);

@@ -144,7 +144,7 @@ input[type=checkbox]:checked + label > .checkbox {
     background-color: #e5e5e5;
 }
 
-.bigbutton + br + .bigbutton {
+.bigbutton:not(.hidden-btn) + br + .bigbutton {
     border-top: 0;
 }
 
@@ -293,7 +293,7 @@ body>div.jOrgChart {
 
 #of-inspector-ctrls {
     width: 100%;
-    padding-top: 10px;
+    padding-top: 20px;
 }
 
 #of-inspector-ctrls:after {
@@ -310,14 +310,15 @@ body>div.jOrgChart {
 }
 
 #of-add-report, #of-delete-node {
-    margin-top: 5px;
+    margin-bottom: 5px;
     border: none;
     height: 23px;
     cursor: pointer;
     background-image: url("/add-report.png");
     background-color: transparent;
     background-repeat: no-repeat;
-    padding-left: 30px;
+    padding-left: 23px;
+    padding-bottom: 3px;
 }
 
 #of-delete-node {

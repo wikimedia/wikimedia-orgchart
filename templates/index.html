@@ -86,19 +86,21 @@
         <div id="of-inspector">
           <div id="of-inspector-full" style="position: relative">
             <div id="of-inspector-maindata">
-              <div id="of-inspector-title"><span class="value">(title)</span></div>
-              <div id="of-inspector-name"><span class="value">(name)</span></div>
-              <div id="of-inspector-loc">(<span class="value">location</span>)</div>
-              <div id="of-inspector-reqn">Requisition #: <span class="value"></span></div>
-              <div id="of-inspector-start">Start Date: <span class="value"></span></div>
-              <div id="of-inspector-end">End Date: <span class="value"></span></div>
-              <div id="of-inspector-hrs">Hours/week: <span class="value"></span></div>
+              <div style="float:left; max-width: 85%">
+                <div id="of-inspector-title"><span class="value">(title)</span></div>
+                <div id="of-inspector-name"><span class="value">(name)</span></div>
+                <div id="of-inspector-loc">(<span class="value">location</span>)</div>
+                <div id="of-inspector-reqn">Requisition #: <span class="value"></span></div>
+                <div id="of-inspector-start">Start Date: <span class="value"></span></div>
+                <div id="of-inspector-end">End Date: <span class="value"></span></div>
+                <div id="of-inspector-hrs">Hours/week: <span class="value"></span></div>
+              </div>
+              <span class="type-tag" id="of-inspector-type-tag" style="padding-right: 5%; max-width: 10%;"></span>
             </div>
             <div id="of-inspector-image"><img src="placeholder" /></div>
             <br style="clear: both;" />
             <div id="of-inspector-ctrls" class="hide-until-logged">
               <button class="ofbtn" id="of-edit-node">Edit Node</button>
-              <span class="type-tag" id="of-inspector-type-tag"></span>
               <div id="of-inspector-add-ctrls">
                 <button id="of-add-report">Add Report</button><br />
                 <button id="of-delete-node">Delete Node</button>
@@ -110,10 +112,12 @@
         <div id="of-edit-viewport"></div>
         <div id="of-filter-full">
           <div id="of-filter-options">
-            <p id="of-options-pernode" class="menubutton">
-              <button class="bigbutton" id="of-zoom-here">Zoom Here</button><br />              
+            <p class="menubutton">
+              <button class="bigbutton" id="of-zoom-here">Zoom Here</button><br />
+              <button class="bigbutton" id="of-zoom-out" disabled="disabled">Zoom out</button><br />
+              <button class="bigbutton" id="of-home-page">Home page</button><br />
+              <button class="bigbutton hide-until-logged" id="of-edit-plaintext">Edit in Plain Text</button>
             </p>
-            <p class="menubutton"><button class="bigbutton" id="of-zoom-out" disabled="disabled">Zoom out</button><br /><button class="bigbutton" id="of-home-page">Home page</button><br /><button class="bigbutton hide-until-logged" id="of-edit-plaintext">Edit in Plain Text</button></p>
             <!-- This stuff does nothing for now, let's temporarily hide the buttons
             <p class="filter-option"><input type="checkbox" id="of-filter-vacant" checked="checked" /><label for="of-filter-vacant">Show vacancies</label></p>
             <p class="filter-option"><input type="checkbox" checked="checked" id="of-filter-contract" /><label for="of-filter-contract">Show contractors</label></p>
