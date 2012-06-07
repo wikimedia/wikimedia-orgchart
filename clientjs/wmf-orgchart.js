@@ -321,6 +321,7 @@ function orgChart() {
             $('.hide-when-logged').hide();
             $('#of-login-form').removeClass('login');
             $('#of-login-form').addClass('logout');
+            $('#of-current-user').html(session.username);
         } else {
             $('.hide-until-logged').hide();
             $('.hide-when-logged').show();
@@ -334,13 +335,16 @@ function orgChart() {
             cb = function () {};
         }
         $.get('/isLogged', function (data) {
-            cb(data.isLogged || false);
+            cb(data.isLogged || false, data.name || null);
             changeLoginForm(data.isLogged || false);
         });
     }
 
-    checkIfLogged(function (result) {
+    checkIfLogged(function (result, name) {
         session.logged = result;
+        if (name && name != '') {
+            session.username = name;
+        }
         initLogin();
     });
     

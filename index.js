@@ -50,6 +50,8 @@ handle["/close-details.png"] = requestHandlers.closedetails;
 handle["/emp-tag.png"] = requestHandlers.emptag;
 handle["/con-tag.png"] = requestHandlers.contag;
 handle["/vac-tag.png"] = requestHandlers.vactag;
+handle["/add-report.png"] = requestHandlers.addreport;
+handle["/delete-node.png"] = requestHandlers.delnode;
 
 handle["/doclist"] = requestHandlers.listDocs;
 handle["/deletedoc"] = requestHandlers.deleteDoc;

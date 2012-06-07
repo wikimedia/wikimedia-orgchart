@@ -30,15 +30,15 @@ function checkAuth(response, request, cb) {
             console.log(err);
         }
         var uname = sess.get('username');
-        cb(uname && uname != '');
+        cb(uname && uname != '', uname);
     });
 }
 
 function isLogged(response, request) {
-    checkAuth(response, request, function (result) {
+    checkAuth(response, request, function (result, uname) {
         response.writeHead(200, {'Content-Type': 'application/json'});
         if (result) {
-            response.write(jsonify({success: true, isLogged: true}));
+            response.write(jsonify({success: true, isLogged: true, name: uname}));
         } else {
             response.write(jsonify({success: true, isLogged: false}));
         }
@@ -545,6 +545,14 @@ function vactag(response) {
     respondWithFile(response, 'images/vac-tag.png');
 }
 
+function addreport(response) {
+    respondWithFile(response, 'images/add-report.png');
+}
+
+function delnode(response) {
+    respondWithFile(response, 'images/delete-node.png');
+}
+
 exports.style = style;
 exports.pstyle = pstyle;
 exports.jorgchartstyle = jorgchartstyle;
@@ -591,6 +599,8 @@ exports.closedetails = closedetails;
 exports.emptag = emptag;
 exports.vactag = vactag;
 exports.contag = contag;
+exports.addreport = addreport;
+exports.delnode = delnode;
 
 exports.listDocs = listDocs;
 exports.deleteDoc = deleteDoc;

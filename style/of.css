@@ -122,19 +122,30 @@ input[type=checkbox]:checked + label > .checkbox {
     overflow-y: scroll;
 }
 
-#of-details-bar .bigbutton {
+.bigbutton {
     width: 100%;
     background-color: #e5e5e5;
     margin: 0px;
     padding: 10px 0px;
-    border: 0;
-    border-left: 6px solid #000000;
+    border: 1px solid darkgrey;
+    border-left: 6px solid black;
     cursor: pointer;
 }
 
-#of-details-bar .bigbutton:hover {
-    border-color: #006699;
+.bigbutton:hover {
+    border-left-color: #006699;
     background-color: #f3f4f4;
+}
+
+.bigbutton:disabled:hover {
+    cursor: auto;
+    border-color: darkgrey;
+    border-left-color: black;
+    background-color: #e5e5e5;
+}
+
+.bigbutton + br + .bigbutton {
+    border-top: 0;
 }
 
 #of-resize-bar {
@@ -263,6 +274,40 @@ body>div.jOrgChart {
 
 #of-org-form, #of-org-list-display {
     display: none;
+}
+
+#of-inspector-ctrls {
+    width: 100%;
+    padding-top: 10px;
+}
+
+#of-inspector-ctrls:after {
+    clear: both;
+}
+
+#of-edit-node {
+    float: left;
+    width: 40%;
+}
+
+#of-inspector-add-ctrls {
+    float: right;
+    width: 40%;
+}
+
+#of-add-report, #of-delete-node {
+    margin-top: 5px;
+    border: none;
+    height: 23px;
+    cursor: pointer;
+    background-image: url("/add-report.png");
+    background-color: transparent;
+    background-repeat: no-repeat;
+    padding-left: 30px;
+}
+
+#of-delete-node {
+    background-image: url("/delete-node.png");
 }
 
 .of-unit-box {
@@ -416,9 +461,7 @@ span.of-unit-lc {
     display: inline-block;
     width: 25px;
     height: 25px;
-    position: absolute;
-    top: 0px;
-    right: 0px;
+    float: right;
 }
 
 .type-tag.employee {
@@ -491,4 +534,9 @@ tr.odd {
 .ofbtn-submit {
     color: white;
     background-color: #006699;
+}
+
+.current-user {
+    text-align: center;
+    color: grey;
 }
