@@ -474,8 +474,8 @@ span.of-unit-lc {
     background-image: url("/vac-tag.png");
     background-repeat: no-repeat;
     display: inline-block;
-    width: 25px;
-    height: 25px;
+    min-width: 25px;
+    min-height: 25px;
     float: right;
 }
 

@@ -12,7 +12,7 @@ loads = require("JSON").parse,
 url = require("url"),
 crypto = require('crypto'),
 sessions = require("sessions"),
-SessionHandler = new sessions(null, {expires: 3000}),
+SessionHandler = new sessions(null, {expires: 3600}),
 
 respondWithFile = require("./respondWithFile").respondWithFile,
 csvdb = require("./db/csv"),
