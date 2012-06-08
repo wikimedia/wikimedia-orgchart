@@ -220,18 +220,18 @@ body.hidden-details #of-details-remainder {
 }
 
 #of-inspector-maindata {
-    width: 60%;
+    width: 50%;
     float: left;
 }
 
 #of-inspector-image {
-    width: 40%;
+    width: 50%;
     float: right;
 }
 
 #of-inspector-image img {
-    max-width: 100%;
-    max-height: 100%;
+    width: 70%;
+    float: right;
 }
 
 #of-inspector-full {
@@ -401,7 +401,6 @@ body>div.jOrgChart {
 }
 
 .of-unit-details:hover .of-all-others, .shown .of-all-others, .shown-temp .of-all-others, .of-unit-details:hover .of-unit-actions, .shown .of-unit-actions, .shown-temp .of-unit-actions {
-
     display: block;
 }
 
@@ -476,7 +475,7 @@ span.of-unit-lc {
     display: inline-block;
     min-width: 25px;
     min-height: 25px;
-    float: right;
+    float: left;
 }
 
 .type-tag.employee {

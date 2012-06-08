@@ -707,7 +707,7 @@ function orgChart() {
             if (data.reqn && data.reqn != '' && !isVacant) {
                 $('span.of-unit-reqn', $tc).html(data.reqn);
             } else {
-                $('.of-unit-details', $tc).addClass('noreqn');
+                $tc.addClass('noreqn');
             }
             if (data.start && data.start != '' && !isVacant) {
                 $('span.of-unit-start', $tc).html(data.start);
@@ -861,7 +861,7 @@ function createOrgChart(opts) {
             .children("ul,li")
             .remove()
             .end();
-        if ($nc.hasClass('contractor')) {
+        if ($nc.hasClass('noreqn')) {
             w.use(nodeg, '#outlinerect', {'stroke-dasharray': '5,5'});
         } else if ($nc.hasClass('vacancy')) {
             w.use(nodeg, '#outlinerect', {opacity: '0.5'});
