@@ -57,7 +57,11 @@ var findAndHighlight = function (w, str) {
             if (found === false) {
                 found = true;
                 var pg = this.parentNode.parentNode.parentNode; // hackish, but it is (sort of) guaranteed to work
-                $('#of-main-display').get(0).scrollTop += $(pg).offset().top;
+                var offtop = $(pg).offset().top;
+                var ofmd = $('#of-main-display').get(0);
+                if (offtop < 0 || offtop > ofmd.clientHeight) {
+                    ofmd.scrollTop += offtop;
+                }
             }
         }
     });
@@ -208,11 +212,14 @@ function orgChart() {
         var unitid = oldid.substr(16);
         $form.attr('action', '/addto/'+getDocId()+'/'+unitid);
         $form.ajaxForm({
-            success: function () {
+            success: function (data) {
                 $uev.removeClass('filled');
                 $uev.empty();
-                $inspector.show();
-                setLocation(getLocation());
+                if (data && data.unit) {
+                    addToOpts({selected: 'of-unit-box-for-' + data.unit[0]._id});
+                } else {
+                    setLocation(getLocation());
+                }
             }
         });
         $('.of-unit-cancel-edit', $form).click(function () {
@@ -248,8 +255,7 @@ function orgChart() {
             success: function () {
                 $uev.removeClass('filled');
                 $uev.empty();
-                $inspector.show();
-                setLocation(getLocation());
+                addToOpts({selected: oldid});
             }
         });
         $('.of-unit-cancel-edit', $form).click(function () {
@@ -271,7 +277,7 @@ function orgChart() {
             success: function () {
                 $uev.removeClass('filled');
                 $uev.empty();
-                $inspector.show();
+                $inspector.find('.value').empty();
                 setLocation(getLocation());
             }
         });
@@ -328,6 +334,9 @@ function orgChart() {
         wholeLocation = wholeLocation || getLocation();
         var oldopts = getOpts(wholeLocation);
         opts = $.extend(oldopts, opts);
+        if (wholeLocation.length > 2) {
+            delete wholeLocation[2];
+        }
         setLocation(wholeLocation, opts);
     }
 
@@ -628,8 +637,26 @@ function orgChart() {
                         lineg = svg.getElementById('lines-to-' + parentid);
                     }
                     $('#of-inspector').addClass('filled');
+                    var offtop = $(node).offset().top;
+                    var realheight = $('rect').get(0).height.baseVal.value;
+                    var ofmd = $('#of-main-display').get(0);
+                    if (offtop < 0) {
+                        ofmd.scrollTop += offtop;
+                        ofmd.scrollTop -= ofmd.clientHeight / 2;
+                    } else if (offtop + realheight > ofmd.clientHeight) {
+                        ofmd.scrollTop += offtop + realheight;
+                        ofmd.scrollTop -= ofmd.clientHeight / 2;
+                    }
                 }
             });
+            
+            var loadOpts = getOpts();
+            if ('selected' in loadOpts) {
+                var selected = $('#svg-' + loadOpts.selected);
+                if (selected.length) {
+                    selected.click();
+                }
+            }
             
             svg = $('#of-org-form-svg').svg('get');
             
@@ -969,12 +996,10 @@ function createOrgChart(opts) {
     }
 
     function drawInitial(svg, fullOpts) {
-        console.profile();
         svg.graph.noDraw()
             .type('orgchart')
             .options(fullOpts)
             .redraw();
-        console.profileEnd();
         if (fullOpts.printable) {
             var $childNodes = fullOpts.orig.children("li:first");
             var level = 1;
