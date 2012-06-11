@@ -143,23 +143,27 @@
                 var charts = [];
                 var lastborder = 0;
                 $childNodes.each(function (ix) {
-                    var nrg = w.group(children, {});
-                    var rchart = fns.dn(w, nrg, $(this), size, height, padding, format, click, sw, cb, (ix == 0), level + 1, fns);
-                    var tsize = rchart.size;
+                    var $this = $(this);
+                    var shouldRender = !_options.shouldRender || _options.shouldRender($this);
+                    if (shouldRender) {
+                        var nrg = w.group(children, {});
+                        var rchart = fns.dn(w, nrg, $this, size, height, padding, format, click, sw, cb, (ix == 0), level + 1, fns);
+                        var tsize = rchart.size;
 
-                    var off = fns.fbo(chart, rchart.map, 1, fns.cfc);
-                    fns.mm(chart, rchart.map, [off, 1]);
-                    var wind = chart.csize;
-                    var tloc = (off/2 * (sizeOrHeight + padding));
-                    var added = chart.added;
-                    chart.added = 0;
+                        var off = fns.fbo(chart, rchart.map, 1, fns.cfc);
+                        fns.mm(chart, rchart.map, [off, 1]);
+                        var wind = chart.csize;
+                        var tloc = (off/2 * (sizeOrHeight + padding));
+                        var added = chart.added;
+                        chart.added = 0;
 
-                    w.change(nrg, {transform: (sw ? 'translate(0 ' : 'translate(') + tloc + (sw ? ')' : ' 0)')});
-                    var cwidth = (((added) * (sizeOrHeight + padding)) - padding) / 2;
-                    childlocs[rchart.parentid] = tloc + (rchart.csize / 4) * (sizeOrHeight + padding) - (padding / 2);
-                    childcount += 1;
-                    chart.size += cwidth;
-                    chart.csize += added;
+                        w.change(nrg, {transform: (sw ? 'translate(0 ' : 'translate(') + tloc + (sw ? ')' : ' 0)')});
+                        var cwidth = (((added) * (sizeOrHeight + padding)) - padding) / 2;
+                        childlocs[rchart.parentid] = tloc + (rchart.csize / 4) * (sizeOrHeight + padding) - (padding / 2);
+                        childcount += 1;
+                        chart.size += cwidth;
+                        chart.csize += added;
+                    }
                 });
 
                 var childsize = (chart.csize / 2) - 1;

@@ -1,3 +1,5 @@
+var filters = ['vacancy', 'contractor', 'employee', 'noreqn'];
+
 function getLocation() {
     var hash = document.location.hash.slice(1);
     return hash.split('/');
@@ -306,6 +308,20 @@ function orgChart() {
         } else {
             addToOpts({printable: false});
         }
+    });
+    
+    $.each(filters, function (i, f) {
+        $('#of-filter-'+f).click(function () {
+            var $this = $(this);
+            var newOpts = {};
+            if ($this.is(':checked')) {
+                newOpts[f] = true;
+                addToOpts(newOpts);
+            } else {
+                newOpts[f] = false;
+                addToOpts(newOpts);
+            }
+        });
     });
     
     function addToOpts(opts, wholeLocation) {
@@ -807,6 +823,15 @@ function orgChart() {
                     $('#of-display-printable').removeAttr('checked');
                 }
             }
+            $.each(filters, function (i, f) {
+                if (f in loadopts) {
+                    if (loadopts[f] === true) {
+                        $('#of-filter-'+f).attr('checked', 'checked');
+                    } else if (loadopts[f] === false) {
+                        $('#of-filter-'+f).removeAttr('checked');
+                    }
+                }
+            });
         }
     }
 
@@ -832,6 +857,7 @@ function createOrgChart(opts) {
                             padding: 25,
                             height: 100,
                             draw: doNode,
+                            shouldRender: shouldRender,
                             sideways: true}, opts, qopts);
     if (fullOpts.printable) {
         fullOpts.maxDepth = 3;
@@ -855,9 +881,24 @@ function createOrgChart(opts) {
             txt.textContent = txt.textContent.substr(0, 23) + '...';
         }
     }
+    
+    function shouldRender($node) {
+        var $nc = $node.clone()
+            .children("ul,li")
+            .remove()
+            .end();
+        var result = true;
+        $.each(filters, function (i, f) {
+            if (!$('#of-filter-' + f).is(':checked') && $nc.hasClass(f)) {
+                result = false;
+                return 0;
+            }
+        });
+        return result;
+    }
 
     function doNode(w, nodeg, $node, level) {
-        $nc = $node.clone()
+        var $nc = $node.clone()
             .children("ul,li")
             .remove()
             .end();
