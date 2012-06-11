@@ -59,7 +59,7 @@ function login(response, request) {
                         sess.set('username', fields.username);
                     });
                     response.writeHead(200, {'Content-Type': 'application/json'});
-                    response.write(jsonify({success: true}));
+                    response.write(jsonify({success: true, name: fields.username}));
                     response.end();
                 } else {
                     response.writeHead(200, {'Content-Type': 'application/json'});

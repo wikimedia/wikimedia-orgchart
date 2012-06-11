@@ -382,6 +382,7 @@ function orgChart() {
             success: function (data) {
                 if (data && data.success && data.success === true) {
                     session.logged = true;
+                    session.username = data.name;
                     changeLoginForm(true);
                 }
             }
@@ -390,6 +391,7 @@ function orgChart() {
             success: function (data) {
                 if (data && data.success && data.success === true) {
                     session.logged = false;
+                    delete session.username;
                     changeLoginForm(false);
                 }
             }
