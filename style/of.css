@@ -537,17 +537,26 @@ tr.odd {
 }
 
 .ofbtn {
-    box-shadow: -2px 2px 4px #222222;
+    box-shadow: -2px -2px 4px #222222;
     padding: 6px;
     background-color: #e5e5e5;
     font-size: 9pt;
     font-weight: bold;
     border: none;
+    cursor: pointer;
 }
 
 .ofbtn-submit {
     color: white;
     background-color: #006699;
+}
+
+.ofbtn:hover {
+    background-color: #c7c7c7;
+}
+
+.ofbtn-submit:hover {
+    background-color: #004477;
 }
 
 .current-user {
