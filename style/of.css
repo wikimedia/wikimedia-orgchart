@@ -537,7 +537,7 @@ tr.odd {
 }
 
 .ofbtn {
-    box-shadow: -2px -2px 4px #222222;
+    box-shadow: 0 0 6px #222222;
     padding: 6px;
     background-color: #e5e5e5;
     font-size: 9pt;
