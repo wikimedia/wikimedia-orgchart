@@ -86,6 +86,11 @@
         <div id="of-inspector">
           <div id="of-inspector-full" style="position: relative">
             <div id="of-inspector-maindata">
+              <div id="of-inspector-change-super">
+                <p><button class="ofbtn" id="of-cancel-super-change">Cancel Supervisor Change</button></p>
+                <p>You are now in "change supervisor" mode. The next node you click in the chart will be this node's new supervisor. For your reference, here is the node you're changing:</p>
+                <form method="POST" id="of-form-change-super"><input type="hidden" name="supervisor" value="" /></form>
+              </div>
               <div style="float:left; max-width: 85%">
                 <div id="of-inspector-title"><span class="value">(title)</span></div>
                 <div id="of-inspector-name"><span class="value">(name)</span></div>
@@ -102,7 +107,10 @@
             </div>
             <br style="clear: both;" />
             <div id="of-inspector-ctrls" class="hide-until-logged">
-              <button class="ofbtn" id="of-edit-node">Edit Node</button>
+              <div id="of-edit-node-container">
+                <button class="ofbtn" id="of-edit-node">Edit Node</button><br />
+                <button class="ofbtn" id="of-change-super">Change Supervisor</button>
+              </div>
               <div id="of-inspector-add-ctrls">
                 <button id="of-add-report">Add Report</button><br />
                 <button id="of-delete-node">Delete Node</button>

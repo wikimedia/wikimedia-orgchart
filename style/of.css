@@ -300,9 +300,14 @@ body>div.jOrgChart {
     clear: both;
 }
 
-#of-edit-node {
+#of-edit-node-container {
     float: left;
     width: 40%;
+}
+
+#of-edit-node-container button {
+    width: 100%;
+    margin-top: 5px;
 }
 
 #of-inspector-add-ctrls {

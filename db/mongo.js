@@ -279,6 +279,13 @@ function changeUnit(docid, uid, mods, cb) {
     }
     var modDic = {$set:{}};
     for (var ix in mods) {
+        if (ix == 'supervisor') {
+            try {
+                mods[ix] = new ObjectId(mods[ix]);
+            } catch (err) {
+                delete mods[ix];
+            }
+        }
         modDic.$set[ix] = mods[ix];
     }
     getDoc(docid, function (_id) {

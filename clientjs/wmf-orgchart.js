@@ -226,6 +226,7 @@ function orgChart() {
             $uev.removeClass('filled');
             $uev.empty();
             $inspector.show();
+            $('#of-inspector-change-super').hide();
         });
     });
     
@@ -262,9 +263,42 @@ function orgChart() {
             $uev.removeClass('filled');
             $uev.empty();
             $inspector.show();
+            $('#of-inspector-change-super').hide();
         });
     });
-    
+
+    $('#of-change-super').click(function () {
+        $('#of-inspector-change-super').show();
+        var oldid = $inspector.data('oldid');
+        var unitid = oldid.substr(16);
+        $('.svg-orgchart-node').on('of-super-change', function () {
+            var id = this.id;
+            var ocidlist = id.split('-');
+            var nodeid = ocidlist[ocidlist.length-1];
+            var $form = $('#of-form-change-super').clone();
+            $('.svg-orgchart-node').off('of-super-change');
+            $('input', $form).val(nodeid);
+            $form.attr('action', '/modify/' + getDocId() + '/' + unitid);
+            $form.ajaxForm({
+                success: function (data) {
+                    $('#of-inspector-change-super').hide();
+                    if (data && data.unit) {
+                        addToOpts({selected: nodeid});
+                    } else {
+                        setLocation(getLocation());
+                    }
+                }
+            });
+            $form.submit();
+            return true;
+        });
+    });
+
+    $('#of-cancel-super-change').click(function () {
+        $('#of-inspector-change-super').hide();
+        $('.svg-orgchart-node').off('of-super-change');
+    });
+
     $('#of-delete-node').click(function () {
         $uev.addClass('filled');
         $uev.html($udelete.clone());
@@ -580,6 +614,9 @@ function orgChart() {
                 height: 60,
                 size: 200,
                 click: function (node, id, svg) {
+                    if ($(node).triggerHandler('of-super-change') !== undefined) {
+                        return false;
+                    }
                     var oldid = id.substr(4);
                     $('.value', $inspector).html('');
                     var $img = $('img', $inspector);
@@ -587,6 +624,7 @@ function orgChart() {
                     $img.hide();
                     $inspector.data('oldid', oldid);
                     $inspector.show();
+                    $('#of-inspector-change-super').hide();
                     $pernode.show();
                     $pernode.removeClass('hidden-btn');
                     $uev.removeClass('filled');
@@ -962,6 +1000,8 @@ function createOrgChart(opts) {
         if (id && id != '') {
             nodeg.id = 'svg-' + id;
         }
+        nodeg.classList.add('svg-orgchart-node');
+        console.log(nodeg);
 
         var bb = {height: 16.75, width: fullOpts.size-10};
 
