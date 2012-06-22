@@ -1000,8 +1000,7 @@ function createOrgChart(opts) {
         if (id && id != '') {
             nodeg.id = 'svg-' + id;
         }
-        nodeg.classList.add('svg-orgchart-node');
-        console.log(nodeg);
+        w.change(nodeg, {class: 'svg-orgchart-node'});
 
         var bb = {height: 16.75, width: fullOpts.size-10};
 
