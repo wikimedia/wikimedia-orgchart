@@ -78,7 +78,7 @@ function orgChart() {
     var $docctpl = $('.of-doc-create').detach();
     var $inspector = $('#of-inspector');
     var $pernode = $('#of-zoom-here').add($('#of-zoom-here').next());
-    var fields = ['name', 'title', 'loc', 'reqn', 'start', 'end', 'hrs'];
+    var fields = ['name', 'title', 'loc', 'reqn', 'start', 'end', 'hrs', 'notes'];
     var $uev = $('#of-edit-viewport');
     var session = {};
     var $units = $('#of-org-form');
@@ -807,6 +807,9 @@ function orgChart() {
                 } else {
                     $tc.addClass('fulltime');
                 }
+            }
+            if (data.notes && data.notes != '') {
+                $('span.of-unit-notes', $tc).html(data.notes);
             }
             var $ulist = $units;
             if (data.supervisor && data.supervisor != '') {
