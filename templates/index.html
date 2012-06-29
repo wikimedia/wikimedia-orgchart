@@ -35,7 +35,7 @@
           <p><span class="of-doc-title"></span><form action="/docrename" method="POST"><input name="name" class="of-doc-rename" type="text" style="display: none" /></form><span class="of-doc-number"></span> nodes</p>
           <p>Represents <span class="of-doc-date"></span></p>
           <p>Created <span class="of-doc-created"></span></p>
-          <p class="hide-until-logged">
+          <p class="hide-until-can-edit-docs">
             <a href="javascript:" class="of-doc-delete">Delete</a> -
             <a href="javascript:" class="of-doc-copy">Copy</a>
           </p>
@@ -107,7 +107,7 @@
               <img src="placeholder" />
             </div>
             <br style="clear: both;" />
-            <div id="of-inspector-ctrls" class="hide-until-logged">
+            <div id="of-inspector-ctrls" class="hide-until-can-edit-nodes">
               <div id="of-edit-node-container">
                 <button class="ofbtn" id="of-edit-node">Edit Node</button><br />
                 <button class="ofbtn" id="of-change-super">Change Supervisor</button>
@@ -127,7 +127,7 @@
               <button class="bigbutton" id="of-zoom-here">Zoom Here</button><br />
               <button class="bigbutton" id="of-zoom-out" disabled="disabled">Zoom out</button><br />
               <button class="bigbutton" id="of-home-page">Home page</button><br />
-              <button class="bigbutton hide-until-logged" id="of-edit-plaintext">Edit in Plain Text</button>
+              <button class="bigbutton hide-until-can-edit-docs" id="of-edit-plaintext">Edit in Plain Text</button>
             </p>
             <p class="filter-option"><input type="checkbox" id="of-filter-vacancy" checked="checked" /><label for="of-filter-vacancy"><span class="checkbox">&nbsp;</span>Show vacancies</label></p>
             <p class="filter-option"><input type="checkbox" checked="checked" id="of-filter-contractor" /><label for="of-filter-contractor"><span class="checkbox">&nbsp;</span>Show contractors</label></p>
@@ -137,7 +137,7 @@
             <p class="filter-option"><input type="checkbox" id="of-display-printable" /><label for="of-display-printable"><span class="checkbox">&nbsp;</span>Display printer-friendly</label></p>
           </div>
           <div id="of-docs-options">
-            <p class="menubutton hide-until-logged"><button class="bigbutton" id="of-new-doc">New document</button>
+            <p class="menubutton hide-until-can-edit-docs"><button class="bigbutton" id="of-new-doc">New document</button>
           </div>
         </div>
         <p class="type-legend"><span class="type-tag employee not-abs"></span>&nbsp;Employee</p>
@@ -169,14 +169,14 @@
                 <p class="of-end-date">End Date: <span class="of-unit-end"></span></p>
                 <p class="of-hours-weekly">Hours: <span class="of-unit-hrs"></span></p>
                 <p class="of-other-notes">Notes: <span class="of-unit-notes"></span></p>
-                <p><button class="of-unit-add-child hide-until-logged">Add Report</button></p>
-                <p><button class="of-unit-remove-node hide-until-logged">Delete Node</button></p>
+                <p><button class="of-unit-add-child hide-until-can-edit-nodes">Add Report</button></p>
+                <p><button class="of-unit-remove-node hide-until-can-edit-nodes">Delete Node</button></p>
                 <p><span class="of-unit-img"></span></p>
               </div>
             </div>
             <div class="of-unit-actions">
               <p class="of-unit-type"></p>
-              <p><button class="of-unit-edit hide-until-logged">Edit</button></p>
+              <p><button class="of-unit-edit hide-until-can-edit-nodes">Edit</button></p>
               <p><button class="of-unit-zoom">Zoom here</button></p>
               <span class="of-unit-show"></span>
             </div>

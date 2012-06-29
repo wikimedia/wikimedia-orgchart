@@ -28,6 +28,12 @@
         <form action="/createuser" method="POST">
             <p><label>Username <input type="text" name="username" /></label></p>
             <p><label>Password <input type="password" name="password" /></label></p>
+            <p>
+                <label>Can create other users? <input type="checkbox" name="canCreateUsers"/></label>
+                <label>Can see private data (salary, phone numbers, etc.)? <input type="checkbox" name="canSeePrivateData" /></label>
+                <label>Can edit nodes inside of a document? <input type="checkbox" name="canEditNodes" checked="checked" /></label>
+                <label>Can edit documents? <input type="checkbox" name="canEditDocs" checked="checked" /></label>
+            </p>
             <p><input type="submit" value="Create User" /></p>
         </form>
     </body>

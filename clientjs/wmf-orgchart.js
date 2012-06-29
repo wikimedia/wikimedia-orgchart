@@ -376,13 +376,24 @@ function orgChart() {
 
     function changeLoginForm(isLogged) {
         if (isLogged) {
-            $('.hide-until-logged').show();
+            if (session.user && session.user.canEditNodes) {
+                $('.hide-until-can-edit-nodes').show();
+            }
+            if (session.user && session.user.canEditDocs) {
+                $('.hide-until-can-edit-docs').show();
+            }
+            if (session.user && session.user.canCreateUsers) {
+                $('#of-create-user').show();
+            } else {
+                $('#of-create-user').hide();
+            }
             $('.hide-when-logged').hide();
             $('#of-login-form').removeClass('login');
             $('#of-login-form').addClass('logout');
             $('#of-current-user').html(session.username);
         } else {
-            $('.hide-until-logged').hide();
+            $('.hide-until-can-edit-nodes').hide();
+            $('.hide-until-can-edit-docs').hide();
             $('.hide-when-logged').show();
             $('#of-login-form').removeClass('logout');
             $('#of-login-form').addClass('login');
@@ -394,16 +405,15 @@ function orgChart() {
             cb = function () {};
         }
         $.get('/isLogged', function (data) {
-            cb(data.isLogged || false, data.name || null);
+            cb(data.isLogged || false, data.user || null);
             changeLoginForm(data.isLogged || false);
         });
     }
 
-    checkIfLogged(function (result, name) {
+    checkIfLogged(function (result, user) {
         session.logged = result;
-        if (name && name != '') {
-            session.username = name;
-        }
+        session.user = user;
+        session.username = user ? user.name : '';
         initLogin();
     });
     
@@ -416,7 +426,8 @@ function orgChart() {
             success: function (data) {
                 if (data && data.success && data.success === true) {
                     session.logged = true;
-                    session.username = data.name;
+                    session.username = data.user.username;
+                    session.user = data.user;
                     changeLoginForm(true);
                 }
             }

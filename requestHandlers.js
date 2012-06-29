@@ -29,16 +29,17 @@ function checkAuth(response, request, cb) {
         if (err != null) {
             console.log(err);
         }
-        var uname = sess.get('username');
-        cb(uname && uname != '', uname);
+        var user = sess.get('user');
+        var uname = user ? user.name : '';
+        cb(uname && uname != '', user);
     });
 }
 
 function isLogged(response, request) {
-    checkAuth(response, request, function (result, uname) {
+    checkAuth(response, request, function (result, user) {
         response.writeHead(200, {'Content-Type': 'application/json'});
         if (result) {
-            response.write(jsonify({success: true, isLogged: true, name: uname}));
+            response.write(jsonify({success: true, isLogged: true, user: user}));
         } else {
             response.write(jsonify({success: true, isLogged: false}));
         }
@@ -56,10 +57,10 @@ function login(response, request) {
                         if (err != null) {
                             console.log(err);
                         }
-                        sess.set('username', fields.username);
+                        sess.set('user', result.user);
                     });
                     response.writeHead(200, {'Content-Type': 'application/json'});
-                    response.write(jsonify({success: true, name: fields.username}));
+                    response.write(jsonify({success: true, user: result.user}));
                     response.end();
                 } else {
                     response.writeHead(200, {'Content-Type': 'application/json'});
@@ -91,12 +92,20 @@ function logout(response, request) {
 }
 
 function createUser(response, request) {
-    checkAuth(response, request, function (result) {
-        if (result === true) {
+    checkAuth(response, request, function (result, user) {
+        if (result === true && user.canCreateUsers) {
             var form = new formidable.IncomingForm();
             form.parse(request, function (error, fields, files) {
                 if (fields && fields.username && fields.password) {
-                    db.addUser({username: fields.username, password: fields.password}, function () {
+                    var user = {
+                        username: fields.username,
+                        password: fields.password,
+                        canCreateUsers: fields.canCreateUsers && fields.canCreateUsers === 'on',
+                        canSeePrivateData: fields.canSeePrivateData && fields.canSeePrivateData === 'on' && user.canSeePrivateData,
+                        canEditNodes: fields.canEditNodes && fields.canEditNodes === 'on' && user.canEditNodes,
+                        canEditDocs: fields.canEditDocs && fields.canEditDocs === 'on' && user.canEditDocs
+                    };
+                    db.addUser(user, function () {
                         response.writeHead(200, {'Content-Type': 'application/json'});
                         response.write(jsonify({success: true}));
                         response.end();

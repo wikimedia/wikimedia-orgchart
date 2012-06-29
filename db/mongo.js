@@ -33,7 +33,24 @@ cols.units = 'units';
 cols.users = 'users';
 cols.docs = 'docs';
 
-var initusers = [{username: 'admin', password: crypto.createHash('sha512').update(''+Math.random()).digest('hex')}];
+var initusers = [
+    {
+        username: 'admin',
+        password: crypto.createHash('sha512').update(''+Math.random()).digest('hex'),
+        canEditNodes: true,
+        canEditDocs: true,
+        canSeePrivateData: true,
+        canCreateUsers: true
+    },
+    {
+        username: 'guest',
+        password: crypto.createHash('sha512').update(''+Math.random()).digest('hex'),
+        canEditNodes: false,
+        canEditDocs: false,
+        canSeePrivateData: false,
+        canCreateUsers: false
+    }
+];
 
 function indexOf (arr, elt /*, from*/) {
     var len = arr.length >>> 0;
@@ -105,11 +122,13 @@ db.open(function (err, p_client) {
     for (var ux in initusers) {
         addUser(initusers[ux], function (user) {
             if (user && user[0] && user[0].username) {
-                console.log('Database: Added default user ' + user[0].username + ' with password ' + user[0].password);
+                console.log('Database: Added default user.');
+                console.log(user);
             } else if (user && user.ename) {
-                console.log('Database: Default user ' + user.ename + ' exists with password ' + user.epass);
+                console.log('Database: Default user exists.');
+                console.log(user);
             } else {
-                console.log('Database error, no default user created');
+                console.log('Database error, default user not created');
             }
         });
     }
@@ -324,7 +343,20 @@ function addUser(data, cb) {
                     }
                 });
             } else {
-                cb({ename: doc.username, epass: doc.password});
+                var modDic = {$set: {}};
+                for (var ix in data) {
+                    if (ix == 'username' || ix == 'password') {
+                        continue;
+                    } else {
+                        modDic.$set[ix] = data[ix];
+                    }
+                }
+                col.findAndModify({username: doc.username}, [['_id', 1]], modDic, {new: true}, function () {
+                    var user = modDic.$set;
+                    user.ename = doc.username;
+                    user.epass = doc.password;
+                    cb(user);
+                });
             }
         });
     });
@@ -343,8 +375,11 @@ function checkLogin(data, cb) {
                 if (err != null) {
                     console.log(err);
                 }
+                console.log(data);
+                console.log(doc);
                 if (doc && doc.username == data.username && doc.password == data.password) {
-                    cb({success: true});
+                    delete data.password;
+                    cb({success: true, user: doc});
                 } else {
                     cb({success: false});
                 }
