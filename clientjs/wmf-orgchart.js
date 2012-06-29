@@ -616,7 +616,7 @@ function orgChart() {
             var $root = $units;
 
             if (zoomlevel && zoomlevel != null) {
-                $root = $('#'+zoomlevel).parent();
+                $root = $('#'+zoomlevel);
             }
 
             createOrgChart({
@@ -1060,6 +1060,9 @@ function createOrgChart(opts) {
             .redraw();
         if (fullOpts.printable) {
             var $childNodes = fullOpts.orig.children('li:first');
+            if ($childNodes.length == 0) {
+                $childNodes = fullOpts.orig;
+            }
             var level = 1;
             var newFOpts = $.extend(fullOpts, {printable: false, wasPrintable: true});
             while ($childNodes && $childNodes.length) {
