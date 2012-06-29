@@ -31,7 +31,7 @@ function checkAuth(response, request, cb) {
         }
         var user = sess.get('user');
         var uname = user ? user.username : '';
-        if ('password' in user) {
+        if (user && 'password' in user) {
             delete user.password;
         }
         cb(uname && uname != '', user);
