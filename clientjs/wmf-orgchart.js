@@ -86,7 +86,7 @@ function orgChart() {
     var locs = {};
     var loccodes = {};
     var svg = null;
-    
+
     $('#of-username, #of-search-box').focus(function () {
         var $this = $(this);
         $this.addClass('edittime');
@@ -100,12 +100,12 @@ function orgChart() {
             $this.val('');
         }
     });
-    
+
     $('#of-fake-password').focus(function () {
         $(this).hide();
         $('#of-password').show().focus();
     });
-    
+
     $('#of-password').blur(function () {
         var $this = $(this);
         if ($this.val() === '') {
@@ -113,7 +113,7 @@ function orgChart() {
             $('#of-fake-password').show();
         }
     });
-    
+
     $('#of-username, #of-search-box').blur(function () {
         var $this = $(this);
         var defVal = $this.data('defaultValue');
@@ -128,7 +128,7 @@ function orgChart() {
         if (wholeLocation.length > 2 && typeof wholeLocation[2] == typeof {}) {
             optstr = wholeLocation[2];
         }
-        
+
         if (!opts || typeof opts != typeof {}) {
             opts = {};
         }
@@ -156,9 +156,9 @@ function orgChart() {
         if (wholeLocation[0] == '') {
             wholeLocation[1] = '';
         }
-        
+
         var newloc = wholeLocation.join('/');
-        
+
         if ('#'+newloc == document.location.hash) {
             $(window).hashchange();
         } else {
@@ -180,14 +180,14 @@ function orgChart() {
         wholeLocation[1] = '';
         setLocation(wholeLocation);
     });
-    
+
     $('#of-edit-plaintext').click(function() {
         var wholeLocation = getLocation();
         if (wholeLocation && wholeLocation.length != 0 && wholeLocation[0] != '') {
             loadEditPlain(wholeLocation[0]);
         }
     });
-    
+
     $('#of-zoom-out').click(function () {
         var wholeLocation = getLocation();
         var opts = getOpts(wholeLocation);
@@ -197,7 +197,7 @@ function orgChart() {
         wholeLocation[1] = '';
         setLocation(wholeLocation, opts);
     });
-    
+
     $('#of-create-user').click(function () {
         window.location.pathname = '/usercreate';
         return 0;
@@ -229,7 +229,7 @@ function orgChart() {
             $('#of-inspector-change-super').hide();
         });
     });
-    
+
     $('#of-edit-node').click(function () {
         $inspector.hide();
         $uev.addClass('filled');
@@ -321,7 +321,7 @@ function orgChart() {
             $inspector.show();
         });
     });
-    
+
     $('#of-zoom-here').click(function () {
         var oldid = $inspector.data('oldid');
         var location = getLocation() || [];
@@ -340,7 +340,7 @@ function orgChart() {
             addToOpts({sideways: false});
         }
     });
-    
+
     $('#of-display-printable').click(function () {
         var $this = $(this);
         if ($this.is(':checked')) {
@@ -349,7 +349,7 @@ function orgChart() {
             addToOpts({printable: false});
         }
     });
-    
+
     $.each(filters, function (i, f) {
         $('#of-filter-'+f).click(function () {
             var $this = $(this);
@@ -363,7 +363,7 @@ function orgChart() {
             }
         });
     });
-    
+
     function addToOpts(opts, wholeLocation) {
         wholeLocation = wholeLocation || getLocation();
         var oldopts = getOpts(wholeLocation);
@@ -416,7 +416,7 @@ function orgChart() {
         session.username = user ? user.name : '';
         initLogin();
     });
-    
+
     $inspector.hide();
     $pernode.hide();
     $pernode.addClass('hidden-btn');
@@ -582,7 +582,7 @@ function orgChart() {
             $('.othersvg').remove();
         }
         $units.empty();
-        
+
         $('#of-docs-options').hide();
         $('#of-edit-plain').hide();
         $('#of-filter-options').show();
@@ -616,9 +616,9 @@ function orgChart() {
             var $root = $units;
 
             if (zoomlevel && zoomlevel != null) {
-                $root = $('#'+zoomlevel);
+                $root = $('#'+zoomlevel).parent();
             }
-        
+
             createOrgChart({
                 orig: $root,
                 lccolors: loccodes || {},
@@ -677,7 +677,7 @@ function orgChart() {
                         svg.remove(isHighlighted[ix]);
                         delete isHighlighted[ix];
                     }
-                    
+
                     var lineg = svg.getElementById('lines-to-' + id);
                     while (lineg && lineg != null) {
                         var linesg = lineg.parentNode;
@@ -700,7 +700,7 @@ function orgChart() {
                     }
                 }
             });
-            
+
             var loadOpts = getOpts();
             if ('selected' in loadOpts) {
                 var selected = $('#svg-' + loadOpts.selected);
@@ -708,9 +708,9 @@ function orgChart() {
                     selected.click();
                 }
             }
-            
+
             svg = $('#of-org-form-svg').svg('get');
-            
+
             $('#of-search-box').keyup(function() {
                 if (svg !== null) {
                     findAndHighlight(svg, this.value);
@@ -718,7 +718,7 @@ function orgChart() {
             });
         });
     }
-    
+
     function loadEditPlain(docid) {
         $('body').addClass('hidden-details');
         $('#of-documents-list').hide();
@@ -962,7 +962,7 @@ function createOrgChart(opts) {
             txt.textContent = txt.textContent.substr(0, 23) + '...';
         }
     }
-    
+
     function shouldRender($node) {
         var $nc = $node.clone()
             .children("ul,li")
@@ -1044,7 +1044,7 @@ function createOrgChart(opts) {
             var txt = w.text(lctg, loccode.substr(0,2), {fill: 'white', class: textClass, 'font-size': '8pt'});
             var rct = w.rect(lctg, 0, -bb.height+5, 0, 0, {width: bb.width, height: bb.height, fill: 'none', stroke: 'none', opacity: '0.4'});
         }
-        
+
         if ($nc.hasClass('vacancy')) {
             w.use(nodeg, '#outlinerect', {opacity: '0.5'});
         }
@@ -1056,7 +1056,7 @@ function createOrgChart(opts) {
             .options(fullOpts)
             .redraw();
         if (fullOpts.printable) {
-            var $childNodes = fullOpts.orig.children("li:first");
+            var $childNodes = fullOpts.orig.children('li:first');
             var level = 1;
             var newFOpts = $.extend(fullOpts, {printable: false, wasPrintable: true});
             while ($childNodes && $childNodes.length) {

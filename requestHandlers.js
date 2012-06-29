@@ -30,7 +30,10 @@ function checkAuth(response, request, cb) {
             console.log(err);
         }
         var user = sess.get('user');
-        var uname = user ? user.name : '';
+        var uname = user ? user.username : '';
+        if ('password' in user) {
+            delete user.password;
+        }
         cb(uname && uname != '', user);
     });
 }
@@ -216,8 +219,8 @@ function modify(response, request, args) {
 function add(response, request, args) {
     form = new formidable.IncomingForm();
 
-    checkAuth(response, request, function (isLogged) {
-        if (isLogged) {
+    checkAuth(response, request, function (isLogged, user) {
+        if (isLogged && user.canEditNodes) {
             var docid = args[0];
             var superv = args[1];
             form.parse(request, function(error, fields, files) {
@@ -236,6 +239,7 @@ function add(response, request, args) {
                 });
             });
         } else {
+            console.log(user);
             response.writeHead(200, {'Content-Type': 'application/json'});
             response.write(jsonify({'success': false, 'error': 'Not authorized to do that!'}));
             response.end();
@@ -311,13 +315,13 @@ function parsePlainText(response, request, args) {
                             units[_id] = parseThisUnit(fields, theseFields);
                         }
                     }
-                    
+
                     function endThis() {
                         response.writeHead(200, {'Content-Type': 'application/json'});
                         response.write(jsonify({success: true}));
                         response.end();
                     }
-                    
+
                     db.changeUnits(docid, units, function () {
                         if (addunits.length) {
                             db.addUnits(docid, addunits, function () {
