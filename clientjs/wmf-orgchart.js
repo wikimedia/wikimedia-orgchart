@@ -78,7 +78,7 @@ function orgChart() {
     var $docctpl = $('.of-doc-create').detach();
     var $inspector = $('#of-inspector');
     var $pernode = $('#of-zoom-here').add($('#of-zoom-here').next());
-    var fields = ['name', 'title', 'loc', 'reqn', 'start', 'end', 'hrs', 'notes'];
+    var fields = ['name', 'title', 'loc', 'reqn', 'start', 'end', 'hrs', 'notes', 'pay'];
     var $uev = $('#of-edit-viewport');
     var session = {};
     var $units = $('#of-org-form');
@@ -390,7 +390,7 @@ function orgChart() {
             $('.hide-when-logged').hide();
             $('#of-login-form').removeClass('login');
             $('#of-login-form').addClass('logout');
-            $('#of-current-user').html(session.username);
+            $('#of-current-user').html(session.user.username);
         } else {
             $('.hide-until-can-edit-nodes').hide();
             $('.hide-until-can-edit-docs').hide();
@@ -647,7 +647,7 @@ function orgChart() {
                         var f = fields[fx];
                         var $ov = $('.of-unit-'+f, $on);
                         var $ofi = $('#of-inspector-' + f);
-                        if ($ov && $ov.html().length) {
+                        if ($ov.length && $ov.html().length) {
                             fieldcount += 1;
                             $ofi.show();
                             $('.value', $ofi).html($ov.html());
@@ -821,6 +821,9 @@ function orgChart() {
             }
             if (data.notes && data.notes != '') {
                 $('span.of-unit-notes', $tc).html(data.notes);
+            }
+            if (data.pay && data.pay != '') {
+                $('span.of-unit-pay', $tc).html(data.pay);
             }
             var $ulist = $units;
             if (data.supervisor && data.supervisor != '') {

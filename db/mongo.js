@@ -156,12 +156,12 @@ function findAndRemove(doc, con, cb) {
     });
 }
 
-function listHierarchy(doc, cb) {
+function listHierarchy(doc, canSeePrivateData, cb) {
     if (typeof doc != typeof 'string') {
         doc = '' + doc;
     }
     if (!loaded) {
-        dbfs.push(function () { listHierarchy(doc, cb); });
+        dbfs.push(function () { listHierarchy(doc, canSeePrivateData, cb); });
         return;
     }
 
@@ -239,6 +239,7 @@ function listHierarchy(doc, cb) {
                         var dunits = {};
                         for (var ux in units) {
                             units[ux].index = units[ux]._id;
+                            delete units[ux].pay;
                             dunits[units[ux]._id] = units[ux];
                         }
                         if (cb && typeof cb == 'function') {

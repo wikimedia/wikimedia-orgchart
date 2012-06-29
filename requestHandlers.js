@@ -156,10 +156,12 @@ function list(response, request, args) {
     } else {
         doc = 'units';
     }
-    db.listHierarchy(doc, function (list, locs, loccodes, units, docname) {
-        response.writeHead(200, {'Content-Type': 'application/json'});
-        response.write(jsonify({list: list, colors: locs, codes: loccodes, units: units, org: orgName, doc: docname, orglogo: orgLogo}));
-        response.end();
+    checkAuth(response, request, function(isLogged, user) {
+        db.listHierarchy(doc, user && user.canSeePrivateData, function (list, locs, loccodes, units, docname) {
+            response.writeHead(200, {'Content-Type': 'application/json'});
+            response.write(jsonify({list: list, colors: locs, codes: loccodes, units: units, org: orgName, doc: docname, orglogo: orgLogo}));
+            response.end();
+        });
     });
 }
 
@@ -348,26 +350,31 @@ function getPlainText(response, request, args) {
     } else {
         doc = 'units';
     }
-    db.listHierarchy(doc, function (list, locs, loccodes, units, docname) {
-        var fullText = [];
-        var fields = ['_id', 'title', 'status', 'name', 'location', 'loccode', 'reqn', 'start', 'end', 'hours', 'supervisor', 'image'];
-        fullText.push(fields.join('    '));
-        for (var ux in units) {
-            var tu = units[ux];
-            var thisLine = [];
-            for (var fx in fields) {
-                var tf = fields[fx];
-                if (tu[tf] && tu[tf] != '') {
-                    thisLine.push(tu[fields[fx]]);
-                } else {
-                    thisLine.push('null');
-                }
+    checkAuth(response, request, function(isLogged, user) {
+        db.listHierarchy(doc, user && user.canSeePrivateData, function (list, locs, loccodes, units, docname) {
+            var fullText = [];
+            var fields = ['_id', 'title', 'status', 'name', 'location', 'loccode', 'reqn', 'start', 'end', 'hours', 'supervisor', 'image', 'notes'];
+            if (user.canSeePrivateData) {
+                fields.push('pay');
             }
-            fullText.push(thisLine.join('    '));
-        }
-        response.writeHead(200, {'Content-Type': 'application/json'});
-        response.write(jsonify({text: fullText.join('\n')}));
-        response.end();
+            fullText.push(fields.join('    '));
+            for (var ux in units) {
+                var tu = units[ux];
+                var thisLine = [];
+                for (var fx in fields) {
+                    var tf = fields[fx];
+                    if (tu[tf] && tu[tf] != '') {
+                        thisLine.push(tu[fields[fx]]);
+                    } else {
+                        thisLine.push('null');
+                    }
+                }
+                fullText.push(thisLine.join('    '));
+            }
+            response.writeHead(200, {'Content-Type': 'application/json'});
+            response.write(jsonify({text: fullText.join('\n')}));
+            response.end();
+        });
     });
 }
 
