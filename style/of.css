@@ -150,8 +150,8 @@ input[type=checkbox]:checked + label > .checkbox {
 
 #of-resize-bar {
     position: fixed;
-    right: 26%;
-    top: 5%;
+    right: 25%;
+    bottom: 5%;
     cursor: e-resize;
     background-color: #f3f4f4;
     border: 1px solid #d3d4d4;
@@ -160,24 +160,12 @@ input[type=checkbox]:checked + label > .checkbox {
 }
 
 #of-resize-icon {
-    width: 11px;
-    height: 19px;
+    width: 26px;
+    height: 29px;
     background-image: url('/close-details.png');
     background-repeat: no-repeat;
     display: table-cell;
     vertical-align: middle;
-}
-
-#of-resize-bar-text:before {
-    font-size: 10pt;
-    content: "Close Details";
-    display: table-cell;
-    vertical-align: middle;
-    padding-right: 6px;
-}
-
-body.hidden-details #of-resize-bar-text:before {
-    content: "Open Details";
 }
 
 body.hidden-details #of-resize-bar {
