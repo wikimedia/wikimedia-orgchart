@@ -142,17 +142,28 @@ function findAndRemove(doc, con, cb) {
     if (typeof cb != 'function') {
         cb = function () {};
     }
+    var unitid = false;
     if (typeof con != 'object') {
         con = {$or: [{_id: new ObjectId(con)}, {_id: con}]};
     }
 
     getDoc(doc, function(_id) {
-        db.collection(String(_id), function (err, col) {
-            col.remove(con, {safe: true}, function (err, num) {
-                addToDocCount(String(_id), -1 * num);
-                cb();
+        function doTheRest(unitobj) {
+            db.collection(''+_id, function (err, col) {
+                col.remove(con, {safe: true}, function (err, num) {
+                    addToDocCount(''+_id, -1 * num);
+                    if (unitid) {
+                        addToChanges(''+_id, unitid, {action: 'delete', was: unitobj});
+                    }
+                    cb();
+                });
             });
-        });
+        }
+        if (unitid) {
+            getUnit(unitid, doTheRest);
+        } else {
+            doTheRest();
+        }
     });
 }
 
@@ -266,7 +277,7 @@ function getUnit(doc, uid, cb) {
     looking += 1;
     getDoc(doc, function (_id) {
         db.collection(''+_id, function (err, col) {
-            col.findOne({_id: new ObjectId(uid)}, {}, function (err, doc) {
+            col.findOne({$or: [{_id: new ObjectId(uid)}, {_id: ''+uid}]}, {}, function (err, doc) {
                 looking -= 1;
                 if (cb && typeof cb == 'function') {
                     if (doc && doc._id) {
@@ -292,44 +303,68 @@ function changeUnits(docid, units, cb) {
     }
 }
 
+function addToChanges(_id, uid, mods, cb) {
+    if (!cb || typeof cb != 'function') {
+        cb = function () {};
+    }
+    db.collection(_id+'_changes', function (err, col) {
+        if (err != null) {
+            console.log(err);
+        }
+        col.insert({unit: uid, mods: mods, time: new Date().getTime()}, {safe: true}, function (err, doc) {
+            if (err != null) {
+                console.log(err);
+            }
+            cb(doc);
+        });
+    });
+}
+
 function changeUnit(docid, uid, mods, cb) {
     if (!loaded) {
         dbfs.push(function () { changeUnit(docid, uid, mods, cb); });
         return;
     }
-    var modDic = {$set:{}};
-    for (var ix in mods) {
-        if (ix == 'supervisor') {
-            try {
-                mods[ix] = new ObjectId(mods[ix]);
-            } catch (err) {
-                delete mods[ix];
+
+    getUnit(docid, uid, function (doc) {
+        var modDic = {$set:{}};
+        for (var ix in mods) {
+            if (ix == 'supervisor') {
+                try {
+                    mods[ix] = new ObjectId(mods[ix]);
+                } catch (err) {
+                    delete mods[ix];
+                }
+            }
+            console.log(doc, mods);
+            if ((!doc[ix] && mods[ix] && mods[ix] != '') || mods[ix] !== doc[ix]) {
+                modDic.$set[ix] = mods[ix];
             }
         }
-        modDic.$set[ix] = mods[ix];
-    }
-    getDoc(docid, function (_id) {
-        if (_id != null) {
-            _id = ''+_id;
-        } else {
-            _id = docid;
-        }
-        db.collection(_id, function (err, col) {
-            if (err != null) {
-                console.log(err);
+        getDoc(docid, function (_id) {
+            if (_id != null) {
+                _id = ''+_id;
+            } else {
+                _id = docid;
             }
-            if (uid != null && typeof uid == typeof 'string' && (uid.length == 12 || uid.length == 24)) {
-                uid = new ObjectId(uid);
-            }
-            col.findAndModify({$or: [{_id: uid}, {_id: ''+uid}]}, [['_id', 1]], modDic, {new: true}, function (err, doc) {
+            db.collection(_id, function (err, col) {
                 if (err != null) {
                     console.log(err);
-                } else {
-                    if (cb && typeof cb == 'function') {
-                        cb(doc);
-                    }
                 }
+                if (uid != null && typeof uid == typeof 'string' && (uid.length == 12 || uid.length == 24)) {
+                    uid = new ObjectId(uid);
+                }
+                col.findAndModify({$or: [{_id: uid}, {_id: ''+uid}]}, [['_id', 1]], modDic, {new: true}, function (err, doc) {
+                    if (err != null) {
+                        console.log(err);
+                    } else {
+                        if (cb && typeof cb == 'function') {
+                            cb(doc);
+                        }
+                    }
+                });
             });
+            addToChanges(_id, uid, modDic.$set);
         });
     });
 }
@@ -422,6 +457,9 @@ function addUnits(docid, data, cb) {
                                 cb(doc); // I don't know what gets sent here, but do it anyway!
                             }
                         });
+                        for (ux in doc) {
+                            addToChanges(_id, doc._id, doc);
+                        }
                     }
                 });
             }
@@ -569,7 +607,12 @@ function createDoc(name, date, cb) {
                 if (err != null) {
                     console.log(err);
                 }
-                cb(doc[0]._id);
+                createCollection(''+doc[0]._id+'_changes', function (err) {
+                    if (err != null) {
+                        console.log(err);
+                    }
+                    cb(doc[0]._id);
+                });
             });
         });
     });
@@ -647,10 +690,31 @@ function renameDoc(doc, name, cb) {
     });
 }
 
+function listAllChanges(doc, cb) {
+    if (!loaded) {
+        dbfs.push(function () { listAllChanges(doc, cb); });
+        return;
+    }
+    if (!cb || typeof cb != 'function') {
+        cb = function () {};
+    }
+    getDoc(doc, function (_id) {
+        db.collection(''+_id+'_changes', function (err, col) {
+            col.find().toArray(function (err, docs) {
+                if (err != null) {
+                    console.log(err);
+                }
+                cb(docs);
+            });
+        });
+    });
+}
+
 function closeAll() {
     db.close();
 }
 
+exports.createCollection = dropCollection;
 exports.dropCollection = dropCollection;
 exports.emptyCollection = emptyCollection;
 exports.listHierarchy = listHierarchy;
@@ -670,3 +734,5 @@ exports.getDoc = getDoc;
 exports.listDocs = listDocs;
 exports.deleteDoc = deleteDoc;
 exports.renameDoc = renameDoc;
+
+exports.listAllChanges = listAllChanges;
