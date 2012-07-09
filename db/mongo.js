@@ -21,12 +21,11 @@ var colors = ['#006699', // 1
 locs = {},
 loccodes = {},
 dbname = 'orgcharts',
-db = new mgdb.Db(dbname, new mgdb.Server('127.0.0.1', 27017, {})),
+ourdb = new mgdb.Db(dbname, new mgdb.Server('127.0.0.1', 27017, {})),
 ObjectId = mgdb.ObjectID,
 cols = {},
 colld = {},
 looking = 0,
-dbfs = [],
 loaded = false;
 
 cols.units = 'units';
@@ -52,6 +51,34 @@ var initusers = [
     }
 ];
 
+var withDb = (function (db) {
+    var isUsingDbNow = false;
+    var extraCallbacks = [];
+    return function (cb, ignoreLoaded) {
+        if (!isUsingDbNow && (loaded || ignoreLoaded)) {
+            isUsingDbNow = true;
+            db.open(function (err, p_client) {
+                if (err != null) {
+                    console.log(err);
+                    isUsingDbNow = false;
+                    return;
+                }
+                function callOthers () {
+                    if (loaded && extraCallbacks.length) {
+                        extraCallbacks.pop()(db, callOthers);
+                    } else {
+                        isUsingDbNow = false;
+                        db.close();
+                    }
+                }
+                cb(db, callOthers);
+            });
+        } else {
+            extraCallbacks.push(cb);
+        }
+    };
+})(ourdb);
+
 function indexOf (arr, elt /*, from*/) {
     var len = arr.length >>> 0;
 
@@ -72,73 +99,67 @@ function createCollection(name, cb) {
     if (!cols[name] || cols[name] == '') {
         cols[name] = name;
     }
-    db.collectionNames(function (err, items) {
-        var found = false;
-        if (items && items.length != 0) {
-            for (var ix in items) {
-                if (items[ix].name == dbname + '.' + name) {
-                    found = true;
-                    break;
+    withDb(function (db, finish) {
+        db.collectionNames(function (err, items) {
+            var found = false;
+            if (items && items.length != 0) {
+                for (var ix in items) {
+                    if (items[ix].name == dbname + '.' + name) {
+                        found = true;
+                        break;
+                    }
                 }
             }
+            if (!items || items.length == 0 || !found) {
+                db.createCollection(cols[name], function (err, col) {
+                    finish();
+                    if (err == null) {
+                        colld[name] = true;
+                        cb(null);
+                    } else {
+                        cb(err);
+                    }
+                });
+            } else {
+                finish();
+                colld[name] = true;
+                cb(null);
+            }
+        });
+    }, true);
+}
+
+for (var ux in cols) {
+    createCollection(ux, function (err) {
+        if (err != null) {
+            console.log(err);
         }
-        if (!items || items.length == 0 || !found) {
-            db.createCollection(cols[name], function (err, col) {
-                if (err == null) {
-                    colld[name] = true;
-                    cb(null);
-                } else {
-                    cb(err);
-                }
-            });
-        } else {
-            colld[name] = true;
-            cb(null);
+        var cx = indexOf(colld, false);
+        if (!loaded && cx == -1) {
+            loaded = true;
+            console.log('Database ready.');
+            withDb(function (db, finish) {finish();});
         }
     });
 }
 
-function makeDbCalls() {
-    for (var fx in dbfs) {
-        dbfs[fx]();
-    }
+for (var ux in initusers) {
+    addUser(initusers[ux], function (user) {
+        if (user && user[0] && user[0].username) {
+            console.log('');
+            console.log('Default Username ' + user.username);
+            console.log('Default Password ' + user.password);
+        } else if (user && user.ename) {
+            console.log('');
+            console.log('Default Username ' + user.ename);
+            console.log('Default Password ' + user.epass);
+        } else {
+            console.log('Database error, default user not created');
+        }
+    });
 }
 
-db.open(function (err, p_client) {
-    for (var ux in cols) {
-        createCollection(ux, function (err) {
-            if (err != null) {
-                console.log(err);
-            }
-            var cx = indexOf(colld, false);
-            if (!loaded && cx == -1) {
-                loaded = true;
-                console.log('Database ready.');
-                makeDbCalls();
-            }
-        });
-    }
-
-    for (var ux in initusers) {
-        addUser(initusers[ux], function (user) {
-            if (user && user[0] && user[0].username) {
-                console.log('Database: Added default user.');
-                console.log(user);
-            } else if (user && user.ename) {
-                console.log('Database: Default user exists.');
-                console.log(user);
-            } else {
-                console.log('Database error, default user not created');
-            }
-        });
-    }
-});
-
 function findAndRemove(doc, con, cb) {
-    if (!loaded) {
-        dbfs.push(function () { findAndRemove(doc, con, cb); });
-        return;
-    }
     if (typeof cb != 'function') {
         cb = function () {};
     }
@@ -149,13 +170,16 @@ function findAndRemove(doc, con, cb) {
 
     getDoc(doc, function(_id) {
         function doTheRest(unitobj) {
-            db.collection(''+_id, function (err, col) {
-                col.remove(con, {safe: true}, function (err, num) {
-                    addToDocCount(''+_id, -1 * num);
-                    if (unitid) {
-                        addToChanges(''+_id, unitid, {action: 'delete', was: unitobj});
-                    }
-                    cb();
+            withDb(function (db, finish) {
+                db.collection(''+_id, function (err, col) {
+                    col.remove(con, {safe: true}, function (err, num) {
+                        finish();
+                        addToDocCount(''+_id, -1 * num);
+                        if (unitid) {
+                            addToChanges(''+_id, unitid, {action: 'delete', was: unitobj});
+                        }
+                        cb();
+                    });
                 });
             });
         }
@@ -171,9 +195,8 @@ function listHierarchy(doc, canSeePrivateData, cb) {
     if (typeof doc != typeof 'string') {
         doc = '' + doc;
     }
-    if (!loaded) {
-        dbfs.push(function () { listHierarchy(doc, canSeePrivateData, cb); });
-        return;
+    if (!cb || typeof cb != 'function') {
+        cb = function () {};
     }
 
     function doTheRest(_id, docname) {
@@ -181,84 +204,88 @@ function listHierarchy(doc, canSeePrivateData, cb) {
         if (typeof _id != typeof 'string') {
             _id = '' + _id
         }
-        db.collection(_id, function (err, col) {
-            if (err != null) {
-                console.log(err);
-            } else {
-                col.find().toArray(function (err, docs) {
-                    if (err != null) {
-                        console.log(err);
-                        if (cb && typeof cb == 'function') {
-                            cb([]);
-                        }
-                    } else {
-                        var list = {}, lcount = {}, lccount = {}, units = docs;
-                        list.none = [];
-                        for (var ix in docs) {
-                            if (!docs[ix].supervisor || docs[ix].supervisor == '') {
-                                list.none.push(docs[ix]._id);
-                            } else {
-                                if (!list[docs[ix].supervisor]) {
-                                    list[docs[ix].supervisor] = [];
+        withDb(function (db, finish) {
+            db.collection(_id, function (err, col) {
+                if (err != null) {
+                    finish();
+                    console.log(err);
+                } else {
+                    col.find().toArray(function (err, docs) {
+                        finish();
+                        if (err != null) {
+                            console.log(err);
+                            if (cb && typeof cb == 'function') {
+                                cb([]);
+                            }
+                        } else {
+                            var list = {}, lcount = {}, lccount = {}, units = docs;
+                            list.none = [];
+                            for (var ix in docs) {
+                                if (!docs[ix].supervisor || docs[ix].supervisor == '') {
+                                    list.none.push(docs[ix]._id);
+                                } else {
+                                    if (!list[docs[ix].supervisor]) {
+                                        list[docs[ix].supervisor] = [];
+                                    }
+                                    list[docs[ix].supervisor].push(docs[ix]._id);
                                 }
-                                list[docs[ix].supervisor].push(docs[ix]._id);
+                                if (docs[ix].location && docs[ix].location != '' && lcount[docs[ix].location]) {
+                                    lcount[docs[ix].location] += 1;
+                                } else {
+                                    lcount[docs[ix].location] = 1;
+                                }
+                                if (docs[ix].loccode && docs[ix].loccode != '' && lccount[docs[ix].loccode]) {
+                                    lccount[docs[ix].loccode] += 1;
+                                } else if (docs[ix].loccode && docs[ix].loccode != '') {
+                                    lccount[docs[ix].loccode] = 1;
+                                }
                             }
-                            if (docs[ix].location && docs[ix].location != '' && lcount[docs[ix].location]) {
-                                lcount[docs[ix].location] += 1;
-                            } else {
-                                lcount[docs[ix].location] = 1;
+                            var csort = [], lcsort = [];
+                            for (var lx in lcount) {
+                                var sx = 0;
+                                while (csort[sx] && lcount[csort[sx]] > lcount[lx]) {
+                                    sx += 1;
+                                }
+                                csort.splice(sx, 0, lx);
                             }
-                            if (docs[ix].loccode && docs[ix].loccode != '' && lccount[docs[ix].loccode]) {
-                                lccount[docs[ix].loccode] += 1;
-                            } else if (docs[ix].loccode && docs[ix].loccode != '') {
-                                lccount[docs[ix].loccode] = 1;
+                            for (var lcx in lccount) {
+                                var lccx = 0;
+                                while (lcsort[lccx] && lccount[lcsort[lccx]] > lccount[lcx]) {
+                                    lccx += 1;
+                                }
+                                lcsort.splice(lccx, 0, lcx);
                             }
-                        }
-                        var csort = [], lcsort = [];
-                        for (var lx in lcount) {
-                            var sx = 0;
-                            while (csort[sx] && lcount[csort[sx]] > lcount[lx]) {
-                                sx += 1;
+                            for (var lx in csort) {
+                                if (lx < colors.length) {
+                                    locs[csort[lx]] = colors[lx];
+                                } else {
+                                    locs[csort[lx]] = colors[colors.length-1];
+                                }
                             }
-                            csort.splice(sx, 0, lx);
-                        }
-                        for (var lcx in lccount) {
-                            var lccx = 0;
-                            while (lcsort[lccx] && lccount[lcsort[lccx]] > lccount[lcx]) {
-                                lccx += 1;
+                            for (var lcx in lcsort) {
+                                if (lcx < colors.length) {
+                                    loccodes[lcsort[lcx]] = colors[lcx];
+                                } else {
+                                    loccodes[lcsort[lcx]] = colors[colors.length-1];
+                                }
                             }
-                            lcsort.splice(lccx, 0, lcx);
-                        }
-                        for (var lx in csort) {
-                            if (lx < colors.length) {
-                                locs[csort[lx]] = colors[lx];
-                            } else {
-                                locs[csort[lx]] = colors[colors.length-1];
-                            }
-                        }
-                        for (var lcx in lcsort) {
-                            if (lcx < colors.length) {
-                                loccodes[lcsort[lcx]] = colors[lcx];
-                            } else {
-                                loccodes[lcsort[lcx]] = colors[colors.length-1];
-                            }
-                        }
 
-                        locs.other = colors[colors.length-1];
-                        loccodes.other = locs.other;
+                            locs.other = colors[colors.length-1];
+                            loccodes.other = locs.other;
 
-                        var dunits = {};
-                        for (var ux in units) {
-                            units[ux].index = units[ux]._id;
-                            delete units[ux].pay;
-                            dunits[units[ux]._id] = units[ux];
+                            var dunits = {};
+                            for (var ux in units) {
+                                units[ux].index = units[ux]._id;
+                                delete units[ux].pay;
+                                dunits[units[ux]._id] = units[ux];
+                            }
+                            if (cb && typeof cb == 'function') {
+                                cb(list, locs, loccodes, dunits, docname);
+                            }
                         }
-                        if (cb && typeof cb == 'function') {
-                            cb(list, locs, loccodes, dunits, docname);
-                        }
-                    }
-                });
-            }
+                    });
+                }
+            });
         });
     }
 
@@ -270,21 +297,20 @@ function listHierarchy(doc, canSeePrivateData, cb) {
 }
 
 function getUnit(doc, uid, cb) {
-    if (!loaded) {
-        dbfs.push(function () { getUnit(doc, uid, cb); });
-        return;
-    }
     looking += 1;
     getDoc(doc, function (_id) {
-        db.collection(''+_id, function (err, col) {
-            col.findOne({$or: [{_id: new ObjectId(uid)}, {_id: ''+uid}]}, {}, function (err, doc) {
-                looking -= 1;
-                if (cb && typeof cb == 'function') {
-                    if (doc && doc._id) {
-                        doc.index = doc._id;
+        withDb(function (db, finish) {
+            db.collection(''+_id, function (err, col) {
+                col.findOne({$or: [{_id: new ObjectId(uid)}, {_id: ''+uid}]}, {}, function (err, doc) {
+                    finish();
+                    looking -= 1;
+                    if (cb && typeof cb == 'function') {
+                        if (doc && doc._id) {
+                            doc.index = doc._id;
+                        }
+                        cb(doc);
                     }
-                    cb(doc);
-                }
+                });
             });
         });
     });
@@ -307,25 +333,27 @@ function addToChanges(_id, uid, mods, cb) {
     if (!cb || typeof cb != 'function') {
         cb = function () {};
     }
-    db.collection(_id+'_changes', function (err, col) {
-        if (err != null) {
-            console.log(err);
-        }
-        col.insert({unit: uid, mods: mods, time: new Date().getTime()}, {safe: true}, function (err, doc) {
+    withDb(function (db, finish) {
+        db.collection(_id+'_changes', function (err, col) {
             if (err != null) {
+                finish();
+                cb(null);
                 console.log(err);
             }
-            cb(doc);
+            col.insert({unit: uid, mods: mods, time: new Date().getTime()}, {safe: true}, function (err, doc) {
+                finish();
+                if (err != null) {
+                    finish();
+                    cb(null);
+                    console.log(err);
+                }
+                cb(doc);
+            });
         });
     });
 }
 
 function changeUnit(docid, uid, mods, cb) {
-    if (!loaded) {
-        dbfs.push(function () { changeUnit(docid, uid, mods, cb); });
-        return;
-    }
-
     getUnit(docid, uid, function (doc) {
         var modDic = {$set:{}};
         for (var ix in mods) {
@@ -347,21 +375,27 @@ function changeUnit(docid, uid, mods, cb) {
             } else {
                 _id = docid;
             }
-            db.collection(_id, function (err, col) {
-                if (err != null) {
-                    console.log(err);
-                }
-                if (uid != null && typeof uid == typeof 'string' && (uid.length == 12 || uid.length == 24)) {
-                    uid = new ObjectId(uid);
-                }
-                col.findAndModify({$or: [{_id: uid}, {_id: ''+uid}]}, [['_id', 1]], modDic, {new: true}, function (err, doc) {
+            withDb(function (db, finish) {
+                db.collection(_id, function (err, col) {
                     if (err != null) {
+                        finish();
+                        cb(null);
                         console.log(err);
-                    } else {
-                        if (cb && typeof cb == 'function') {
-                            cb(doc);
-                        }
                     }
+                    if (uid != null && typeof uid == typeof 'string' && (uid.length == 12 || uid.length == 24)) {
+                        uid = new ObjectId(uid);
+                    }
+                    col.findAndModify({$or: [{_id: uid}, {_id: ''+uid}]}, [['_id', 1]], modDic, {new: true}, function (err, doc) {
+                        if (err != null) {
+                            finish();
+                            cb(null);
+                            console.log(err);
+                        } else {
+                            if (cb && typeof cb == 'function') {
+                                cb(doc);
+                            }
+                        }
+                    });
                 });
             });
             addToChanges(_id, uid, modDic.$set);
@@ -370,30 +404,35 @@ function changeUnit(docid, uid, mods, cb) {
 }
 
 function addUser(data, cb) {
-    db.collection(cols.users, function (err, col) {
-        col.findOne({username: data.username}, function (err, doc) {
-            if (!doc) {
-                col.insert([data], {safe: true}, function (err, doc) {
-                    if (cb && typeof cb == 'function') {
+    if (!cb || typeof cb != 'function') {
+        cb = function () {};
+    }
+    withDb(function (db, finish) {
+        db.collection(cols.users, function (err, col) {
+            col.findOne({username: data.username}, function (err, doc) {
+                if (!doc) {
+                    col.insert([data], {safe: true}, function (err, doc) {
+                        finish();
                         cb(doc); // I don't know what gets sent here, but do it anyway!
+                    });
+                } else {
+                    var modDic = {$set: {}};
+                    for (var ix in data) {
+                        if (ix == 'username' || ix == 'password') {
+                            continue;
+                        } else {
+                            modDic.$set[ix] = data[ix];
+                        }
                     }
-                });
-            } else {
-                var modDic = {$set: {}};
-                for (var ix in data) {
-                    if (ix == 'username' || ix == 'password') {
-                        continue;
-                    } else {
-                        modDic.$set[ix] = data[ix];
-                    }
+                    col.findAndModify({username: doc.username}, [['_id', 1]], modDic, {new: true}, function () {
+                        finish();
+                        var user = modDic.$set;
+                        user.ename = doc.username;
+                        user.epass = doc.password;
+                        cb(user);
+                    });
                 }
-                col.findAndModify({username: doc.username}, [['_id', 1]], modDic, {new: true}, function () {
-                    var user = modDic.$set;
-                    user.ename = doc.username;
-                    user.epass = doc.password;
-                    cb(user);
-                });
-            }
+            });
         });
     });
 }
@@ -403,22 +442,26 @@ function checkLogin(data, cb) {
         cb = function () {};
     }
     if (data && data.username && data.password) {
-        db.collection(cols.users, function (err, col) {
-            if (err != null) {
-                console.log(err);
-            }
-            col.findOne({username: data.username}, {}, function (err, doc) {
+        withDb(function (db, finish) {
+            db.collection(cols.users, function (err, col) {
                 if (err != null) {
+                    finish();
+                    cb({success: false});
                     console.log(err);
                 }
-                console.log(data);
-                console.log(doc);
-                if (doc && doc.username == data.username && doc.password == data.password) {
-                    delete data.password;
-                    cb({success: true, user: doc});
-                } else {
-                    cb({success: false});
-                }
+                col.findOne({username: data.username}, {}, function (err, doc) {
+                    finish();
+                    if (err != null) {
+                        cb({success: false});
+                        console.log(err);
+                    }
+                    if (doc && doc.username == data.username && doc.password == data.password) {
+                        delete doc.password;
+                        cb({success: true, user: doc});
+                    } else {
+                        cb({success: false});
+                    }
+                });
             });
         });
     } else {
@@ -431,9 +474,8 @@ function addUnit(docid, data, cb) {
 }
 
 function addUnits(docid, data, cb) {
-    if (!loaded) {
-        dbfs.push(function () { addUnits(docid, data, cb); });
-        return;
+    if (!cb || typeof cb != 'function') {
+        cb = function () {};
     }
 
     function doTheRest(_id) {
@@ -442,27 +484,29 @@ function addUnits(docid, data, cb) {
         } else {
             _id = docid;
         }
-        db.collection(''+_id, function (err, col) {
-            if (err != null) {
-                console.log(err);
-            }
-            if (col != null) {
-                col.insert(data, {safe: true}, function (err, doc) {
-                    if (err != null) {
-                        console.log(err);
-                    }
-                    else {
-                        addToDocCount(''+_id, doc.length, function () {
-                            if (cb && typeof cb == 'function') {
-                                cb(doc); // I don't know what gets sent here, but do it anyway!
-                            }
-                        });
-                        for (ux in doc) {
-                            addToChanges(_id, doc._id, doc);
+        withDb(function (db, finish) {
+            db.collection(''+_id, function (err, col) {
+                if (err != null) {
+                    console.log(err);
+                }
+                if (col != null) {
+                    col.insert(data, {safe: true}, function (err, doc) {
+                        finish();
+                        if (err != null) {
+                            cb(null);
+                            console.log(err);
                         }
-                    }
-                });
-            }
+                        else {
+                            addToDocCount(''+_id, doc.length, function () {
+                                cb(doc);
+                            });
+                            for (ux in doc) {
+                                addToChanges(_id, doc._id, doc);
+                            }
+                        }
+                    });
+                }
+            });
         });
     }
 
@@ -474,34 +518,30 @@ function addUnits(docid, data, cb) {
 }
 
 function addToDocCount(doc, num, cb) {
-    if (!loaded) {
-        dbfs.push(function () { addToDocCount(doc, num); });
-        return;
-    }
     if (!cb || typeof cb != 'function') {
         cb = function () {};
     }
     getDoc(doc, function (_id) {
-        db.collection(cols.docs, function (err, col) {
-            if (err != null) {
-                console.log(err);
-            }
-            col.findAndModify({_id: _id}, [['_id', 1]], {$inc: {count: num}}, {new: true}, function (err, document) {
+        withDb(function (db, finish) {
+            db.collection(cols.docs, function (err, col) {
                 if (err != null) {
+                    finish();
+                    cb();
                     console.log(err);
                 }
-                cb();
-                return;
+                col.findAndModify({_id: _id}, [['_id', 1]], {$inc: {count: num}}, {new: true}, function (err, document) {
+                    finish();
+                    if (err != null) {
+                        console.log(err);
+                    }
+                    cb();
+                });
             });
         });
     });
 }
 
 function emptyCollection(name, cb) {
-    if (!loaded) {
-        dbfs.push(function () { emptyCollection(name, cb) });
-        return;
-    }
     name = name || 'units';
     if (!cb || typeof cb != 'function') {
         cb = function () {};
@@ -511,20 +551,18 @@ function emptyCollection(name, cb) {
         if (_id == null) {
             cb(null, false);
         } else {
-            db.collection(''+_id, function (err, col) {
-                if (col != null) {
-                    col.remove({}, {safe: true}, function (err, count) {
-                        if (err != null) {
-                            console.log(err);
-                        }
-                        cb(err, true);
-                    });
-                } else if (err == null) {
-                    cb(null, false);
-                } else {
-                    console.log(err);
-                    cb(err, false);
-                }
+            withDb(function (db, finish) {
+                db.collection(''+_id, function (err, col) {
+                    if (col != null) {
+                        col.remove({}, {safe: true}, function (err, count) {
+                            finish();
+                            cb(err, true);
+                        });
+                    } else {
+                        finish();
+                        cb(err, false);
+                    }
+                });
             });
         }
     });
@@ -535,94 +573,105 @@ function dropCollection(name, cb) {
     if (!cb || typeof cb != 'function') {
         cb = function () {};
     }
-    db.collection(cols[name], function (err, col) {
-        if (col != null) {
-            col.drop(function () {
+    withDb(function (db, finish) {
+        db.collection(cols[name], function (err, col) {
+            if (col != null) {
+                col.drop(function () {
+                    finish();
+                    cb();
+                });
+            } else {
+                finish();
                 cb();
-            });
-        } else {
-            cb();
-        }
+            }
+        });
     });
 }
 
 function listDocs(cb) {
-    if (!loaded) {
-        dbfs.push(function () { listDocs(cb); });
-        return;
-    }
-    db.collection(cols.docs, function (err, col) {
-        col.find().toArray(function (err, docs) {
-            cb(docs);
+    withDb(function (db, finish) {
+        db.collection(cols.docs, function (err, col) {
+            col.find().toArray(function (err, docs) {
+                finish();
+                cb(docs);
+            });
         });
     });
 }
 
 function getDoc(did, cb) {
-    if (!loaded) {
-        dbfs.push(function () { getDoc(did, cb); });
-        return;
-    }
-    if (did == 'units') {
-        cb(cols.units);
+    if (did in cols) {
+        cb(cols[did]);
         return;
     }
     if (typeof did == typeof 'string' && (did.length == 12 || did.length == 24)) {
         did = new ObjectId(did);
+    } else if (typeof did != typeof new ObjectId()) {
+        cb(null);
+        return;
     }
-    db.collection(cols.docs, function (err, col) {
-        if (err != null) {
-            console.log(err);
-        }
-        col.findOne({_id: did}, function (err, doc) {
+    withDb(function (db, finish) {
+        db.collection(cols.docs, function (err, col) {
             if (err != null) {
+                finish();
                 console.log(err);
-            }
-            if (doc != null) {
-                cb(doc._id, doc.name, doc.date);
-            } else {
                 cb(null);
+            } else {
+                col.findOne({_id: did}, function (err, doc) {
+                    finish();
+                    if (err != null) {
+                        console.log(err);
+                        cb(null);
+                    }
+                    else if (doc != null) {
+                        cb(doc._id, doc.name, doc.date);
+                    } else {
+                        cb(null);
+                    }
+                });
             }
         });
     });
 }
 
 function createDoc(name, date, cb) {
-    if (!loaded) {
-        dbfs.push(function () { createDoc(name, cb); });
-        return;
-    }
     if (!cb || typeof cb != 'function') {
         cb = function () {};
     }
-    db.collection(cols.docs, function (err, col) {
-        if (err != null) {
-            console.log(err);
-        }
-        col.insert([{date: date, name: name, count: 0, created: (new Date()).getTime()}], function (err, doc) {
+    withDb(function (db, finish) {
+        db.collection(cols.docs, function (err, col) {
             if (err != null) {
+                finish();
                 console.log(err);
-            }
-            createCollection(''+doc[0]._id, function (err) {
-                if (err != null) {
-                    console.log(err);
-                }
-                createCollection(''+doc[0]._id+'_changes', function (err) {
+                cb(null);
+            } else {
+                col.insert([{date: date, name: name, count: 0, created: (new Date()).getTime()}], function (err, doc) {
+                    finish();
                     if (err != null) {
                         console.log(err);
+                        cb(null);
+                    } else {
+                        createCollection(''+doc[0]._id, function (err) {
+                            if (err != null) {
+                                console.log(err);
+                                cb(null);
+                            } else {
+                                createCollection(''+doc[0]._id+'_changes', function (err) {
+                                    if (err != null) {
+                                        console.log(err);
+                                    }
+                                    cb(doc[0]._id);
+                                });
+                            }
+                        });
                     }
-                    cb(doc[0]._id);
                 });
-            });
+            }
         });
     });
 }
 
 function copyDoc(orig, dest, cb) {
-    if (!loaded) {
-        dbfs.push(function () { copyDoc(orig, dest, cb); });
-        return;
-    }
     if (!cb || typeof cb != 'function') {
         cb = function () {};
     }
@@ -656,62 +705,61 @@ function copyDoc(orig, dest, cb) {
 }
 
 function deleteDoc(doc, cb) {
-    if (!loaded) {
-        dbfs.push(function () { deleteDoc(doc, cb); });
-        return;
-    }
     if (!cb || typeof cb != 'function') {
         cb = function () {};
     }
     getDoc(doc, function (_id) {
-        db.collection(cols.docs, function (err, col) {
-            col.remove({_id: _id}, {safe: true}, function (err, num) {
-                dropCollection(_id);
-                cb();
+        withDb(function (db, finish) {
+            db.collection(cols.docs, function (err, col) {
+                col.remove({_id: _id}, {safe: true}, function (err, num) {
+                    finish();
+                    dropCollection(_id);
+                    cb();
+                });
             });
         });
     });
 }
 
 function renameDoc(doc, name, cb) {
-    if (!loaded) {
-        dbfs.push(function () { deleteDoc(doc, cb); });
-        return;
-    }
     if (!cb || typeof cb != 'function') {
         cb = function () {};
     }
-    db.collection(cols.docs, function (err, col) {
-        getDoc(doc, function (_id) {
-            col.findAndModify({_id: _id}, [['_id', 1]], {$set: {name: name}}, function (err, doc) {
-                cb();
+    getDoc(doc, function (_id) {
+        withDb(function (db, finish) {
+            db.collection(cols.docs, function (err, col) {
+                col.findAndModify({_id: _id}, [['_id', 1]], {$set: {name: name}}, function (err, doc) {
+                    finish();
+                    cb();
+                });
             });
         });
     });
 }
 
 function listAllChanges(doc, cb) {
-    if (!loaded) {
-        dbfs.push(function () { listAllChanges(doc, cb); });
-        return;
-    }
     if (!cb || typeof cb != 'function') {
         cb = function () {};
     }
     getDoc(doc, function (_id) {
-        db.collection(''+_id+'_changes', function (err, col) {
-            col.find().toArray(function (err, docs) {
-                if (err != null) {
-                    console.log(err);
-                }
-                cb(docs);
+        withDb(function (db, finish) {
+            db.collection(''+_id+'_changes', function (err, col) {
+                col.find().toArray(function (err, docs) {
+                    finish();
+                    if (err != null) {
+                        console.log(err);
+                    }
+                    cb(docs);
+                });
             });
         });
     });
 }
 
 function closeAll() {
-    db.close();
+    withDb(function (db, finish) {
+        finish();
+    });
 }
 
 exports.createCollection = dropCollection;

@@ -87,38 +87,15 @@ function orgChart() {
     var loccodes = {};
     var svg = null;
 
-    $('#of-username, #of-search-box').focus(function () {
+    var $placeholders = $('#of-username, #of-search-box, #of-password');
+    $placeholders.focus(function () {
         var $this = $(this);
         $this.addClass('edittime');
-        var defVal = $this.data('defaultValue');
-        var curVal = $this.val();
-        if (!defVal) {
-            $this.data('defaultValue', curVal);
-            defVal = curVal;
-        }
-        if (curVal === defVal) {
-            $this.val('');
-        }
     });
 
-    $('#of-fake-password').focus(function () {
-        $(this).hide();
-        $('#of-password').show().focus();
-    });
-
-    $('#of-password').blur(function () {
+    $placeholders.blur(function () {
         var $this = $(this);
-        if ($this.val() === '') {
-            $this.hide();
-            $('#of-fake-password').show();
-        }
-    });
-
-    $('#of-username, #of-search-box').blur(function () {
-        var $this = $(this);
-        var defVal = $this.data('defaultValue');
-        if ($this.val() === '') {
-            $this.val(defVal);
+        if ($this.val() == '') {
             $this.removeClass('edittime');
         }
     });
@@ -211,6 +188,8 @@ function orgChart() {
         var oldid = $inspector.data('oldid');
         var unitid = oldid.substr(16);
         $form.attr('action', '/addto/'+getDocId()+'/'+unitid);
+        $('.of-unit-hours', $form).val('40');
+        $('.of-unit-reqn', $form).val('999');
         $form.ajaxForm({
             success: function (data) {
                 $uev.removeClass('filled');

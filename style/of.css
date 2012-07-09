@@ -77,19 +77,12 @@ input[type=checkbox]:checked + label > .checkbox {
     width: 100%;
 }
 
-#of-search-box, #of-username, #of-fake-password {
+#of-search-box, #of-username, #of-password {
     width: 90%;
     margin-left: 4px;
     font-style: italic;
     padding-left: 20px;
     color: gray;
-}
-
-#of-password {
-    width: 90%;
-    margin-left: 4px;
-    padding-left: 20px;
-    display: none;
 }
 
 .edittime {
