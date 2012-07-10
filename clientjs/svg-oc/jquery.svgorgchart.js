@@ -5,6 +5,22 @@
    MIT (http://dev.jquery.com/browser/trunk/jquery/MIT-LICENSE.txt) licenses.
    Please attribute the author if you use it. */
 
+function indexOf (arr, elt /*, from*/) {
+    var len = arr.length >>> 0;
+
+    var from = Number(arguments[2]) || 0;
+    from = (from < 0) ? Math.ceil(from) : Math.floor(from);
+
+    if (from < 0)
+        from += len;
+
+    for (; from < len; from++) {
+        if (from in arr && arr[from] === elt)
+            return from;
+    }
+    return -1;
+}
+
 (function($) { // Hide scope, no $ conflict
 
     function SVGOrgChart() {
@@ -132,6 +148,7 @@
             chart.map[0].push(1);
             chart.parentid = nodeg.id;
             chart.csize = 2;
+            chart.off = 0;
             var locdown = (heightOrSize + 2 * padding);
             var tlcorner = 0;
             var shouldContinue = (isFirstCall || !_options || !_options.maxDepth || level < _options.maxDepth - 1);
@@ -142,29 +159,31 @@
                 chart.map.push([]);
                 var charts = [];
                 var lastborder = 0;
-                $childNodes.each(function (ix) {
-                    var $this = $(this);
-                    var shouldRender = !_options.shouldRender || _options.shouldRender($this);
-                    if (shouldRender) {
-                        var nrg = w.group(children, {});
-                        var rchart = fns.dn(w, nrg, $this, size, height, padding, format, click, sw, cb, (ix == 0), level + 1, fns);
-                        var tsize = rchart.size;
+                $childNodes.each((function (tchart) {
+                    return function (ix) {
+                        var $this = $(this);
+                        var shouldRender = !_options.shouldRender || _options.shouldRender($this);
+                        if (shouldRender) {
+                            var nrg = w.group(children, {});
+                            var rchart = fns.dn(w, nrg, $this, size, height, padding, format, click, sw, cb, (ix == 0), level + 1, fns);
+                            var tsize = rchart.size;
 
-                        var off = fns.fbo(chart, rchart.map, 1, fns.cfc);
-                        fns.mm(chart, rchart.map, [off, 1]);
-                        var wind = chart.csize;
-                        var tloc = (off/2 * (sizeOrHeight + padding));
-                        var added = chart.added;
-                        chart.added = 0;
+                            rchart.off = fns.fbo(tchart, rchart.map, 1, fns.cfc);
+                            fns.mm(chart, rchart.map, [rchart.off, 1]);
+                            var wind = tchart.csize;
+                            var tloc = (rchart.off/2 * (sizeOrHeight + padding));
+                            var added = tchart.added;
+                            tchart.added = 0;
 
-                        w.change(nrg, {transform: (sw ? 'translate(0 ' : 'translate(') + tloc + (sw ? ')' : ' 0)')});
-                        var cwidth = (((added) * (sizeOrHeight + padding)) - padding) / 2;
-                        childlocs[rchart.parentid] = tloc + (rchart.csize / 4) * (sizeOrHeight + padding) - (padding / 2);
-                        childcount += 1;
-                        chart.size += cwidth;
-                        chart.csize += added;
-                    }
-                });
+                            w.change(nrg, {transform: (sw ? 'translate(0 ' : 'translate(') + tloc + (sw ? ')' : ' 0)')});
+                            var cwidth = (((added) * (sizeOrHeight + padding)) - padding) / 2;
+                            childlocs[rchart.parentid] = tloc + (rchart.csize / 4) * (sizeOrHeight + padding) - (padding / 2);
+                            childcount += 1;
+                            tchart.size += cwidth;
+                            tchart.csize += added;
+                        }
+                    };
+                })(chart));
 
                 var childsize = (chart.csize / 2) - 1;
                 tlcorner = ((sizeOrHeight + padding) * childsize / 2);
@@ -235,6 +254,7 @@
             }
 
             for (var ny in newobj) {
+                var haveHadFirst = 0;
                 ny = ny - 0;
                 while (chart.length <= ny + y) {
                     chart.push([]);
@@ -242,8 +262,9 @@
                 var trow = chart[ny + y];
                 for (var nx in newobj[ny]) {
                     nx = nx - 0;
+                    var toggle = trow[trow.length-1];
                     while (trow.length <= nx + x) {
-                        trow.push(0);
+                        trow.push((toggle = toggle ^ 1) & (trow.length < nx + x) & haveHadFirst);
                         if (brix == ny+y || chart[ny+y].length > chart[brix].length) {
                             brix = ny+y;
                             ochart.added += 1;
@@ -259,6 +280,7 @@
                         rcol = trow[nx + x + 1];
                     }
                     if (newobj[ny][nx] == 1) {
+                        haveHadFirst = indexOf(newobj[ny], 1, nx+1) != -1;
                         if (tcol == 1 || lcol == 1 || rcol == 1) {
                             return false;
                         }
@@ -269,8 +291,13 @@
         },
 
         _findBestOffset: function (chart, newobj, yoff, cfc) {
-            var offset = 0;
+            var offset = chart.csize - 2;
+            var boffset = offset;
+            while (offset > 0 && !cfc(chart, newobj, [offset, yoff])) {
+                offset -= 1;
+            }
             while (!cfc(chart, newobj, [offset, yoff])) {
+                if (offset == 0) offset = boffset;
                 offset += 1;
             }
             return offset;

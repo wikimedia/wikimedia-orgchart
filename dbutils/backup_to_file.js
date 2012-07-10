@@ -44,7 +44,6 @@ mongo.listDocs(function (docs) {
             if (docd.length == 0) {
                 fs.writeFile(bakfile, json.stringify({list: docl, db: docdb}), function () {
                     console.log('Backup complete.');
-                    mongo.closeAll();
                 });
             }
         });
