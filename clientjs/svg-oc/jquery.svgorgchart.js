@@ -21,6 +21,23 @@ function indexOf (arr, elt /*, from*/) {
     return -1;
 }
 
+function logChart(chart) {
+    for (var cy in chart.map) {
+        var lstr = '';
+        for (var cx in chart.map[cy]) {
+            lstr += chart.map[cy][cx] ? 'X' : ' ';
+        }
+        console.log(lstr);
+        lstr = '';
+        if (cy in chart.lines) {
+            for (var lx in chart.lines[cy]) {
+                lstr += chart.lines[cy][lx] ? '-' : ' ';
+            }
+            console.log(lstr);
+        }
+    }
+}
+
 (function($) { // Hide scope, no $ conflict
 
     function SVGOrgChart() {
@@ -149,6 +166,7 @@ function indexOf (arr, elt /*, from*/) {
             chart.parentid = nodeg.id;
             chart.csize = 2;
             chart.off = 0;
+            chart.lines = [[]];
             var locdown = (heightOrSize + 2 * padding);
             var tlcorner = 0;
             var shouldContinue = (isFirstCall || !_options || !_options.maxDepth || level < _options.maxDepth - 1);
@@ -166,10 +184,39 @@ function indexOf (arr, elt /*, from*/) {
                         if (shouldRender) {
                             var nrg = w.group(children, {});
                             var rchart = fns.dn(w, nrg, $this, size, height, padding, format, click, sw, cb, (ix == 0), level + 1, fns);
+
                             var tsize = rchart.size;
 
-                            rchart.off = fns.fbo(tchart, rchart.map, 1, fns.cfc);
-                            fns.mm(chart, rchart.map, [rchart.off, 1]);
+                            rchart.off = fns.fbo(tchart, rchart, 1, fns.cfc);
+                            fns.mm(tchart, rchart, [rchart.off, 1]);
+                            var haveFoundOne = indexOf(tchart.lines[0], 1) != -1;
+                            if (haveFoundOne) {
+                                tchart.lines[0][rchart.off - 1] = 1;
+                            }
+                            for (var nox in rchart.map[0]) {
+                                nox = nox - 0;
+                                if (haveFoundOne == 1) {
+                                    if (indexOf(rchart.map[0], 1, nox) == -1) {
+                                        break;
+                                    }
+                                    haveFoundOne = true;
+                                }
+                                tchart.lines[0][nox + rchart.off] = haveFoundOne ? 1 : rchart.map[0][nox];
+                            }
+                            for (var rcly in rchart.lines) {
+                                rcly = rcly - 0;
+                                while (tchart.lines.length <= rcly + 1) {
+                                    tchart.lines.push([]);
+                                }
+                                for (var rclx in rchart.lines[rcly]) {
+                                    rclx = rclx - 0;
+                                    while (rclx + rchart.off >= tchart.lines[rcly+1].length) {
+                                        tchart.lines[rcly+1].push(0);
+                                    }
+                                    tchart.lines[rcly+1][rclx+rchart.off] = rchart.lines[rcly][rclx];
+                                }
+                            }
+
                             var wind = tchart.csize;
                             var tloc = (rchart.off/2 * (sizeOrHeight + padding));
                             var added = tchart.added;
@@ -197,6 +244,7 @@ function indexOf (arr, elt /*, from*/) {
             }
 
             if (isFirstCall) {
+                logChart(chart);
                 w.change(tg, {transform: 'translate(' + (padding / 2) + ' ' + (padding / 2) + ')'});
                 setDims(sw ? 'height' : 'width', (chart.csize / 2) * (sizeOrHeight + padding) + padding);
                 setDims(sw ? 'width' : 'height', (chart.map.length) * (heightOrSize + 2 * padding) + padding);
@@ -238,8 +286,9 @@ function indexOf (arr, elt /*, from*/) {
             return chart;
         },
 
-        _checkForConflicts: function (ochart, newobj, offset) {
+        _checkForConflicts: function (ochart, rchart, offset) {
             var chart = ochart.map;
+            var newobj = rchart.map;
             var x = offset[0] - 0;
             var y = offset[1] - 0;
             if (!ochart.added) {
@@ -253,8 +302,26 @@ function indexOf (arr, elt /*, from*/) {
                 }
             }
 
+            var lines = ochart.lines;
+            var nlines = rchart.lines;
+            for (var ly in nlines) {
+                ly = ly - 0;
+                if (lines.length <= ly + y) {
+                    break;
+                }
+                var lrow = lines[ly + y];
+                for (var lx in nlines[ly]) {
+                    lx = lx - 0;
+                    if (lrow.length <= lx + x) {
+                        break;
+                    }
+                    if (nlines[ly][lx] == 1 && lrow[lx + x] == 1) {
+                        return false;
+                    }
+                }
+            }
+
             for (var ny in newobj) {
-                var haveHadFirst = 0;
                 ny = ny - 0;
                 while (chart.length <= ny + y) {
                     chart.push([]);
@@ -262,9 +329,8 @@ function indexOf (arr, elt /*, from*/) {
                 var trow = chart[ny + y];
                 for (var nx in newobj[ny]) {
                     nx = nx - 0;
-                    var toggle = trow[trow.length-1];
                     while (trow.length <= nx + x) {
-                        trow.push((toggle = toggle ^ 1) & (trow.length < nx + x) & haveHadFirst);
+                        trow.push(0);
                         if (brix == ny+y || chart[ny+y].length > chart[brix].length) {
                             brix = ny+y;
                             ochart.added += 1;
@@ -280,7 +346,6 @@ function indexOf (arr, elt /*, from*/) {
                         rcol = trow[nx + x + 1];
                     }
                     if (newobj[ny][nx] == 1) {
-                        haveHadFirst = indexOf(newobj[ny], 1, nx+1) != -1;
                         if (tcol == 1 || lcol == 1 || rcol == 1) {
                             return false;
                         }
@@ -303,10 +368,27 @@ function indexOf (arr, elt /*, from*/) {
             return offset;
         },
 
-        _mergeMaps: function (ochart, newobj, offset) {
+        _mergeMaps: function (ochart, rchart, offset) {
             var chart = ochart.map;
+            var newobj = rchart.map;
             var x = offset[0] - 0;
             var y = offset[1] - 0;
+
+            var newlines = rchart.lines;
+            for (var ly in newlines) {
+                ly = ly - 0;
+                while (ochart.lines.length <= ly + y) {
+                    ochart.lines.push([]);
+                }
+                for (var lx in newlines[ly]) {
+                    lx = lx - 0;
+                    while (lx + x >= ochart.lines[ly+y].length) {
+                        ochart.lines[ly+y].push(0);
+                    }
+                    ochart.lines[ly+y][lx + x] = newlines[ly][lx];
+                }
+            }
+
             if (!ochart.added) {
                 ochart.added = 0;
             }
