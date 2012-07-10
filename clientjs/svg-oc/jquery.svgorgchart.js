@@ -189,19 +189,14 @@ function logChart(chart) {
 
                             rchart.off = fns.fbo(tchart, rchart, 1, fns.cfc);
                             fns.mm(tchart, rchart, [rchart.off, 1]);
-                            var haveFoundOne = indexOf(tchart.lines[0], 1) != -1;
-                            if (haveFoundOne) {
-                                tchart.lines[0][rchart.off - 1] = 1;
-                            }
-                            for (var nox in rchart.map[0]) {
+                            var haveFoundOne = false;
+                            for (var nox in tchart.map[1]) {
                                 nox = nox - 0;
-                                if (haveFoundOne == 1) {
-                                    if (indexOf(rchart.map[0], 1, nox) == -1) {
-                                        break;
-                                    }
-                                    haveFoundOne = true;
+                                if (haveFoundOne && indexOf(tchart.map[1], 1, nox-1) == -1) {
+                                    break;
                                 }
-                                tchart.lines[0][nox + rchart.off] = haveFoundOne ? 1 : rchart.map[0][nox];
+                                haveFoundOne = haveFoundOne || tchart.map[1][nox]
+                                tchart.lines[0][nox] = haveFoundOne * 1;
                             }
                             for (var rcly in rchart.lines) {
                                 rcly = rcly - 0;
