@@ -11,6 +11,10 @@ body {
     top: 0; bottom: 0; left: 0; right: 0;
 }
 
+a {
+    text-decoration: none;
+}
+
 #of-filter-menu {
     border: 1px solid #979998;
     border-radius: 5px;

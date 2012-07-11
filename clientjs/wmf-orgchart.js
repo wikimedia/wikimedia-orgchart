@@ -75,6 +75,7 @@ function orgChart() {
     var $tlist = $('.of-unit-listing').detach();
     var $dlist = $('#of-documents-list');
     var $doctpl = $('.of-doc-box').detach();
+    var $export = $('#of-export-current');
     var $docctpl = $('.of-doc-create').detach();
     var $inspector = $('#of-inspector');
     var $pernode = $('#of-zoom-here').add($('#of-zoom-here').next());
@@ -936,6 +937,10 @@ function createOrgChart(opts) {
         $svg.attr(sw ? 'width' : 'height', 10);
         $svg.svg({onLoad: function (svg) {
             drawInitial(svg, fullOpts);
+            var cursvg = $svg.get(0).innerHTML;
+            cursvg = cursvg.replace(/^<[^<>]*>/, '');
+            cursvg = cursvg.replace(/<[^<>]*>$/, '');
+            $('#of-export-current').attr('href', "data:image/svg+xml;base64," + Base64.encode(cursvg));
         }});
     });
 

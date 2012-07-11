@@ -30,6 +30,8 @@ handle["/of.css"] = requestHandlers.style;
 handle["/of-print.css"] = requestHandlers.pstyle;
 handle["/jqui.css"] = requestHandlers.jquistyle;
 
+handle["/base64.js"] = requestHandlers.base64;
+
 handle["/jquery.svg.js"] = requestHandlers.svg;
 handle["/jquery.svggraph.js"] = requestHandlers.svggraph;
 handle["/jquery.svgchart.js"] = requestHandlers.svgchart;

@@ -513,6 +513,10 @@ function jquistyle(response) {
     respondWithFile(response, 'style/jquery.ui.css', 'text/css');
 }
 
+function base64(response) {
+    respondWithFile(response, 'clientjs/base64.js', 'text/javascript');
+}
+
 function svg(response) {
     respondWithFile(response, 'clientjs/svg-oc/base/jquery.svg.js', 'text/javascript');
 }
@@ -592,6 +596,7 @@ exports.svg = svg;
 exports.svggraph = svggraph;
 exports.svgchart = svgchart;
 
+exports.base64 = base64;
 exports.script = script;
 
 exports.start = start;
