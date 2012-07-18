@@ -392,6 +392,7 @@ function changeUnit(docid, uid, mods, cb) {
                             console.log(err);
                         } else {
                             if (cb && typeof cb == 'function') {
+                                finish();
                                 cb(doc);
                             }
                         }
