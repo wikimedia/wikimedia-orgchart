@@ -815,7 +815,7 @@ function orgChart() {
             }
 
             var $loc = $('span.of-unit-loc', $tc);
-            var $locc = $('span.of-unit-lc', $tc);
+            $('input.of-unit-loc', $tc).attr('value', data.location);
 
             if (data.location && data.location != '' && $tc.hasClass('employee')) {
                 if (locs[data.location]) {
@@ -823,6 +823,15 @@ function orgChart() {
                 } else {
                     $loc.css('color', locs.other);
                 }
+                $loc.html(data.location);
+            } else {
+                $loc.parent('p').hide();
+            }
+
+            var $locc = $('span.of-unit-lc', $tc);
+            $('input.of-unit-lc', $tc).attr('value', loccode);
+
+            if (data.loccode && data.loccode != '' && !$tc.hasClass('vacancy')) {
                 if (data.loccode && loccodes[data.loccode]) {
                     $locc.css('background-color', loccodes[data.loccode]);
                 } else if (data.loccode) {
@@ -830,7 +839,6 @@ function orgChart() {
                 } else {
                     $locc.hide();
                 }
-                $loc.html(data.location);
                 var loccode = '';
                 if (data.loccode && data.loccode != '') {
                     loccode = data.loccode.slice(0,2);
@@ -838,11 +846,7 @@ function orgChart() {
                     $locc.hide();
                 }
                 $locc.html(loccode);
-
-                $('input.of-unit-loc', $tc).attr('value', data.location);
-                $('input.of-unit-lc', $tc).attr('value', loccode);
             } else {
-                $loc.parent('p').hide();
                 $locc.hide();
             }
 
