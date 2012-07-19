@@ -553,3 +553,7 @@ tr.odd {
     text-align: center;
     color: grey;
 }
+
+#of-inspector .of-unit-lc {
+    display: none;
+}

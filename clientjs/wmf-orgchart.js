@@ -79,7 +79,7 @@ function orgChart() {
     var $docctpl = $('.of-doc-create').detach();
     var $inspector = $('#of-inspector');
     var $pernode = $('#of-zoom-here').add($('#of-zoom-here').next());
-    var fields = ['name', 'title', 'loc', 'reqn', 'start', 'end', 'hrs', 'notes', 'pay'];
+    var fields = ['name', 'title', 'loc', 'lc', 'reqn', 'start', 'end', 'hrs', 'notes', 'pay'];
     var $uev = $('#of-edit-viewport');
     var session = {};
     var $units = $('#of-org-form');
@@ -644,6 +644,7 @@ function orgChart() {
                         $itt.addClass('contractor');
                     } else {
                         $itt.addClass('vacancy');
+                        $('#of-inspector-loc').hide();
                     }
                     var imgurl = $('.of-unit-img', $ob).html();
                     if (imgurl && imgurl != '') {
@@ -815,37 +816,29 @@ function orgChart() {
             }
 
             var $loc = $('span.of-unit-loc', $tc);
-            $('input.of-unit-loc', $tc).attr('value', data.location);
+            var location = data.location || '';
 
-            if (data.location && data.location != '' && $tc.hasClass('employee')) {
-                if (locs[data.location]) {
-                    $loc.css('color', locs[data.location]);
+            if (location != '') {
+                $loc.html(location);
+                if (locs[location]) {
+                    $loc.css('color', locs[location]);
                 } else {
                     $loc.css('color', locs.other);
                 }
-                $loc.html(data.location);
             } else {
                 $loc.parent('p').hide();
             }
 
             var $locc = $('span.of-unit-lc', $tc);
-            $('input.of-unit-lc', $tc).attr('value', loccode);
+            var loccode = data.loccode || '';
 
-            if (data.loccode && data.loccode != '' && !$tc.hasClass('vacancy')) {
-                if (data.loccode && loccodes[data.loccode]) {
-                    $locc.css('background-color', loccodes[data.loccode]);
-                } else if (data.loccode) {
+            if (loccode != '') {
+                $locc.html(loccode.slice(0,2));
+                if (loccodes[loccode]) {
+                    $locc.css('background-color', loccodes[loccode]);
+                } else {
                     $locc.css('background-color', loccodes.other);
-                } else {
-                    $locc.hide();
                 }
-                var loccode = '';
-                if (data.loccode && data.loccode != '') {
-                    loccode = data.loccode.slice(0,2);
-                } else {
-                    $locc.hide();
-                }
-                $locc.html(loccode);
             } else {
                 $locc.hide();
             }
@@ -1029,7 +1022,7 @@ function createOrgChart(opts) {
             var rct = w.rect(nameg, 0, -bb.height+5, 0, 0, {width: bb.width, height: bb.height, fill: 'none', stroke: 'none', opacity: '0.4'});
         }
 
-        if (loccode && loccode != '') {
+        if (loccode && loccode != '' && !$nc.hasClass('vacancy')) {
             var lcg = w.group(ng, {title: location, transform: 'translate(' + (opts.size - 50) + ' -45)'});
             w.rect(lcg, 0, 0, 22, 30, {fill: lcc});
             var lctg = w.group(lcg, {transform: 'translate(4 '+bb.height+')'});
