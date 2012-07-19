@@ -191,6 +191,8 @@ function orgChart() {
         $form.attr('action', '/addto/'+getDocId()+'/'+unitid);
         $('.of-unit-hours', $form).val('40');
         $('.of-unit-reqn', $form).val('999');
+        $('input[name=end]', $form).datepicker({dateFormat: 'yy-mm-dd'});
+        $('input[name=start]', $form).datepicker({dateFormat: 'yy-mm-dd'});
         $form.ajaxForm({
             success: function (data) {
                 $uev.removeClass('filled');
