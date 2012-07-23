@@ -781,7 +781,7 @@ function orgChart() {
                 $('.of-unit-img', $tc).html(data.image);
             }
 
-            if (data.reqn && data.reqn != '' && !isVacant) {
+            if (data.reqn && data.reqn != '') {
                 $('span.of-unit-reqn', $tc).html(data.reqn);
             } else {
                 $tc.addClass('noreqn');
@@ -805,7 +805,9 @@ function orgChart() {
             if (data.notes && data.notes != '') {
                 $('span.of-unit-notes', $tc).html(data.notes);
             }
-            if (data.pay && data.pay != '') {
+            // We have temporarily disabled the compensation stuff in the UI.
+            // TODO figure out the right way to do this; Erik is still thinking.
+            if (data.pay && data.pay != '' && false) {
                 $('span.of-unit-pay', $tc).html(data.pay);
             }
             var $ulist = $units;
