@@ -53,7 +53,7 @@ p.filter-option > input:checked + label {
     background-color: white;
 }
 
-input[type=checkbox] {
+#of-details-bar input[type=checkbox] {
     display: none;
 }
 
@@ -485,9 +485,64 @@ span.of-unit-lc {
 }
 
 #of-documents-list {
-    display: none;
-    list-style: none;
-    margin-left: -40px;
+    clear: both;
+    width: 100%;
+}
+
+#of-documents-list table {
+    border-collapse: collapse;
+    background: white;
+    margin-left: 2%;
+    width: 96%;
+}
+
+#of-documents-list td a {
+    color: black;
+    text-decoration: none;
+}
+
+#of-documents-list td a:hover {
+    text-decoration: underline;
+}
+
+#of-documents-list td, #of-documents-list th {
+    padding: 5px;
+    border: 1px solid grey;
+}
+
+#of-documents-list th {
+    text-align: left;
+    border-top: 0;
+}
+
+#of-documents-list tr:nth-child(2) td {
+    border-top: 0;
+}
+
+#of-documents-list tr:last-child td {
+    border-bottom: 0px;
+}
+
+#of-documents-list td:first-child, #of-documents-list th:first-child {
+    border-left: 0px;
+}
+
+#of-documents-list td:last-child, #of-documents-list th:last-child {
+    border-right: 0;
+}
+
+.doc-manage img {
+    cursor: pointer;
+    padding-right: 5px;
+}
+
+.deleted {
+    opacity: 0.5;
+}
+
+a.empty-doc-info {
+    color: grey !important;
+    margin-left: 5px;
 }
 
 .of-doc-box, .of-doc-create {
@@ -556,4 +611,13 @@ tr.odd {
 
 #of-inspector .of-unit-lc {
     display: none;
+}
+
+.empty-doc-info {
+    color: grey;
+    font-style: italic;
+}
+
+#of-login-error {
+    color: red;
 }

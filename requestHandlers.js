@@ -85,7 +85,7 @@ function logout(response, request) {
     checkAuth(response, request, function (result) {
         if (result) {
             SessionHandler.httpRequest(request, response, function (err, sess) {
-                sess.remove('username');
+                sess.remove('user');
             });
         }
     });
@@ -95,7 +95,7 @@ function logout(response, request) {
 }
 
 function createUser(response, request) {
-    checkAuth(response, request, function (result, user) {
+    checkAuth(response, request, function (result, euser) {
         if (result === true && user.canCreateUsers) {
             var form = new formidable.IncomingForm();
             form.parse(request, function (error, fields, files) {
@@ -104,9 +104,9 @@ function createUser(response, request) {
                         username: fields.username,
                         password: fields.password,
                         canCreateUsers: fields.canCreateUsers && fields.canCreateUsers === 'on',
-                        canSeePrivateData: fields.canSeePrivateData && fields.canSeePrivateData === 'on' && user.canSeePrivateData,
-                        canEditNodes: fields.canEditNodes && fields.canEditNodes === 'on' && user.canEditNodes,
-                        canEditDocs: fields.canEditDocs && fields.canEditDocs === 'on' && user.canEditDocs
+                        canSeePrivateData: fields.canSeePrivateData && fields.canSeePrivateData === 'on' && euser.canSeePrivateData,
+                        canEditNodes: fields.canEditNodes && fields.canEditNodes === 'on' && euser.canEditNodes,
+                        canEditDocs: fields.canEditDocs && fields.canEditDocs === 'on' && euser.canEditDocs
                     };
                     db.addUser(user, function () {
                         response.writeHead(200, {'Content-Type': 'application/json'});
@@ -283,6 +283,32 @@ function deleteDoc(response, request) {
     });
 }
 
+function undeleteDoc(response, request) {
+    function endDelete (message) {
+        response.writeHead(200, {'Content-Type': 'application/json'});
+        response.write(jsonify(message));
+        response.end();
+    }
+    checkAuth(response, request, function (isLogged) {
+        if (isLogged) {
+            var form = new formidable.IncomingForm();
+            form.parse(request, function (error, fields, files) {
+                var docid;
+                if (fields && fields.docid) {
+                    docid = fields.docid;
+                    db.undeleteDoc(docid, function () {
+                        endDelete({success: true});
+                    });
+                } else {
+                    endDelete({success: false, error: 'No docid found'});
+                }
+            });
+        } else {
+            endDelete({success: false, error: 'Not logged in'});
+        }
+    });
+}
+
 function parseThisUnit(fields, theseFields) {
     var ix = 1;
     var thisUnit = {};
@@ -428,8 +454,8 @@ function copyDoc(response, request, args) {
                 var form = new formidable.IncomingForm();
                 form.parse(request, function (error, fields, files) {
                     if (fields && fields.docid && fields.name) {
-                        db.copyDoc(fields.docid, fields.name + ' (copy)', function () {
-                            endCopy({success: true});
+                        db.copyDoc(fields.docid, fields.name + ' (copy)', function (newdoc) {
+                            endCopy({success: true, doc: newdoc});
                         });
                     } else {
                         endCopy({success: false, error: 'No name or docid found'});
@@ -477,24 +503,12 @@ function start(response) {
     respondWithFile(response, 'templates/index.html');
 }
 
-function script(response) {
-    respondWithFile(response, 'clientjs/wmf-orgchart.js', 'text/javascript');
-}
-
-function jquery(response) {
-    respondWithFile(response, 'clientjs/jquery.js', 'text/javascript');
-}
-
-function jqueryui(response) {
-    respondWithFile(response, 'clientjs/jquery.ui.min.js', 'text/javascript');
-}
-
-function jqueryform(response) {
-    respondWithFile(response, 'clientjs/jquery.form.js', 'text/javascript');
-}
-
-function jqueryhash(response) {
-    respondWithFile(response, 'clientjs/jquery.hash.min.js', 'text/javascript');
+function script(response, request, args) {
+    var path = 'wmf-orgchart.js';
+    if ( args && args.length > 0 ) {
+        path = args[0];
+    }
+    respondWithFile(response, 'clientjs/' + path, 'text/javascript');
 }
 
 function style(response) {
@@ -511,22 +525,6 @@ function jorgchartstyle(response) {
 
 function jquistyle(response) {
     respondWithFile(response, 'style/jquery.ui.css', 'text/css');
-}
-
-function base64(response) {
-    respondWithFile(response, 'clientjs/base64.js', 'text/javascript');
-}
-
-function svg(response) {
-    respondWithFile(response, 'clientjs/svg-oc/base/jquery.svg.js', 'text/javascript');
-}
-
-function svggraph(response) {
-    respondWithFile(response, 'clientjs/svg-oc/base/jquery.svggraph.js', 'text/javascript');
-}
-
-function svgchart(response) {
-    respondWithFile(response, 'clientjs/svg-oc/jquery.svgorgchart.js', 'text/javascript');
 }
 
 function pinlifted(response) {
@@ -587,16 +585,6 @@ exports.list = list;
 exports.getPlainText = getPlainText;
 exports.parsePlainText = parsePlainText;
 
-exports.jquery = jquery;
-exports.jqueryui = jqueryui;
-exports.jqueryform = jqueryform;
-exports.jqueryhash = jqueryhash;
-
-exports.svg = svg;
-exports.svggraph = svggraph;
-exports.svgchart = svgchart;
-
-exports.base64 = base64;
 exports.script = script;
 
 exports.start = start;
@@ -629,6 +617,7 @@ exports.delnode = delnode;
 
 exports.listDocs = listDocs;
 exports.deleteDoc = deleteDoc;
+exports.undeleteDoc = undeleteDoc;
 exports.renameDoc = renameDoc;
 exports.copyDoc = copyDoc;
 exports.newDoc = newDoc;

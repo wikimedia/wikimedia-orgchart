@@ -12,12 +12,7 @@ handle["/"] = requestHandlers.start;
 handle["/start"] = requestHandlers.start;
 handle["/upload"] = requestHandlers.upload;
 handle["/upform"] = requestHandlers.upform;
-handle["/of.js"] = requestHandlers.script;
-
-handle["/jquery.js"] = requestHandlers.jquery;
-handle["/jquery.ui.js"] = requestHandlers.jqueryui;
-handle["/jquery.form.js"] = requestHandlers.jqueryform;
-handle["/jquery.hash.js"] = requestHandlers.jqueryhash;
+handle["/script"] = requestHandlers.script;
 
 handle["/list"] = requestHandlers.list;
 handle["/plaintext"] = requestHandlers.getPlainText;
@@ -29,12 +24,6 @@ handle["/addto"] = requestHandlers.add;
 handle["/of.css"] = requestHandlers.style;
 handle["/of-print.css"] = requestHandlers.pstyle;
 handle["/jqui.css"] = requestHandlers.jquistyle;
-
-handle["/base64.js"] = requestHandlers.base64;
-
-handle["/jquery.svg.js"] = requestHandlers.svg;
-handle["/jquery.svggraph.js"] = requestHandlers.svggraph;
-handle["/jquery.svgchart.js"] = requestHandlers.svgchart;
 
 handle["/login"] = requestHandlers.login;
 handle["/logout"] = requestHandlers.logout;
@@ -57,6 +46,7 @@ handle["/delete-node.png"] = requestHandlers.delnode;
 
 handle["/doclist"] = requestHandlers.listDocs;
 handle["/deletedoc"] = requestHandlers.deleteDoc;
+handle["/undeletedoc"] = requestHandlers.undeleteDoc;
 handle["/renamedoc"] = requestHandlers.renameDoc;
 handle["/copydoc"] = requestHandlers.copyDoc;
 handle["/newdoc"] = requestHandlers.newDoc;

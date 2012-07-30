@@ -10,18 +10,20 @@
 	<meta http-equiv="content-type" content="text/html;charset=utf-8" />
 	<meta name="generator" content="Geany 0.21" />
     <title></title>
-    <script type="text/javascript" src="/base64.js"></script>
-    <script type="text/javascript" src="/jquery.js"></script>
-    <script type="text/javascript" src="/jquery.ui.js"></script>
-    <script type="text/javascript" src="/jquery.form.js"></script>
-    <script type="text/javascript" src="/jquery.hash.js"></script>
-    <script type="text/javascript" src="/jquery.svg.js"></script>
-    <script type="text/javascript" src="/jquery.svggraph.js"></script>
-    <script type="text/javascript" src="/jquery.svgchart.js"></script>
-    <script type="text/javascript" src="/of.js"></script>
+    <script type="text/javascript" src="/script/base64.js"></script>
+    <script type="text/javascript" src="/script/jquery.js"></script>
+    <script type="text/javascript" src="/script/jquery.ui.min.js"></script>
+    <script type="text/javascript" src="/script/jquery.form.js"></script>
+    <script type="text/javascript" src="/script/jquery.hash.min.js"></script>
+    <script type="text/javascript" src="/script/jquery.svg.js"></script>
+    <script type="text/javascript" src="/script/jquery.svggraph.js"></script>
+    <script type="text/javascript" src="/script/jquery.svgorgchart.js"></script>
+    <script type="text/javascript" src="/script/listview.js"></script>
+    <script type="text/javascript" src="/script/doclist.js"></script>
+    <script type="text/javascript" src="/script"></script>
     <script type="text/javascript">
       $(document).ready(function () {
-      var of = new orgChart();
+        var of = new orgChart();
       });
     </script>
     <link type="text/css" rel="stylesheet" href="/of.css" media="all" />
@@ -31,25 +33,7 @@
   <body>
     <div id="of-main-display">
       <div id="title-container"><h1 id="title"></h1><span id="subtitle"><h2></h2></span></div>
-      <ul id="of-documents-list">
-        <li class="of-doc-box">
-          <p><span class="of-doc-title"></span><form action="/docrename" method="POST"><input name="name" class="of-doc-rename" type="text" style="display: none" /></form><span class="of-doc-number"></span> nodes</p>
-          <p>Represents <span class="of-doc-date"></span></p>
-          <p>Created <span class="of-doc-created"></span></p>
-          <p class="hide-until-can-edit-docs">
-            <a href="javascript:" class="of-doc-delete">Delete</a> -
-            <a href="javascript:" class="of-doc-copy">Copy</a>
-          </p>
-        </li>
-        <li class="of-doc-create">
-          <form style="width: 50%; margin-left: auto; margin-right: auto;" action="/newdoc" method="POST">
-            <p><label>Name <input class="of-doc-title" name="name" /></label></p>
-            <p><label>Represents <input class="of-doc-date" name="date" type="text" /></label></p>
-            <p><button style="float: left;" class="of-doc-create-submit ofbtn ofbtn-submit" type="submit">Create</button><button style="float: right;" class="ofbtn of-doc-create-cancel" type="cancel">Cancel</button>
-            <p>&nbsp;</p>
-          </form>
-        </li>
-      </ul>
+      <div id="of-documents-list"></div>
       <div id="of-org-form-svg" width="300" height="150"></div>
       <div id="of-edit-plain" width="100%" height="100%">
         <form action="/plainupload" method="POST">
@@ -66,6 +50,7 @@
         <div id="of-login-form" class="login shown">
           <div id="of-login-form-in">
             <form action="/login" method="POST">
+              <p id="of-login-error"></p>
               <p><input id="of-username" placeholder="Username" type="text" name="username" /></p>
               <p><input id="of-password" placeholder="Password" type="password" name="password" /></p>
               <p><button class="bigbutton" type="submit">Login</button></p>

@@ -382,6 +382,22 @@ function orgChart() {
         }
     }
 
+    var showLoginError = ( function () {
+        var errorTimeout = null;
+        return function () {
+            $( '#of-password' ).val( '' );
+            var $error = $( '#of-login-error' );
+            $error.html( 'Login error! Try again.' );
+            if ( errorTimeout !== null ) {
+                clearTimeout( errorTimeout );
+            }
+            errorTimeout = setTimeout( function () {
+                errorTimeout = null;
+                $error.empty();
+            }, 2000 );
+        };
+    } )();
+
     function checkIfLogged(cb) {
         if (typeof cb != 'function') {
             cb = function () {};
@@ -411,6 +427,8 @@ function orgChart() {
                     session.username = data.user.username;
                     session.user = data.user;
                     changeLoginForm(true);
+                } else {
+                    showLoginError();
                 }
             }
         });
@@ -469,90 +487,22 @@ function orgChart() {
                 $dlist.prepend($dcc);
             });
 
-            for (var dx in docs) {
-                var doc = docs[dx];
-                var $doc = $doctpl.clone();
-                $doc.attr('id', 'of-doc-box-for-' + doc._id);
-                var isLogged = session.logged || false;
+            var canEditDocs = ( session.logged || false ) && session.user && session.user.canEditDocs;
+            var dlist = new DocList( canEditDocs, docs, $dlist, function () {
+                var docid = $( this ).attr( 'data-docid' );
+                setLocation([docid]);
+            }, function ( docid, newname, finished ) {
+                $.post( '/renamedoc/' + docid, { name: newname }, function () {
+                    finished( newname );
+                } );
+            } );
 
-                var $renameForm = $('form', $doc);
-                $renameForm.attr('action', '/renamedoc/' + doc._id);
-                $renameForm.ajaxForm({
-                    success: function (data) {
-                        if (data && data.success && data.success !== false) {
-                            var $tdoc = $('#of-doc-box-for-' + data.docid);
-                            var $dname = $('.of-doc-title', $tdoc);
-                            $dname.html(data.name);
-                            $('.of-doc-rename', $tdoc).hide();
-                            $dname.show();
-                        }
-                    },
-                    dataType: 'json'});
-
-                $renameForm.click(function (event) {
-                    event.stopPropagation();
-                });
-
-                var $dname = $('.of-doc-title', $doc);
-                $dname.html(doc.name);
-                $dname.click(function (event) {
-                    if (session.logged) {
-                        event.stopPropagation();
-                        var $this = $(this);
-                        $this.hide();
-                        var $namein = $('.of-doc-rename', $this.closest('.of-doc-box'));
-                        $namein.val($this.html());
-                        $namein.show();
-                        $namein.focus();
-                        $namein.select();
-                    }
-                });
-
-                if (!doc.count) {
-                    doc.count = 0;
-                }
-                $('.of-doc-number', $doc).html(doc.count);
-                var rdate = new Date(doc.date);
-                var ddate = new Date(doc.created-0);
-                $('.of-doc-created', $doc).html(ddate.toDateString() + ' at ' + ddate.toTimeString());
-                if (!isNaN(rdate.getTime())) {
-                    $('.of-doc-date', $doc).html(rdate.toDateString());
-                } else {
-                    $('.of-doc-date', $doc).closest('p').hide();
-                }
-                $doc.attr('data-docid', doc._id);
-                $doc.click(function () {
-                    var docid = $(this).attr('data-docid');
-                    setLocation([docid]);
-                });
-
-                $('.of-doc-delete', $doc).click(function (event) {
-                    event.stopPropagation();
-                    var $pdoc = $(this).closest('.of-doc-box');
-                    $.post('/deletedoc', {docid: $pdoc.attr('data-docid')}, function (data) {
-                        if (data.success) {
-                            $pdoc.remove();
-                        }
-                    });
-                });
-
-                $('.of-doc-copy', $doc).click(function (event) {
-                    event.stopPropagation();
-                    var $pdoc = $(this).closest('.of-doc-box');
-                    $.post('/copydoc', {name: $('.of-doc-title', $pdoc).html(), docid: $pdoc.attr('data-docid')}, function (data) {
-                        if (data.success) {
-                            setLocation([]);
-                        }
-                    });
-                });
-
-                $dlist.append($doc);
-            }
             var $orgchart = $('div.jOrgChart');
             if ($orgchart && $orgchart.length) {
                 $orgchart.empty();
             }
             $dlist.show();
+            checkIfLogged();
         });
     }
 
@@ -946,9 +896,10 @@ function createOrgChart(opts) {
         }});
     });
 
-    function makeTextFit(txt) {
-        if (txt.textContent.length > 26) {
-            txt.textContent = txt.textContent.substr(0, 23) + '...';
+    function makeTextFit(txt, len) {
+        len = len || 26;
+        if (txt.textContent.length > len) {
+            txt.textContent = txt.textContent.substr(0, len-3) + '...';
         }
     }
 
@@ -965,6 +916,10 @@ function createOrgChart(opts) {
             }
         });
         return result;
+    }
+
+    function unentity( text ) {
+        return $( '<div></div>' ).html( text ).text();
     }
 
     function doNode(w, nodeg, $node, level) {
@@ -991,12 +946,12 @@ function createOrgChart(opts) {
                 }
             }
         }
-        var title = $('.of-unit-title', $nc).html();
-        var name = $('.of-unit-name', $nc).html();
-        var location = $('.of-unit-loc', $nc).html();
+        var title = unentity( $('.of-unit-title', $nc).html() );
+        var name = unentity( $('.of-unit-name', $nc).html() );
+        var location = unentity( $('.of-unit-loc', $nc).html() );
         var textClass = 'of-node-text';
 
-        var loccode = $('.of-unit-lc', $nc).html();
+        var loccode = unentity( $('.of-unit-lc', $nc).html() );
         var lcc = opts.lccolors[loccode] || opts.lccolors.other || 'grey';
 
         var id = $nc.attr('id');
@@ -1010,6 +965,7 @@ function createOrgChart(opts) {
         if (supervisor && supervisor != null) {
             var superg = w.group(ng, {transform: 'translate(0, -30)', 'font-size': '8pt'});
             var txt = w.text(superg, 'Supervisor: ' + supervisor);
+            makeTextFit(txt, 30);
         }
 
         if (title && title != '') {
