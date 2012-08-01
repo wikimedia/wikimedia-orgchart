@@ -480,13 +480,16 @@ function newDoc(response, request) {
             var form = new formidable.IncomingForm();
             form.parse(request, function (error, fields, files) {
                 if (fields && fields.name) {
-                    db.createDoc(fields.name, (fields.date || 'NaN'), function (_newid) {
+                    if ( !fields.date ) {
+                        fields.date = '';
+                    }
+                    db.createDoc(fields.name, fields.date, function (docid, newdoc) {
                         var sdata = {title: 'Root Element',
                                      supervisor: '',
                                      name: '',
                                      status: 'Employee'};
-                        db.addUnit(String(_newid), sdata, function () {
-                            endNew({success: true, docid: String(_newid)});
+                        db.addUnit(''+docid, sdata, function () {
+                            endNew({success: true, doc: newdoc});
                         });
                     });
                 } else {

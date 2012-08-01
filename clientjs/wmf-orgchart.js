@@ -469,23 +469,6 @@ function orgChart() {
                 $('#of-org-logo img').attr('src', data.orglogo);
             }
             docs = data.list;
-            $('#of-new-doc').click(function () {
-                var $dcc = $docctpl.clone();
-                var $dcfrm = $('form', $dcc);
-                $('.of-doc-date', $dcc).datepicker({dateFormat: 'yy-mm-dd'});
-
-                $dcfrm.ajaxForm({
-                    success: function (data) {
-                        setLocation([]);
-                    },
-                    dataType: 'json'});
-
-                $('.of-doc-create-cancel', $dcc).click(function () {
-                    $(this).closest('li').remove();
-                });
-
-                $dlist.prepend($dcc);
-            });
 
             var canEditDocs = ( session.logged || false ) && session.user && session.user.canEditDocs;
             var dlist = new DocList( canEditDocs, docs, $dlist, function () {
@@ -496,6 +479,14 @@ function orgChart() {
                     finished( newname );
                 } );
             } );
+
+            $('#of-new-doc').click(function () {
+                $.post( '/newdoc', { name: 'New Document' }, function ( data ) {
+                    if ( data && data.success ) {
+                        dlist.fnAdd( $( '#of-documents-list tr' ).length, data.doc, dlist.listView.addItem() );
+                    }
+                } );
+            });
 
             var $orgchart = $('div.jOrgChart');
             if ($orgchart && $orgchart.length) {

@@ -662,7 +662,7 @@ function createDoc(name, date, cb) {
                                     if (err != null) {
                                         console.log(err);
                                     }
-                                    cb(doc[0]._id);
+                                    cb(doc[0]._id, doc[0]);
                                 });
                             }
                         });
