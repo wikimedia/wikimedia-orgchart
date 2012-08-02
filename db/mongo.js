@@ -715,70 +715,22 @@ function copyDoc(orig, dest, cb) {
     }
 }
 
-function deleteDoc(doc, cb) {
+function changeDoc(doc, changes, cb) {
     if (!cb || typeof cb != 'function') {
         cb = function () {};
     }
     getDoc(doc, function (_id) {
-        if ( !( _id instanceof ObjectId ) ) {
-            _id = new ObjectId( _id );
-        }
         withDb(function (db, finish) {
             db.collection(cols.docs, function (err, col) {
                 if ( err !== null ) {
                     finish();
                     console.log( err );
                     cb();
-                } else {
-                    col.update({$or: [{_id: _id}, {_id: ''+_id}]}, {$set: {trashed: 1}}, {safe: true, multi: true}, function (err, doc) {
-                        finish();
-                        if ( err !== null ) {
-                            console.log( err );
-                        }
-                        cb();
-                    });
                 }
-            });
-        });
-    });
-}
-
-function undeleteDoc(doc, cb) {
-    if (!cb || typeof cb != 'function') {
-        cb = function () {};
-    }
-    getDoc(doc, function (_id) {
-        if ( !( _id instanceof ObjectId ) ) {
-            _id = new ObjectId( _id );
-        }
-        withDb(function (db, finish) {
-            db.collection(cols.docs, function (err, col) {
-                if ( err !== null ) {
-                    finish();
-                    console.log( err );
-                    cb();
-                } else {
-                    col.update({$or: [{_id: _id}, {_id: ''+_id}]}, {$set: {trashed: 0}}, {safe: true, multi: true}, function (err, doc) {
-                        finish();
-                        if ( err !== null ) {
-                            console.log( err );
-                        }
-                        cb();
-                    });
-                }
-            });
-        });
-    });
-}
-
-function renameDoc(doc, name, cb) {
-    if (!cb || typeof cb != 'function') {
-        cb = function () {};
-    }
-    getDoc(doc, function (_id) {
-        withDb(function (db, finish) {
-            db.collection(cols.docs, function (err, col) {
-                col.findAndModify({_id: _id}, [['_id', 1]], {$set: {name: name}}, function (err, doc) {
+                col.update({_id: _id}, {$set: changes}, function (err, doc) {
+                    if ( err !== null ) {
+                        console.log( err );
+                    }
                     finish();
                     cb();
                 });
@@ -831,8 +783,6 @@ exports.createDoc = createDoc;
 exports.copyDoc = copyDoc;
 exports.getDoc = getDoc;
 exports.listDocs = listDocs;
-exports.deleteDoc = deleteDoc;
-exports.undeleteDoc = undeleteDoc;
-exports.renameDoc = renameDoc;
+exports.changeDoc = changeDoc;
 
 exports.listAllChanges = listAllChanges;

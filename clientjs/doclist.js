@@ -1,5 +1,5 @@
 ( function ( $ ) {
-    DocList = function ( canEdit, docs, $container, fnChoose, fnRename ) {
+    DocList = function ( canEdit, docs, $container, fnChoose ) {
         var _this = this;
 
         var $tbl = $( '<table></table>' );
@@ -30,10 +30,9 @@
         $tpl.append( $( '<td></td>' ).addClass( 'doc-created' ) );
 
         _this.fnChoose = fnChoose;
-        _this.fnRename = fnRename;
         _this.canEdit = canEdit;
         _this.listView = new ListView( docs, $tpl, function ( i, item, $item ) {
-            _this.fnAdd( i, item, $item );
+            _this.addDoc( i, item, $item );
         }, $tbl );
     };
 
@@ -60,12 +59,12 @@
             var $a = $( 'a[data-docid]' );
             $.post( '/copydoc', { name: $a.html(), docid: $a.attr( 'data-docid' ) }, function ( data ) {
                 if ( data.success ) {
-                    _this.fnAdd( $( '#of-documents-list tr' ).length, data.doc, _this.listView.addItem() );
+                    _this.addDoc( $( '#of-documents-list tr' ).length, data.doc, _this.listView.addItem() );
                 }
             });
         },
 
-        fnAdd: function ( i, item, $item ) {
+        addDoc: function ( i, item, $item ) {
             var _this = this;
             var $doctitle = $( '.doc-title', $item );
             var $doclink = $( '<a href="javascript:"></a>' );
@@ -78,41 +77,40 @@
             $doclink.attr( 'data-docid', item._id );
             $doclink.click( _this.fnChoose );
 
-            if ( _this.canEdit ) {
-                var $docrnlink = $( '<a href="javascript:">(rename)</a>' ).addClass( 'empty-doc-info' );
-                $docrnlink.click( function () {
-                    var $td = $( this ).closest( 'td' );
-                    var $a = $( 'a[data-docid]', $td );
-                    var curname = $a.html();
-                    var docid = $a.attr( 'data-docid' );
-                    $( 'a', $td ).hide();
-                    var $form = $( '<form></form>' );
-                    $td.append( $form );
-                    var $input = $( '<input type="text" />' );
-                    $input.val( curname );
-                    $form.append( $input );
-                    $input.focus();
-                    $input.select();
-                    $form.submit( function ( e ) {
-                        e.stopPropagation();
-                        _this.fnRename( docid, $input.val(), function ( newname ) {
-                            var $a = $( 'a[data-docid]', $td );
-                            $a.html( newname );
-                            $( 'a', $td ).show();
-                            $form.remove();
-                        } );
-                        return false;
+            var $docrnlink = $( '<a href="javascript:"></a>' ).addClass( 'empty-doc-info' );
+            $docrnlink.html( item.name == '' ? '(name)' : '(rename)' );
+            $docrnlink.click( function () {
+                var $td = $( this ).closest( 'td' );
+                var $a = $( 'a[data-docid]', $td );
+                var curname = $a.html();
+                var docid = $a.attr( 'data-docid' );
+                $( 'a', $td ).hide();
+                var $form = $( '<form></form>' );
+                $td.append( $form );
+                var $input = $( '<input type="text" />' );
+                $input.val( curname );
+                $form.append( $input );
+                $input.focus();
+                $input.select();
+                $form.submit( function ( e ) {
+                    e.stopPropagation();
+                    _this.renameDoc( docid, $input.val(), function ( newname ) {
+                        var $a = $( 'a[data-docid]', $td );
+                        $a.html( newname );
+                        $( 'a', $td ).show();
+                        $form.remove();
                     } );
+                    return false;
                 } );
-                $docrnlink.addClass( 'hide-until-can-edit-docs' );
-                $doctitle.append( $docrnlink );
-            }
+            } );
+            $docrnlink.addClass( 'hide-until-can-edit-docs' );
+            $doctitle.append( $docrnlink );
 
             $( '.doc-nodes', $item ).html( item.count || 0 );
 
             var $docreps = $( '.doc-represent', $item );
-            if ( !item.date || item.date == '' ) {
-                item.date = '(none)';
+            if ( !item.date ) {
+                item.date = '';
                 $docreps.addClass( 'empty-doc-info' );
             } else {
                 var rdate = new Date( item.date );
@@ -120,6 +118,14 @@
             }
             $docreps.html( item.date );
 
+            var $doccdlink = $( '<a href="javascript:"></a>' ).addClass( 'empty-doc-info' );
+            $doccdlink.html( item.date == '' ? '(add date)' : '(change)' );
+            $doccdlink.click( function () {
+                _this.changeDocDate( $( this ).closest( 'td' ) );
+            } );
+            $doccdlink.addClass( 'hide-until-can-edit-docs' );
+            $docreps.append( $doccdlink );
+            
             var $doccreated = $( '.doc-created', $item );
             if ( !item.created || item.created == '' ) {
                 item.created = '(none)';
@@ -137,6 +143,54 @@
             $( '.copy-button', $item ).click( function () {
                 _this.copyDoc( $( this ).closest( 'tr' ) );
             } );
+        },
+
+        renameDoc: function ( docid, newname, finished ) {
+            $.post( '/renamedoc/' + docid, { name: newname }, function () {
+                finished( newname );
+            } );
+        },
+
+        changeDocDate: function ( $td ) {
+            var _this = this;
+            var docid = $( 'a[data-docid]', $td.closest( 'tr' ) ).attr( 'data-docid' );
+            var $tdtmp = $( '<td></td>' );
+            var $dform = $( '<form></form>' );
+            $tdtmp.append( $dform );
+            var $din = $( '<input type="text" />' );
+            $tdtmp.append( $din );
+            $td = $td.replaceWith( $tdtmp );
+
+            function finishDate() {
+                var date = new Date( $din.val() ).getTime();
+                $.post( '/changedocdate/' + docid, { date: date }, function ( data ) {
+                    if ( data && data.success ) {
+                        var $a = $( 'a', $td ).detach();
+                        if ( data.date && data.date != '' ) {
+                            date = new Date( data.date );
+                            date = date.toUTCString().substr( 0, 16 );
+                            $td.html( date );
+                            $td.removeClass( 'empty-doc-info' );
+                            $a.html( '(change)' );
+                        } else {
+                            $td.html( '' );
+                            $td.addClass( 'empty-doc-info' );
+                            $a.html( '(add date)' );
+                        }
+                        $a.click( function () {
+                            _this.changeDocDate( $( this ).closest( 'td' ) );
+                        } );
+                        $td.append( $a );
+                        $tdtmp.replaceWith( $td );
+                    }
+                } );
+            }
+
+            $dform.submit( finishDate );
+            $din.datepicker( {
+                dateFormat: 'yy-mm-dd',
+                onSelect: finishDate
+            } ).datepicker( 'show' );
         }
     };
 } )( jQuery );

@@ -474,16 +474,12 @@ function orgChart() {
             var dlist = new DocList( canEditDocs, docs, $dlist, function () {
                 var docid = $( this ).attr( 'data-docid' );
                 setLocation([docid]);
-            }, function ( docid, newname, finished ) {
-                $.post( '/renamedoc/' + docid, { name: newname }, function () {
-                    finished( newname );
-                } );
             } );
 
             $('#of-new-doc').click(function () {
                 $.post( '/newdoc', { name: 'New Document' }, function ( data ) {
                     if ( data && data.success ) {
-                        dlist.fnAdd( $( '#of-documents-list tr' ).length, data.doc, dlist.listView.addItem() );
+                        dlist.addDoc( $( '#of-documents-list tr' ).length, data.doc, dlist.listView.addItem() );
                     }
                 } );
             });

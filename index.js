@@ -48,6 +48,7 @@ handle["/doclist"] = requestHandlers.listDocs;
 handle["/deletedoc"] = requestHandlers.deleteDoc;
 handle["/undeletedoc"] = requestHandlers.undeleteDoc;
 handle["/renamedoc"] = requestHandlers.renameDoc;
+handle["/changedocdate"] = requestHandlers.changeDocDate;
 handle["/copydoc"] = requestHandlers.copyDoc;
 handle["/newdoc"] = requestHandlers.newDoc;
 

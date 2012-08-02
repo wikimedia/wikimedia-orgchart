@@ -270,7 +270,7 @@ function deleteDoc(response, request) {
                 var docid;
                 if (fields && fields.docid) {
                     docid = fields.docid;
-                    db.deleteDoc(docid, function () {
+                    db.changeDoc(docid, {trashed: 1}, function () {
                         endDelete({success: true});
                     });
                 } else {
@@ -296,7 +296,7 @@ function undeleteDoc(response, request) {
                 var docid;
                 if (fields && fields.docid) {
                     docid = fields.docid;
-                    db.undeleteDoc(docid, function () {
+                    db.changeDoc(docid, {trashed: 0}, function () {
                         endDelete({success: true});
                     });
                 } else {
@@ -422,7 +422,7 @@ function renameDoc(response, request, args) {
                     var newname;
                     if (fields && fields.name) {
                         newname = fields.name;
-                        db.renameDoc(docid, newname, function () {
+                        db.changeDoc(docid, {name: newname}, function () {
                             endRename({success: true, name: newname, docid: docid});
                         });
                     } else {
@@ -434,6 +434,40 @@ function renameDoc(response, request, args) {
             }
         } else {
             endRename({success: false, error: 'Not logged in'});
+        }
+    });
+}
+
+function changeDocDate(response, request, args) {
+    var docid;
+
+    function endChange (message) {
+        response.writeHead(200, {'Content-Type': 'application/json'});
+        response.write(jsonify(message));
+        response.end();
+    }
+
+    checkAuth(response, request, function (isLogged) {
+        if (isLogged) {
+            if (args && args.length != 0) {
+                docid = args[0];
+                var form = new formidable.IncomingForm();
+                form.parse(request, function (error, fields, files) {
+                    var newdate;
+                    if (fields && fields.date) {
+                        newdate = fields.date - 0;
+                        db.changeDoc(docid, {date: newdate}, function () {
+                            endChange({success: true, date: newdate});
+                        });
+                    } else {
+                        endChange({success: false, error: 'No new date found'});
+                    }
+                });
+            } else {
+                endChange({success: false, error: 'No docid found'});
+            }
+        } else {
+            endChange({success: false, error: 'Not logged in'});
         }
     });
 }
@@ -622,5 +656,6 @@ exports.listDocs = listDocs;
 exports.deleteDoc = deleteDoc;
 exports.undeleteDoc = undeleteDoc;
 exports.renameDoc = renameDoc;
+exports.changeDocDate = changeDocDate;
 exports.copyDoc = copyDoc;
 exports.newDoc = newDoc;
