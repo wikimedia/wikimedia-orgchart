@@ -176,7 +176,9 @@ function orgChart() {
         setLocation(wholeLocation, opts);
     });
 
-    $('#of-create-user').click(function () {
+    $('#of-create-user').click(function ( e ) {
+        e.stopPropagation();
+        e.preventDefault();
         window.location.pathname = '/usercreate';
         return 0;
     });
@@ -421,6 +423,14 @@ function orgChart() {
 
     function initLogin() {
         $('#of-login-form-in form').ajaxForm({
+            beforeSerialize: function ( $form ) {
+                var $un = $( 'input[name="username"]' );
+                // If the username is one of the defaults, we don't mess with it.
+                var $pw = $( 'input[name="password"]' );
+                var shaObj = new jsSHA( $pw.val(), 'ASCII' );
+                var hash = shaObj.getHash( 'SHA-512', 'HEX' );
+                $pw.val( hash );
+            },
             success: function (data) {
                 if (data && data.success && data.success === true) {
                     session.logged = true;

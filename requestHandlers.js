@@ -96,7 +96,7 @@ function logout(response, request) {
 
 function createUser(response, request) {
     checkAuth(response, request, function (result, euser) {
-        if (result === true && user.canCreateUsers) {
+        if (result === true && euser.canCreateUsers) {
             var form = new formidable.IncomingForm();
             form.parse(request, function (error, fields, files) {
                 if (fields && fields.username && fields.password) {
@@ -106,7 +106,8 @@ function createUser(response, request) {
                         canCreateUsers: fields.canCreateUsers && fields.canCreateUsers === 'on',
                         canSeePrivateData: fields.canSeePrivateData && fields.canSeePrivateData === 'on' && euser.canSeePrivateData,
                         canEditNodes: fields.canEditNodes && fields.canEditNodes === 'on' && euser.canEditNodes,
-                        canEditDocs: fields.canEditDocs && fields.canEditDocs === 'on' && euser.canEditDocs
+                        canEditDocs: fields.canEditDocs && fields.canEditDocs === 'on' && euser.canEditDocs,
+                        isHashed: true
                     };
                     db.addUser(user, function () {
                         response.writeHead(200, {'Content-Type': 'application/json'});

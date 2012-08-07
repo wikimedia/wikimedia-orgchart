@@ -149,19 +149,17 @@ for (var ux in cols) {
 }
 
 for (var ux in initusers) {
-    addUser(initusers[ux], function (user) {
-        if (user && user[0] && user[0].username) {
-            console.log('');
-            console.log('Default Username ' + user.username);
-            console.log('Default Password ' + user.password);
-        } else if (user && user.ename) {
-            console.log('');
-            console.log('Default Username ' + user.ename);
-            console.log('Default Password ' + user.epass);
-        } else {
-            console.log('Database error, default user not created');
-        }
-    });
+    ( function ( curuser ) {
+        addUser(curuser, function (user) {
+            if ( ( user && user[0] && user[0].username ) || ( user && user.ename ) ) {
+                console.log( 'Default Username ' + curuser.username );
+                console.log( 'Default Password ' + ( user.isHashed ? curuser.password : user.epass ) );
+                console.log('');
+            } else {
+                console.log('Database error, default user not created');
+            }
+        });
+    } )( initusers[ux] );
 }
 
 function findAndRemove(doc, con, cb) {
@@ -413,6 +411,17 @@ function addUser(data, cb) {
         db.collection(cols.users, function (err, col) {
             col.findOne({username: data.username}, function (err, doc) {
                 if (!doc) {
+                    if ( data.isHashed === true ) {
+                        delete data.isHashed;
+                        if ( data.needsHash === true ) {
+                            // Hash once, this will protect it during transit from the client
+                            data.password = crypto.createHash( 'sha512' ).update( data.password ).digest( 'hex' );
+                            delete data.needsHash;
+                        }
+                        // Hash again with a salt, this will protect it while it's in the database
+                        data.salt = '' + Math.random();
+                        data.password = crypto.createHash( 'sha512' ).update( data.password + data.salt ).digest( 'hex' );
+                    }
                     col.insert([data], {safe: true}, function (err, doc) {
                         finish();
                         cb(doc); // I don't know what gets sent here, but do it anyway!
@@ -426,7 +435,7 @@ function addUser(data, cb) {
                             modDic.$set[ix] = data[ix];
                         }
                     }
-                    col.findAndModify({username: doc.username}, [['_id', 1]], modDic, {new: true}, function () {
+                    col.update({username: doc.username}, modDic, function () {
                         finish();
                         var user = modDic.$set;
                         user.ename = doc.username;
@@ -453,11 +462,21 @@ function checkLogin(data, cb) {
                 }
                 col.findOne({username: data.username}, {}, function (err, doc) {
                     finish();
-                    if (err != null) {
+                    if (err !== null) {
                         cb({success: false});
                         console.log(err);
                     }
-                    if (doc && doc.username == data.username && doc.password == data.password) {
+                    if ( doc && doc.salt ) {
+                        // It's already been hashed once on the client, so we just need to hash
+                        // again with the salt. Security!!!
+                        data.password = crypto.createHash( 'sha512' ).update( data.password + doc.salt ).digest( 'hex' );
+                    } else {
+                        // This is an old-style password, there's no point in updating
+                        // it to be hashed in the database. We'll just hash this copy and
+                        // make sure it's the same.
+                        doc.password = crypto.createHash( 'sha512' ).update( doc.password ).digest( 'hex' );
+                    }
+                    if (doc && doc.username === data.username && doc.password === data.password) {
                         delete doc.password;
                         cb({success: true, user: doc});
                     } else {
