@@ -22,7 +22,7 @@ mongodb = require("./db/mongo");
 var db = mongodb; // mongodb database (better)
 
 var orgName = "Wikimedia Foundation";
-var orgLogo = "/orglogo.png";
+var orgLogo = "/image/orglogo.png";
 
 function checkAuth(response, request, cb) {
     SessionHandler.httpRequest(request, response, function (err, sess) {
@@ -549,6 +549,14 @@ function script(response, request, args) {
     respondWithFile(response, 'clientjs/' + path, 'text/javascript');
 }
 
+function image(response, request, args) {
+    var path = 'pin-lifted.png';
+    if ( args && args.length > 0 ) {
+        path = args[0];
+    }
+    respondWithFile(response, 'images/' + path, 'image/png');
+}
+
 function style(response) {
     respondWithFile(response, 'style/of.css', 'text/css');
 }
@@ -565,52 +573,12 @@ function jquistyle(response) {
     respondWithFile(response, 'style/jquery.ui.css', 'text/css');
 }
 
-function pinlifted(response) {
-    respondWithFile(response, 'images/pin-lifted.png', 'image/png');
-}
-
-function pinpinned(response) {
-    respondWithFile(response, 'images/pin-pinned.png', 'image/png');
-}
-
 function jquiimage(response, request, args) {
     if (args.length != 0) {
         respondWithFile(response, 'images/jqui/'+args[0]);
     } else {
         respondWithFile(response, 'images/jqui/ui-bg_flat_0_aaaaaa_40x100.png');
     }
-}
-
-function orglogo(response) {
-    respondWithFile(response, 'images/orglogo.png');
-}
-
-function opendetails(response) {
-    respondWithFile(response, 'images/open-details.png');
-}
-
-function closedetails(response) {
-    respondWithFile(response, 'images/close-details.png');
-}
-
-function emptag(response) {
-    respondWithFile(response, 'images/emp-tag.png');
-}
-
-function contag(response) {
-    respondWithFile(response, 'images/con-tag.png');
-}
-
-function vactag(response) {
-    respondWithFile(response, 'images/vac-tag.png');
-}
-
-function addreport(response) {
-    respondWithFile(response, 'images/add-report.png');
-}
-
-function delnode(response) {
-    respondWithFile(response, 'images/delete-node.png');
 }
 
 exports.style = style;
@@ -624,6 +592,7 @@ exports.getPlainText = getPlainText;
 exports.parsePlainText = parsePlainText;
 
 exports.script = script;
+exports.image = image;
 
 exports.start = start;
 
@@ -641,17 +610,7 @@ exports.modify = modify;
 exports.add = add;
 exports.remove = remove;
 
-exports.pinlifted = pinlifted;
-exports.pinpinned = pinpinned;
 exports.jquiimage = jquiimage;
-exports.orglogo = orglogo;
-exports.opendetails = opendetails;
-exports.closedetails = closedetails;
-exports.emptag = emptag;
-exports.vactag = vactag;
-exports.contag = contag;
-exports.addreport = addreport;
-exports.delnode = delnode;
 
 exports.listDocs = listDocs;
 exports.deleteDoc = deleteDoc;

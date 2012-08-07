@@ -15,11 +15,11 @@
 
         var $tpl = $( '<tr></tr>' );
         var $dactions = $( '<td></td>' ).addClass( 'doc-manage' );
-        var $delete = $( '<img src="placeholder" alt="Delete" />' );
+        var $delete = $( '<img src="/image/delete.png" alt="Delete" title="Delete" />' );
         $delete.addClass( 'hide-until-can-edit-docs' );
         $delete.addClass( 'delete-button' );
         $dactions.append( $delete );
-        var $copy = $( '<img src="placeholder" alt="Copy" />' );
+        var $copy = $( '<img src="/image/copy.png" alt="Copy" title="Copy" />' );
         $copy.addClass( 'hide-until-can-edit-docs' );
         $copy.addClass( 'copy-button' );
         $dactions.append( $copy );
@@ -48,8 +48,9 @@
                     $row.toggleClass( 'deleted' );
                 }
                 $( '.delete-button', $row ).attr( {
-                    alt: isBeingDeleted ? 'Undelete' : 'Delete'
-                    // TODO: Change src here when image(s) are ready
+                    alt: isBeingDeleted ? 'Undelete' : 'Delete',
+                    title: isBeingDeleted ? 'Undelete' : 'Delete',
+                    src: isBeingDeleted ? '/image/undelete.png' : '/image/delete.png'
                 } );
             } );
         },

@@ -12,7 +12,9 @@ handle["/"] = requestHandlers.start;
 handle["/start"] = requestHandlers.start;
 handle["/upload"] = requestHandlers.upload;
 handle["/upform"] = requestHandlers.upform;
+
 handle["/script"] = requestHandlers.script;
+handle["/image"] = requestHandlers.image;
 
 handle["/list"] = requestHandlers.list;
 handle["/plaintext"] = requestHandlers.getPlainText;
@@ -32,17 +34,7 @@ handle["/isLogged"] = requestHandlers.isLogged;
 handle["/createuser"] = requestHandlers.createUser;
 handle["/usercreate"] = requestHandlers.cuTemplate;
 
-handle["/pin-pinned.png"] = requestHandlers.pinpinned;
-handle["/pin-lifted.png"] = requestHandlers.pinlifted;
-handle["/orglogo.png"] = requestHandlers.orglogo;
 handle["/images"] = requestHandlers.jquiimage;
-handle["/open-details.png"] = requestHandlers.opendetails;
-handle["/close-details.png"] = requestHandlers.closedetails;
-handle["/emp-tag.png"] = requestHandlers.emptag;
-handle["/con-tag.png"] = requestHandlers.contag;
-handle["/vac-tag.png"] = requestHandlers.vactag;
-handle["/add-report.png"] = requestHandlers.addreport;
-handle["/delete-node.png"] = requestHandlers.delnode;
 
 handle["/doclist"] = requestHandlers.listDocs;
 handle["/deletedoc"] = requestHandlers.deleteDoc;

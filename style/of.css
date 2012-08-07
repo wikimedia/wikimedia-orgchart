@@ -159,7 +159,7 @@ input[type=checkbox]:checked + label > .checkbox {
 #of-resize-icon {
     width: 26px;
     height: 29px;
-    background-image: url('/close-details.png');
+    background-image: url('/image/close-details.png');
     background-repeat: no-repeat;
     display: table-cell;
     vertical-align: middle;
@@ -171,7 +171,7 @@ body.hidden-details #of-resize-bar {
 }
 
 body.hidden-details #of-resize-icon {
-    background-image: url('/open-details.png');
+    background-image: url('/image/open-details.png');
 }
 
 #of-details-remainder {
@@ -304,7 +304,7 @@ body>div.jOrgChart {
     border: none;
     height: 23px;
     cursor: pointer;
-    background-image: url("/add-report.png");
+    background-image: url("/image/add-report.png");
     background-color: transparent;
     background-repeat: no-repeat;
     padding-left: 23px;
@@ -312,7 +312,7 @@ body>div.jOrgChart {
 }
 
 #of-delete-node {
-    background-image: url("/delete-node.png");
+    background-image: url("/image/delete-node.png");
 }
 
 .of-unit-box {
@@ -371,14 +371,14 @@ body>div.jOrgChart {
     bottom: 15px;
     right: 15px;
     cursor: pointer;
-    background-image: url("/pin-lifted.png");
+    background-image: url("/image/pin-lifted.png");
     width: 33px;
     height: 34px;
     padding: 0px !important;
 }
 
 .of-unit-details.shown .of-unit-show, #of-filter-menu.shown .of-filter-show {
-    background-image: url("/pin-pinned.png");
+    background-image: url("/image/pin-pinned.png");
 }
 
 .of-req-num {
@@ -460,7 +460,7 @@ span.of-unit-lc {
 }
 
 .type-tag {
-    background-image: url("/vac-tag.png");
+    background-image: url("/image/vac-tag.png");
     background-repeat: no-repeat;
     display: inline-block;
     min-width: 25px;
@@ -469,11 +469,11 @@ span.of-unit-lc {
 }
 
 .type-tag.employee {
-    background-image: url("/emp-tag.png");
+    background-image: url("/image/emp-tag.png");
 }
 
 .type-tag.contractor {
-    background-image: url("/con-tag.png");
+    background-image: url("/image/con-tag.png");
 }
 
 .shown, .of-unit-box:hover, .shown-temp {
