@@ -32,13 +32,13 @@ if (process && process.argv && process.argv.length > 2) {
 }
 
 mongo.listDocs(function (docs) {
-    for (var dx in docs) {
-        docd.push(docs[dx]._id);
-        docl[''+docs[dx]._id] = docs[dx];
+    for (var fx in docs) {
+        docd.push(docs[fx]._id);
+        docl['' + docs[fx]._id] = docs[fx];
     }
     for (var dx in docs) {
-        mongo.listHierarchy(docs[dx]._id, function (list, locs, loccodes, units) {
-            docdb[new String(docs[dx]._id)] = units;
+        mongo.listHierarchy('' + docs[dx]._id, true, function (list, locs, loccodes, units) {
+            docdb['' + docs[dx]._id] = units;
             var ix = indexOf(docd, docs[dx]._id);
             docd.pop(ix);
             if (docd.length == 0) {

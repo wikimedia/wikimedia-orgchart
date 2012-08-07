@@ -212,6 +212,7 @@ function listHierarchy(doc, canSeePrivateData, cb) {
                 if (err !== null) {
                     finish();
                     console.log(err);
+                    cb([]);
                 } else {
                     col.find().toArray(function (err, docs) {
                         finish();
