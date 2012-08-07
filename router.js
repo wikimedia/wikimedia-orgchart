@@ -4,11 +4,12 @@
    It should also have been bundled with this software. */
 
 function route(handle, pathname, response, request, args) {
-    console.log("About to route a request for " + pathname);
     if (typeof handle[pathname] === 'function') {
+        if ( pathname !== '/script' && pathname !== '/image' ) {
+            console.log( request.method + ' - ' + pathname );
+        }
         handle[pathname](response, request, args);
     } else {
-        console.log("No request handler found for " + pathname);
         response.writeHead(404, {"Content-Type": "text/html"});
         response.write("404 Not found");
         response.end();
