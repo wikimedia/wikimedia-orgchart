@@ -38,7 +38,8 @@ dfields = {
     name: true,
     date: true,
     created: true,
-    trashed: true
+    trashed: true,
+    count: true
 },
 locs = {},
 loccodes = {},
@@ -123,7 +124,7 @@ function createCollection(name, cb) {
     }
     withDb(function (db, finish) {
         db.collectionNames(function (err, items) {
-            if ( err !== null ) {
+            if ( err != null ) {
                 finish();
                 cb(err);
                 return;
@@ -199,7 +200,7 @@ function findAndRemove(doc, con, cb) {
                 db.collection(''+_id, function (err, col) {
                     col.remove(con, {safe: true}, function (err, num) {
                         finish();
-                        addToDocCount(''+_id, -1 * num);
+                        updateDocCount( '' + _id );
                         if (unitid) {
                             addToChanges(''+_id, unitid, {action: 'delete', was: unitobj});
                         }
@@ -231,7 +232,7 @@ function listHierarchy(doc, canSeePrivateData, cb) {
         }
         withDb(function (db, finish) {
             db.collection(_id, function (err, col) {
-                if (err !== null) {
+                if (err != null) {
                     finish();
                     console.log(err);
                     cb([]);
@@ -492,7 +493,7 @@ function checkLogin(data, cb) {
                 }
                 col.findOne({username: data.username}, {}, function (err, doc) {
                     finish();
-                    if (err !== null) {
+                    if (err != null) {
                         cb({success: false});
                         console.log(err);
                     }
@@ -556,8 +557,8 @@ function addUnits(docid, data, cb) {
                             console.log(err);
                         }
                         else {
-                            addToDocCount(''+_id, doc.length, function () {
-                                cb(doc);
+                            cb(doc);
+                            updateDocCount( '' + _id, function () {
                             });
                             for (ux in doc) {
                                 addToChanges(_id, doc._id, doc);
@@ -576,27 +577,18 @@ function addUnits(docid, data, cb) {
     }
 }
 
-function addToDocCount(doc, num, cb) {
+function updateDocCount(doc, cb) {
     if (!cb || typeof cb != 'function') {
         cb = function () {};
     }
-    getDoc(doc, function (_id) {
-        withDb(function (db, finish) {
-            db.collection(cols.docs, function (err, col) {
-                if (err != null) {
-                    finish();
-                    cb();
-                    console.log(err);
-                }
-                col.findAndModify({_id: _id}, [['_id', 1]], {$inc: {count: num}}, {new: true}, function (err, document) {
-                    finish();
-                    if (err != null) {
-                        console.log(err);
-                    }
-                    cb();
-                });
-            });
-        });
+    listHierarchy( doc, false, function ( list, locs, loccodes, nodes ) {
+        var doccount = 0;
+        for ( var ix in nodes ) {
+            doccount += 1;
+        }
+        changeDoc( doc, { count: doccount }, function () {
+            cb();
+        } );
     });
 }
 
@@ -784,13 +776,13 @@ function changeDoc(doc, changes, cb) {
     getDoc(doc, function (_id) {
         withDb(function (db, finish) {
             db.collection(cols.docs, function (err, col) {
-                if ( err !== null ) {
+                if ( err != null ) {
                     finish();
                     console.log( err );
                     cb();
                 }
                 col.update({_id: _id}, {$set: changes}, function (err, doc) {
-                    if ( err !== null ) {
+                    if ( err != null ) {
                         console.log( err );
                     }
                     finish();
