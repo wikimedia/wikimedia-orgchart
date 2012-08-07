@@ -389,7 +389,7 @@ function orgChart() {
         return function () {
             $( '#of-password' ).val( '' );
             var $error = $( '#of-login-error' );
-            $error.html( 'Login error! Try again.' );
+            $error.html( 'Username or password not recognized.' );
             if ( errorTimeout !== null ) {
                 clearTimeout( errorTimeout );
             }
