@@ -18,6 +18,28 @@ var colors = ['#006699', // 1
               '#8a2ac1', // 10
               '#886644' // other
              ],
+// Modifiable unit fields
+fields = {
+    name: true,
+    title: true,
+    location: true,
+    loccode: true,
+    reqn: true,
+    start: true,
+    end: true,
+    hours: true,
+    image: true,
+    supervisor: true,
+    status: true,
+    notes: true
+},
+// Modifiable document fields
+dfields = {
+    name: true,
+    date: true,
+    created: true,
+    trashed: true
+},
 locs = {},
 loccodes = {},
 dbname = 'orgcharts',
@@ -332,6 +354,13 @@ function addToChanges(_id, uid, mods, cb) {
     if (!cb || typeof cb != 'function') {
         cb = function () {};
     }
+
+    for ( var field in mods ) {
+        if ( !fields[field] ) {
+            delete mods[field];
+        }
+    }
+
     withDb(function (db, finish) {
         db.collection(_id+'_changes', function (err, col) {
             if (err != null) {
@@ -497,6 +526,14 @@ function addUnit(docid, data, cb) {
 function addUnits(docid, data, cb) {
     if (!cb || typeof cb != 'function') {
         cb = function () {};
+    }
+
+    for ( var ix in data ) {
+        for ( var field in data[ix] ) {
+            if ( !fields[field] ) {
+                delete data[ix][field];
+            }
+        }
     }
 
     function doTheRest(_id) {
@@ -737,6 +774,11 @@ function copyDoc(orig, dest, cb) {
 function changeDoc(doc, changes, cb) {
     if (!cb || typeof cb != 'function') {
         cb = function () {};
+    }
+    for ( var field in changes ) {
+        if ( !dfields[field] ) {
+            delete changes[field];
+        }
     }
     getDoc(doc, function (_id) {
         withDb(function (db, finish) {
