@@ -5,13 +5,13 @@
 
 function route(handle, pathname, response, request, args) {
     if (typeof handle[pathname] === 'function') {
-        if ( pathname !== '/script' && pathname !== '/image' ) {
+        if ( pathname !== '/script' && pathname !== '/image' && !/\.css$/.test( pathname ) ) {
             console.log( request.method + ' - ' + pathname );
         }
-        handle[pathname](response, request, args);
+        handle[pathname]( response, request, args );
     } else {
-        response.writeHead(404, {"Content-Type": "text/html"});
-        response.write("404 Not found");
+        response.writeHead( 404, { "Content-Type": "text/html" } );
+        response.write( "404 Not found" );
         response.end();
     }
 }
