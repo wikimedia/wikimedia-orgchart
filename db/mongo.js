@@ -639,10 +639,11 @@ function dropCollection(name, cb) {
     });
 }
 
-function listDocs(cb) {
+function listDocs(cb, showDeleted) {
     withDb(function (db, finish) {
         db.collection(cols.docs, function (err, col) {
-            col.find({$or: [{trashed: 0}, {trashed: {$exists: false}}]}).toArray(function (err, docs) {
+            var cond = showDeleted ? {} : {$or: [{trashed: 0}, {trashed: {$exists: false}}]};
+            col.find(cond).toArray(function (err, docs) {
                 finish();
                 cb(docs);
             });

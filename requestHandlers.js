@@ -250,12 +250,14 @@ function add(response, request, args) {
     });
 }
 
-function listDocs(response) {
+function listDocs(response, request) {
+    console.log( request );
+    qs = querystring.parse( request.url.replace( /^[^\?]*\?/, '' ) );
     db.listDocs(function (list) {
         response.writeHead(200, {'Content-Type': 'application/json'});
         response.write(jsonify({list: list, org: orgName, orglogo: orgLogo}));
         response.end();
-    });
+    }, qs.showDeleted || false);
 }
 
 function deleteDoc(response, request) {
