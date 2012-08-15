@@ -4,12 +4,9 @@
    It should also have been bundled with this software. */
 
 var mongo = require('../db/mongo');
+var args = process.argv.splice( 2 );
 
-mongo.listDocs(function (docs) {
-    for (var dx in docs) {
-        mongo.deleteDoc(''+docs[dx]._id, function () {
-            console.log('Done');
-            mongo.closeAll();
-        });
-    }
-}, true);
+mongo.changeDoc(''+args[0], {trashed: 0}, function () {
+    console.log('Done');
+    mongo.closeAll();
+});

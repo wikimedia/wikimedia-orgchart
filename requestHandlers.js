@@ -251,7 +251,6 @@ function add(response, request, args) {
 }
 
 function listDocs(response, request) {
-    console.log( request );
     qs = querystring.parse( request.url.replace( /^[^\?]*\?/, '' ) );
     db.listDocs(function (list) {
         response.writeHead(200, {'Content-Type': 'application/json'});
