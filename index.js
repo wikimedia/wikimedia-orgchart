@@ -10,8 +10,6 @@ var requestHandlers = require("./requestHandlers");
 var handle = {}
 handle["/"] = requestHandlers.start;
 handle["/start"] = requestHandlers.start;
-handle["/upload"] = requestHandlers.upload;
-handle["/upform"] = requestHandlers.upform;
 
 handle["/script"] = requestHandlers.script;
 handle["/image"] = requestHandlers.image;

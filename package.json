@@ -1,0 +1,28 @@
+{
+	"name": "orgchart",
+	"version": "0.1.0",
+	"description": "A web-based tool for displaying and editing organisational charts.",
+	"keywords": [
+		"org chart",
+		"org",
+		"chart",
+		"flow"
+	],
+	"homepage": "https://www.mediawiki.org/wiki/Wikimedia_tools/Org_chart_tool",
+	"author": {
+		"name": "Mark Holmquist",
+		"email": "mtraceur@member.fsf.org",
+		"url": "http://marktraceur.info"
+	},
+	"contributors": [],
+	"bin": {
+		"orgchart": "./index.js"
+	},
+	"dependencies": {
+		"formidable": "",
+		"JSON": "",
+		"mongodb": "",
+		"sessions": ">=0.0.2-6"
+	}
+}
+

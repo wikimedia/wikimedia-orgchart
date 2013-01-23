@@ -15,10 +15,8 @@ sessions = require("sessions"),
 SessionHandler = new sessions(null, {expires: 3600}),
 
 respondWithFile = require("./respondWithFile").respondWithFile,
-csvdb = require("./db/csv"),
 mongodb = require("./db/mongo");
 
-// var db = csvdb; // CSV database (not very good)
 var db = mongodb; // mongodb database (better)
 
 var orgName = "Wikimedia Foundation";
