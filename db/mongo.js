@@ -532,7 +532,7 @@ function addUnits(docid, data, cb) {
 
     for ( var ix in data ) {
         for ( var field in data[ix] ) {
-            if ( !fields[field] ) {
+            if ( !fields[field] && field !== '_id' ) {
                 delete data[ix][field];
             }
         }
@@ -550,7 +550,8 @@ function addUnits(docid, data, cb) {
                     console.log(err);
                 }
                 if (col != null) {
-                    col.insert(data, {safe: true}, function (err, doc) {
+					console.log( data );
+                    col.insert(data, { w: 1 }, function (err, doc) {
                         finish();
                         if (err != null) {
                             cb(null);
