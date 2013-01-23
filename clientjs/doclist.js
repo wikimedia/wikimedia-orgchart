@@ -57,7 +57,7 @@
 
         copyDoc: function ( $row, cb ) {
             var _this = this;
-            var $a = $( 'a[data-docid]' );
+            var $a = $( 'a[data-docid]', $row );
             $.post( '/copydoc', { name: $a.html(), docid: $a.attr( 'data-docid' ) }, function ( data ) {
                 if ( data.success ) {
                     _this.addDoc( $( '#of-documents-list tr' ).length, data.doc, _this.listView.addItem() );

@@ -557,10 +557,10 @@ function addUnits(docid, data, cb) {
                             console.log(err);
                         }
                         else {
-                            cb(doc);
-                            updateDocCount( '' + _id, function () {
-                            });
-                            for (ux in doc) {
+      						cb(doc);
+	                        updateDocCount( '' + _id, function () {} );
+
+							for (ux in doc) {
                                 addToChanges(_id, doc[ux]._id, doc[ux]);
                             }
                         }
@@ -637,6 +637,29 @@ function dropCollection(name, cb) {
             }
         });
     });
+}
+
+function getDocEntry( _id, cb ) {
+	withDb( function ( db, finish ) {
+		db.collection( cols.docs, function ( err, col ) {
+			var con = { _id: _id };
+			if ( _id instanceof ObjectId ) {
+				con = { $or: [ { _id: '' + _id }, con ] };
+			} else {
+				con = { $or: [ { _id: new ObjectId( _id ) }, con ] };
+			}
+
+			col.findOne( con, function ( err, doc ) {
+				finish();
+				if ( err !== null ) {
+					console.log( err );
+					cb( null );
+				} else {
+					cb( doc );
+				}
+			} );
+		} );
+	} );
 }
 
 function listDocs(cb, showDeleted) {
@@ -738,15 +761,16 @@ function copyDoc(orig, dest, cb) {
                 unitdata.push(dunits[lx]);
             }
             addUnits(_newid, unitdata, function (err) {
-                listDocs(function (doclist) {
-                    var doc = null;
-                    for ( var dx in doclist ) {
-                        if ( '' + doclist[dx]._id == '' + _newid ) {
-                            doc = doclist[dx];
-                            break;
-                        }
-                    }
-                    cb(doc);
+				getDocEntry( _newid, function ( doc ) {
+					if ( doc === null ) {
+						cb( null );
+					} else {
+						if ( !doc.count ) {
+							doc.count = 0;
+						}
+						doc.count += unitdata.length;
+                	    cb(doc);
+					}
                 } );
             });
         });
