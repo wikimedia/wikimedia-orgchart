@@ -147,7 +147,7 @@
         },
 
         renameDoc: function ( docid, newname, finished ) {
-            $.post( '/renamedoc/' + docid, { name: newname }, function () {
+            $.post( '/renamedoc/' + docid, { name: newname }, function ( data ) {
                 finished( newname );
             } );
         },

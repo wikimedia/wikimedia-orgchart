@@ -561,7 +561,7 @@ function addUnits(docid, data, cb) {
                             updateDocCount( '' + _id, function () {
                             });
                             for (ux in doc) {
-                                addToChanges(_id, doc._id, doc);
+                                addToChanges(_id, doc[ux]._id, doc[ux]);
                             }
                         }
                     });
@@ -781,14 +781,19 @@ function changeDoc(doc, changes, cb) {
                     finish();
                     console.log( err );
                     cb();
-                }
-                col.update({_id: _id}, {$set: changes}, function (err, doc) {
-                    if ( err != null ) {
-                        console.log( err );
-                    }
-                    finish();
-                    cb();
-                });
+                } else {
+					var con = { _id: _id };
+					if ( typeof _id != 'object' ) {
+						con = { $or: [ { _id: new ObjectId( _id ) }, con ] };
+					}
+					col.update( con, {$set: changes}, function (err, doc) {
+						if ( err != null ) {
+							console.log( err );
+						}
+						finish();
+						cb();
+					});
+				}
             });
         });
     });
