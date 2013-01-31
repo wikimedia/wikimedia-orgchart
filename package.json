@@ -22,7 +22,8 @@
 		"formidable": "",
 		"JSON": "",
 		"mongodb": "",
-		"sessions": ">=0.0.2-6"
+		"sessions": ">=0.0.2-6",
+		"async": ""
 	}
 }
 

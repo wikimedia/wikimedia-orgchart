@@ -211,6 +211,7 @@ function orgChart() {
             $uev.empty();
             $inspector.show();
             $('#of-inspector-change-super').hide();
+            $('#of-inspector-change-order').hide();
         });
     });
 
@@ -248,6 +249,7 @@ function orgChart() {
             $uev.empty();
             $inspector.show();
             $('#of-inspector-change-super').hide();
+            $('#of-inspector-change-order').hide();
         });
     });
 
@@ -278,9 +280,41 @@ function orgChart() {
         });
     });
 
+    $('#of-change-order').click(function () {
+        $('#of-inspector-change-order').show();
+        var oldid = $inspector.data('oldid');
+        var unitid = oldid.substr(16);
+		var unitNode = $( '#svg-of-unit-box-for-' + unitid ).get( 0 );
+		var $groupNode = $( unitNode.parentNode.parentNode.parentNode );
+        $( '.svg-orgchart-node-movement', $groupNode )
+			.addClass( 'mode-active' )
+			.on('of-order-change', function () {
+			var order = this.getAttribute( 'data-index' ) - 1;
+            var $form = $('#of-form-change-order').clone();
+            $('.svg-orgchart-node-movement')
+				.removeClass( 'mode-active' )
+				.off('of-order-change');
+            $('input', $form).val( order );
+            $form.attr('action', '/modify/' + getDocId() + '/' + unitid);
+            $form.ajaxForm({
+                success: function (data) {
+                    $('#of-inspector-change-order').hide();
+                    addToOpts({selected: unitid});
+                }
+            });
+            $form.submit();
+            return true;
+        });
+    });
+
     $('#of-cancel-super-change').click(function () {
         $('#of-inspector-change-super').hide();
         $('.svg-orgchart-node').off('of-super-change');
+    });
+
+    $('#of-cancel-order-change').click(function () {
+        $('#of-inspector-change-order').hide();
+        $('.svg-orgchart-node-movement').off('of-order-change');
     });
 
     $('#of-delete-node').click(function () {
@@ -565,6 +599,7 @@ function orgChart() {
                     $inspector.data('oldid', oldid);
                     $inspector.show();
                     $('#of-inspector-change-super').hide();
+                    $('#of-inspector-change-order').hide();
                     $pernode.show();
                     $pernode.removeClass('hidden-btn');
                     $uev.removeClass('filled');
@@ -869,6 +904,7 @@ function createOrgChart(opts) {
                             padding: 25,
                             height: 100,
                             draw: doNode,
+							drawGroup: setUpNodeGroup,
                             shouldRender: shouldRender,
                             sideways: true}, opts, qopts);
     if (fullOpts.printable) {
@@ -918,6 +954,10 @@ function createOrgChart(opts) {
     function unentity( text ) {
         return $( '<div></div>' ).html( text ).text();
     }
+
+	function setUpNodeGroup( w, groupg, level ) {
+		w.change( groupg, { 'data-current-index': 0 } );
+	}
 
     function doNode(w, nodeg, $node, level) {
         var $nc = $node.clone()
@@ -990,6 +1030,24 @@ function createOrgChart(opts) {
         if ($nc.hasClass('vacancy')) {
             w.use(nodeg, '#outlinerect', {opacity: '0.5'});
         }
+
+		var parentGroup = nodeg.parentNode.parentNode.parentNode;
+		var currentIndex = parentGroup.getAttribute( 'data-current-index' ) - 0;
+		var upChange = w.use( nodeg, 0, 0, null, null, '#order-change-up',
+			{ 'data-index': currentIndex, class: 'svg-orgchart-node-movement' } );
+		var downChange = w.use( nodeg, 0, fullOpts.height / 2, null, null, '#order-change-down',
+			{ 'data-index': currentIndex + 1, class: 'svg-orgchart-node-movement' } );
+
+		upChange.onclick = function ( event ) {
+			if ( $( this ).triggerHandler( 'of-order-change') !== undefined ) {
+				event.stopPropagation();
+				event.preventDefault();
+				return false;
+			}
+		};
+		downChange.onclick = upChange.onclick;
+
+		w.change( parentGroup, { 'data-current-index': currentIndex + 1 } );
     }
 
     function drawInitial(svg, fullOpts) {

@@ -621,3 +621,8 @@ tr.odd {
 #of-login-error {
     color: red;
 }
+
+.svg-orgchart-node-movement.mode-active {
+	opacity: 50;
+}
+

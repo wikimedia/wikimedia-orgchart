@@ -31,7 +31,8 @@ fields = {
     image: true,
     supervisor: true,
     status: true,
-    notes: true
+    notes: true,
+	sortkey: true
 },
 // Modifiable document fields
 dfields = {
@@ -237,7 +238,7 @@ function listHierarchy(doc, canSeePrivateData, cb) {
                     console.log(err);
                     cb([]);
                 } else {
-                    col.find().toArray(function (err, docs) {
+                    col.find().sort( { sortkey: 1 } ).toArray(function (err, docs) {
                         finish();
                         if (err != null) {
                             console.log(err);
@@ -386,6 +387,7 @@ function addToChanges(_id, uid, mods, cb) {
 function changeUnit(docid, uid, mods, cb) {
     getUnit(docid, uid, function (doc) {
         var modDic = {$set:{}};
+		var sortkey = false;
         for (var ix in mods) {
             if (ix == 'supervisor') {
                 try {
@@ -394,44 +396,78 @@ function changeUnit(docid, uid, mods, cb) {
                     delete mods[ix];
                 }
             }
+			if ( ix === 'sortkey' ) {
+				sortkey = true;
+				break;
+			}
             console.log(doc, mods);
             if ((!doc[ix] && mods[ix] && mods[ix] != '') || mods[ix] !== doc[ix]) {
                 modDic.$set[ix] = mods[ix];
             }
         }
-        getDoc(docid, function (_id) {
-            if (_id != null) {
-                _id = ''+_id;
-            } else {
-                _id = docid;
-            }
-            withDb(function (db, finish) {
-                db.collection(_id, function (err, col) {
-                    if (err != null) {
-                        finish();
-                        cb(null);
-                        console.log(err);
-                    }
-                    if (uid != null && typeof uid == typeof 'string' && (uid.length == 12 || uid.length == 24)) {
-                        uid = new ObjectId(uid);
-                    }
-                    col.findAndModify({$or: [{_id: uid}, {_id: ''+uid}]}, [['_id', 1]], modDic, {new: true}, function (err, doc) {
-                        if (err != null) {
-                            finish();
-                            cb(null);
-                            console.log(err);
-                        } else {
-                            if (cb && typeof cb == 'function') {
-                                finish();
-                                cb(doc);
-                            }
-                        }
-                    });
-                });
-            });
-            addToChanges(_id, uid, modDic.$set);
-        });
-    });
+		getDoc(docid, function (_id) {
+			if (_id != null) {
+				_id = ''+_id;
+			} else {
+				_id = docid;
+			}
+			withDb(function (db, finish) {
+				db.collection(_id, function (err, col) {
+					if (err != null) {
+						finish();
+						cb(null);
+						console.log(err);
+					}
+					if (uid != null && typeof uid == typeof 'string' && (uid.length == 12 || uid.length == 24)) {
+						uid = new ObjectId(uid);
+					}
+					if ( sortkey === true ) {
+						var sk = mods.sortkey;
+						col.update(
+							{ sortkey: { $gt: doc.sortkey }, supervisor: doc.supervisor },
+							{ $inc: { sortkey: -1 } },
+							{ multi: true },
+							function ( err ) {
+								col.update(
+									{ sortkey: { $gte: sk }, supervisor: doc.supervisor },
+									{ $inc: { sortkey: 1 } },
+									{ multi: true },
+									function ( err ) {
+										col.update(
+											{ _id: { $in: [ uid, '' + uid ] } },
+											{ $set: { sortkey: Number( sk ) } },
+											{},
+											function ( err ) {
+												finish();
+												cb( doc || null );
+												if ( err !== null ) {
+													console.log( err );
+												}
+											}
+										);
+									}
+								);
+							}
+						);
+					} else {
+						col.findAndModify({$or: [{_id: uid}, {_id: ''+uid}]}, [['_id', 1]], modDic, {new: true}, function (err, doc) {
+							if (err != null) {
+								finish();
+								cb(null);
+								console.log(err);
+							} else {
+								if (cb && typeof cb == 'function') {
+									finish();
+									cb(doc);
+								}
+							}
+						});
+					}
+				});
+			});
+			addToChanges(_id, uid, modDic.$set);
+		});
+	});
 }
 
 function addUser(data, cb) {
@@ -521,6 +557,32 @@ function checkLogin(data, cb) {
     }
 }
 
+function getCurrentSortKeys( docid, cb ) {
+	getDoc( docid, function ( _id ) {
+		withDb( function ( db, finish ) {
+			db.collection( docid, function ( err, col ) {
+				col.find( {}, { sortkey: 1, supervisor: 1 } ).sort( { sortkey: -1 } ).toArray( function ( err, units ) {
+					var startKeys = {};
+					var unit;
+					for ( var ux = 0; ux < units.length; ux++ ) {
+						unit = units[ux];
+						// We only need to set the startKey if we haven't yet
+						// because we reverse-sorted the collection query result.
+						if ( startKeys['' + unit.supervisor] === undefined ) {
+							if ( unit.sortkey === undefined ) {
+								unit.sortkey = 0;
+							}
+							startKeys['' + unit.supervisor] = unit.sortkey;
+						}
+					}
+					finish();
+					cb( startKeys );
+				} );
+			} );
+		} );
+	} );
+}
+
 function addUnit(docid, data, cb) {
     addUnits(docid, [data], cb);
 }
@@ -538,7 +600,16 @@ function addUnits(docid, data, cb) {
         }
     }
 
-    function doTheRest(_id) {
+    function doTheRest(startSortKey, _id) {
+		for ( var dx = 0; dx < data.length; dx++ ) {
+			if ( data[dx].supervisor && startSortKey[data[dx].supervisor] !== undefined ) {
+				data[dx].sortkey = ++startSortKey['' + data[dx].supervisor];
+			} else {
+				startSortKey['' + data[dx].supervisor] = 0;
+				data[dx].sortkey = 0;
+			}
+		}
+
         if (_id != null) {
             _id = ''+_id;
         } else {
@@ -571,11 +642,13 @@ function addUnits(docid, data, cb) {
         });
     }
 
-    if (docid == cols.units) {
-        doTheRest('units');
-    } else {
-        getDoc(docid, doTheRest);
-    }
+	getCurrentSortKeys( docid, function ( curSortKey ) {
+		if (docid == cols.units) {
+			doTheRest( curSortKey, 'units' );
+		} else {
+			getDoc( docid, doTheRest.bind( null, curSortKey ) );
+		}
+	} );
 }
 
 function updateDocCount(doc, cb) {
@@ -824,6 +897,24 @@ function changeDoc(doc, changes, cb) {
     });
 }
 
+// Don't use this for frontend-style deletion.
+function deleteDoc( doc, cb ) {
+	getDoc( doc, function ( _id ) {
+		withDb( function ( db, finish ) {
+			db.collection( '' + _id, function ( err, col ) {
+				col.drop( function ( err ) {
+					db.collection( cols.docs, function ( err, col ) {
+						col.remove( { _id: { $in: [ _id, '' + _id ] } }, function ( err ) {
+							finish();
+							cb();
+						} );
+					} );
+				} );
+			} );
+		} );
+	} );
+}
+
 function listAllChanges(doc, cb) {
     if (!cb || typeof cb != 'function') {
         cb = function () {};
@@ -869,5 +960,9 @@ exports.copyDoc = copyDoc;
 exports.getDoc = getDoc;
 exports.listDocs = listDocs;
 exports.changeDoc = changeDoc;
+exports.deleteDoc = deleteDoc;
 
 exports.listAllChanges = listAllChanges;
+
+exports.withDb = withDb;
+

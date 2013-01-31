@@ -166,7 +166,8 @@ $.extend(SVGManager.prototype, {
 			}
 		}
 		catch (e) {
-			alert(e);
+			// Alerts are NOT AN ACCEPTABLE FORM OF ERROR REPORTING.
+			console.error( e );
 		}
 	},
 

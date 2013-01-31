@@ -74,20 +74,25 @@ function logChart(chart) {
             var size = graph._chartOptions.size - 0 || 100;
             var height = graph._chartOptions.height - 0 || 75;
             var draw = graph._chartOptions.draw || function () {};
+			var drawGroup = graph._chartOptions.drawGroup || function () {};
             var clickevent = graph._chartOptions.click || function () {};
             var cb = graph._chartOptions.cb || function () {};
             var sw = graph._chartOptions.sideways || false;
             this._chart = graph._wrapper.group(graph._chartCont, {class_: 'chart'});
-            this._drawChart(graph, size, height, padding, orig, draw, clickevent, sw, cb);
+            this._drawChart(graph, size, height, padding, orig, draw, drawGroup, clickevent, sw, cb);
             graph._drawTitle();
         },
 
         /* Plot a chart */
-        _drawChart: function(graph, size, height, padding, orig, format, clickevent, sw, cb) {
+        _drawChart: function(graph, size, height, padding, orig, format, formatGroup, clickevent, sw, cb) {
             if (orig !== null) {
                 var w = graph._wrapper;
                 var d = w.defs(this._chart);
                 w.rect(d, 0, 0, size, height, 5, 5, {fill:'white', stroke: '#969898', strokeWidth: 2, id: 'outlinerect'});
+				w.polygon( d, [[size / 2, 0], [size, height / 2], [0, height / 2]],
+						{ fill: 'blue', opacity: 0, id: 'order-change-up' } );
+				w.polygon( d, [[0, 0], [size, 0], [size / 2, height / 2]],
+						{ fill: 'blue', opacity: 0, id: 'order-change-down' } );
                 var g = w.group(this._chart,
                                 $.extend({class_: 'graph', fill: graph._fill, stroke: graph._stroke,
                                           transform: 'translate(0 20)', strokeWidth: graph._strokeWidth}, graph._settings || {}));
@@ -96,12 +101,12 @@ function logChart(chart) {
                     orig = $('li:first', orig);
                 }
 
-                this._drawNode(w, g, orig, size, height, padding, format, clickevent, sw, cb, 2, 0);
+                this._drawNode(w, g, orig, size, height, padding, format, formatGroup, clickevent, sw, cb, 2, 0);
             }
         },
 
         /* Draw a node, and all of its children, and return it */
-        _drawNode: function(w, parent, $node, size, height, padding, format, click, sw, cb, isone, level, fns) {
+        _drawNode: function(w, parent, $node, size, height, padding, format, formatGroup, click, sw, cb, isone, level, fns) {
             var _options = w.graph._chartOptions;
             var isFirstCall = level === 0;
             function addToWidth(amt) {
@@ -174,6 +179,7 @@ function logChart(chart) {
                 var childlocs = {};
                 var childcount = 0;
                 var children = w.group(tg, {transform: (sw ? 'translate(' : 'translate(0 ') + locdown + (sw ? ' 0)' : ')')});
+				formatGroup( w, children, level + 1 );
                 chart.map.push([]);
                 var charts = [];
                 var lastborder = 0;
@@ -183,7 +189,7 @@ function logChart(chart) {
                         var shouldRender = !_options.shouldRender || _options.shouldRender($this);
                         if (shouldRender) {
                             var nrg = w.group(children, {});
-                            var rchart = fns.dn(w, nrg, $this, size, height, padding, format, click, sw, cb, (ix == 0), level + 1, fns);
+                            var rchart = fns.dn(w, nrg, $this, size, height, padding, format, formatGroup, click, sw, cb, (ix == 0), level + 1, fns);
 
                             var tsize = rchart.size;
 
