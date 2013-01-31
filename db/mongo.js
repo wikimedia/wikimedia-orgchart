@@ -103,6 +103,37 @@ var withDb = (function (db) {
     };
 })(ourdb);
 
+var withCol = function () {
+	var extraCallbacks = {};
+	return function ( colname, cb, ignoreLoaded ) {
+		if ( extraCallbacks[colname] !== undefined ) {
+			extraCallbacks[colname].push( cb );
+		} else {
+			extraCallbacks[colname] = [];
+			withDb( function ( db, finish ) {
+				db.collection( colname, function ( err, col ) {
+					if ( err !== null ) {
+						console.log( err );
+						finish();
+						cb( null );
+					} else {
+						function callOthers () {
+							if ( extraCallbacks[colname].length > 0 ) {
+								extraCallbacks[colname].pop()( col, callOthers );
+							} else {
+								delete extraCallbacks[colname];
+								finish();
+							}
+						}
+
+						cb( col, callOthers );
+					}
+				} );
+			} );
+		}
+	};
+}();
+
 function indexOf (arr, elt /*, from*/) {
     var len = arr.length >>> 0;
 
@@ -197,18 +228,16 @@ function findAndRemove(doc, con, cb) {
 
     getDoc(doc, function(_id) {
         function doTheRest(unitobj) {
-            withDb(function (db, finish) {
-                db.collection(''+_id, function (err, col) {
-                    col.remove(con, {safe: true}, function (err, num) {
-                        finish();
-                        updateDocCount( '' + _id );
-                        if (unitid) {
-                            addToChanges(''+_id, unitid, {action: 'delete', was: unitobj});
-                        }
-                        cb();
-                    });
-                });
-            });
+			withCol( '' + _id, function ( col, finish ) {
+				col.remove(con, {safe: true}, function (err, num) {
+					finish();
+					updateDocCount( '' + _id );
+					if (unitid) {
+						addToChanges(''+_id, unitid, {action: 'delete', was: unitobj});
+					}
+					cb();
+				});
+			});
         }
         if (unitid) {
             getUnit(unitid, doTheRest);
@@ -231,86 +260,83 @@ function listHierarchy(doc, canSeePrivateData, cb) {
         if (typeof _id != typeof 'string') {
             _id = '' + _id
         }
-        withDb(function (db, finish) {
-            db.collection(_id, function (err, col) {
-                if (err != null) {
-                    finish();
-                    console.log(err);
-                    cb([]);
-                } else {
-                    col.find().sort( { sortkey: 1 } ).toArray(function (err, docs) {
-                        finish();
-                        if (err != null) {
-                            console.log(err);
-                            cb([]);
-                        } else {
-                            var list = {}, lcount = {}, lccount = {}, units = docs;
-                            list.none = [];
-                            for (var ix in docs) {
-                                if (!docs[ix].supervisor || docs[ix].supervisor == '') {
-                                    list.none.push(docs[ix]._id);
-                                } else {
-                                    if (!list[docs[ix].supervisor]) {
-                                        list[docs[ix].supervisor] = [];
-                                    }
-                                    list[docs[ix].supervisor].push(docs[ix]._id);
-                                }
-                                if (docs[ix].location && docs[ix].location != '' && lcount[docs[ix].location]) {
-                                    lcount[docs[ix].location] += 1;
-                                } else {
-                                    lcount[docs[ix].location] = 1;
-                                }
-                                if (docs[ix].loccode && docs[ix].loccode != '' && lccount[docs[ix].loccode]) {
-                                    lccount[docs[ix].loccode] += 1;
-                                } else if (docs[ix].loccode && docs[ix].loccode != '') {
-                                    lccount[docs[ix].loccode] = 1;
-                                }
-                            }
-                            var csort = [], lcsort = [];
-                            for (var lx in lcount) {
-                                var sx = 0;
-                                while (csort[sx] && lcount[csort[sx]] > lcount[lx]) {
-                                    sx += 1;
-                                }
-                                csort.splice(sx, 0, lx);
-                            }
-                            for (var lcx in lccount) {
-                                var lccx = 0;
-                                while (lcsort[lccx] && lccount[lcsort[lccx]] > lccount[lcx]) {
-                                    lccx += 1;
-                                }
-                                lcsort.splice(lccx, 0, lcx);
-                            }
-                            for (var lx in csort) {
-                                if (lx < colors.length) {
-                                    locs[csort[lx]] = colors[lx];
-                                } else {
-                                    locs[csort[lx]] = colors[colors.length-1];
-                                }
-                            }
-                            for (var lcx in lcsort) {
-                                if (lcx < colors.length) {
-                                    loccodes[lcsort[lcx]] = colors[lcx];
-                                } else {
-                                    loccodes[lcsort[lcx]] = colors[colors.length-1];
-                                }
-                            }
+		withCol( _id, function ( col, finish ) {
+			if ( col === null) {
+				finish();
+				cb( [] );
+			} else {
+				col.find().sort( { sortkey: 1 } ).toArray(function (err, docs) {
+					finish();
+					if (err != null) {
+						console.log(err);
+						cb([]);
+					} else {
+						var list = {}, lcount = {}, lccount = {}, units = docs;
+						list.none = [];
+						for (var ix in docs) {
+							if (!docs[ix].supervisor || docs[ix].supervisor == '') {
+								list.none.push(docs[ix]._id);
+							} else {
+								if (!list[docs[ix].supervisor]) {
+									list[docs[ix].supervisor] = [];
+								}
+								list[docs[ix].supervisor].push(docs[ix]._id);
+							}
+							if (docs[ix].location && docs[ix].location != '' && lcount[docs[ix].location]) {
+								lcount[docs[ix].location] += 1;
+							} else {
+								lcount[docs[ix].location] = 1;
+							}
+							if (docs[ix].loccode && docs[ix].loccode != '' && lccount[docs[ix].loccode]) {
+								lccount[docs[ix].loccode] += 1;
+							} else if (docs[ix].loccode && docs[ix].loccode != '') {
+								lccount[docs[ix].loccode] = 1;
+							}
+						}
+						var csort = [], lcsort = [];
+						for (var lx in lcount) {
+							var sx = 0;
+							while (csort[sx] && lcount[csort[sx]] > lcount[lx]) {
+								sx += 1;
+							}
+							csort.splice(sx, 0, lx);
+						}
+						for (var lcx in lccount) {
+							var lccx = 0;
+							while (lcsort[lccx] && lccount[lcsort[lccx]] > lccount[lcx]) {
+								lccx += 1;
+							}
+							lcsort.splice(lccx, 0, lcx);
+						}
+						for (var lx in csort) {
+							if (lx < colors.length) {
+								locs[csort[lx]] = colors[lx];
+							} else {
+								locs[csort[lx]] = colors[colors.length-1];
+							}
+						}
+						for (var lcx in lcsort) {
+							if (lcx < colors.length) {
+								loccodes[lcsort[lcx]] = colors[lcx];
+							} else {
+								loccodes[lcsort[lcx]] = colors[colors.length-1];
+							}
+						}
 
-                            locs.other = colors[colors.length-1];
-                            loccodes.other = locs.other;
+						locs.other = colors[colors.length-1];
+						loccodes.other = locs.other;
 
-                            var dunits = {};
-                            for (var ux in units) {
-                                units[ux].index = units[ux]._id;
-                                delete units[ux].pay;
-                                dunits[units[ux]._id] = units[ux];
-                            }
-                            cb(list, locs, loccodes, dunits, docname);
-                        }
-                    });
-                }
-            });
-        });
+						var dunits = {};
+						for (var ux in units) {
+							units[ux].index = units[ux]._id;
+							delete units[ux].pay;
+							dunits[units[ux]._id] = units[ux];
+						}
+						cb(list, locs, loccodes, dunits, docname);
+					}
+				});
+			}
+		});
     }
 
     if (doc == 'units') {
@@ -323,21 +349,19 @@ function listHierarchy(doc, canSeePrivateData, cb) {
 function getUnit(doc, uid, cb) {
     looking += 1;
     getDoc(doc, function (_id) {
-        withDb(function (db, finish) {
-            db.collection(''+_id, function (err, col) {
-                col.findOne({$or: [{_id: new ObjectId(uid)}, {_id: ''+uid}]}, {}, function (err, doc) {
-                    finish();
-                    looking -= 1;
-                    if (cb && typeof cb == 'function') {
-                        if (doc && doc._id) {
-                            doc.index = doc._id;
-                        }
-                        cb(doc);
-                    }
-                });
-            });
-        });
-    });
+		withCol( '' + _id, function( col, finish ) {
+			col.findOne({$or: [{_id: new ObjectId(uid)}, {_id: ''+uid}]}, {}, function (err, doc) {
+				finish();
+				looking -= 1;
+				if (cb && typeof cb == 'function') {
+					if (doc && doc._id) {
+						doc.index = doc._id;
+					}
+					cb(doc);
+				}
+			});
+		});
+	});
 }
 
 function changeUnits(docid, units, cb) {
@@ -364,24 +388,22 @@ function addToChanges(_id, uid, mods, cb) {
         }
     }
 
-    withDb(function (db, finish) {
-        db.collection(_id+'_changes', function (err, col) {
-            if (err != null) {
-                finish();
-                cb(null);
-                console.log(err);
-            }
-            col.insert({unit: uid, mods: mods, time: new Date().getTime()}, {safe: true}, function (err, doc) {
-                finish();
-                if (err != null) {
-                    cb(null);
-                    console.log(err);
-                } else {
-                    cb(doc);
-                }
-            });
-        });
-    });
+	withCol( _id + '_changes', function ( col, finish ) {
+		if ( col === null ) {
+			finish();
+			cb(null);
+		} else {
+			col.insert({unit: uid, mods: mods, time: new Date().getTime()}, {safe: true}, function (err, doc) {
+				finish();
+				if (err !== null) {
+					cb(null);
+					console.log(err);
+				} else {
+					cb(doc);
+				}
+			});
+		}
+	});
 }
 
 function changeUnit(docid, uid, mods, cb) {
@@ -400,7 +422,6 @@ function changeUnit(docid, uid, mods, cb) {
 				sortkey = true;
 				break;
 			}
-            console.log(doc, mods);
             if ((!doc[ix] && mods[ix] && mods[ix] != '') || mods[ix] !== doc[ix]) {
                 modDic.$set[ix] = mods[ix];
             }
@@ -411,59 +432,69 @@ function changeUnit(docid, uid, mods, cb) {
 			} else {
 				_id = docid;
 			}
-			withDb(function (db, finish) {
-				db.collection(_id, function (err, col) {
-					if (err != null) {
-						finish();
-						cb(null);
-						console.log(err);
-					}
-					if (uid != null && typeof uid == typeof 'string' && (uid.length == 12 || uid.length == 24)) {
-						uid = new ObjectId(uid);
-					}
-					if ( sortkey === true ) {
-						var sk = mods.sortkey;
-						col.update(
-							{ sortkey: { $gt: doc.sortkey }, supervisor: doc.supervisor },
-							{ $inc: { sortkey: -1 } },
-							{ multi: true },
-							function ( err ) {
-								col.update(
-									{ sortkey: { $gte: sk }, supervisor: doc.supervisor },
-									{ $inc: { sortkey: 1 } },
-									{ multi: true },
-									function ( err ) {
-										col.update(
-											{ _id: { $in: [ uid, '' + uid ] } },
-											{ $set: { sortkey: Number( sk ) } },
-											{},
-											function ( err ) {
-												finish();
-												cb( doc || null );
-												if ( err !== null ) {
-													console.log( err );
-												}
-											}
-										);
-									}
-								);
-							}
-						);
-					} else {
-						col.findAndModify({$or: [{_id: uid}, {_id: ''+uid}]}, [['_id', 1]], modDic, {new: true}, function (err, doc) {
-							if (err != null) {
+			withCol( '' + _id, function ( col, finish ) {
+				if ( col === null) {
+					finish();
+					cb(null);
+					return;
+				}
+				if (uid != null && typeof uid == typeof 'string' && (uid.length == 12 || uid.length == 24)) {
+					uid = new ObjectId(uid);
+				}
+				if ( sortkey === true ) {
+					var sk = mods.sortkey;
+					col.update(
+						{ sortkey: { $gt: doc.sortkey }, supervisor: doc.supervisor },
+						{ $inc: { sortkey: -1 } },
+						{ multi: true },
+						function ( err ) {
+							if ( err !== null ) {
 								finish();
-								cb(null);
-								console.log(err);
-							} else {
-								if (cb && typeof cb == 'function') {
-									finish();
-									cb(doc);
-								}
+								cb( null );
+								return;
 							}
-						});
-					}
-				});
+							col.update(
+								{ sortkey: { $gte: sk }, supervisor: doc.supervisor },
+								{ $inc: { sortkey: 1 } },
+								{ multi: true },
+								function ( err ) {
+									if ( err !== null ) {
+										finish();
+										cb( null );
+										return;
+									}
+									col.update(
+										{ _id: { $in: [ uid, '' + uid ] } },
+										{ $set: { sortkey: Number( sk ) } },
+										{},
+										function ( err ) {
+											if ( err !== null ) {
+												finish();
+												cb( null );
+												return;
+											}
+											finish();
+											cb( doc || null );
+											if ( err !== null ) {
+												console.log( err );
+											}
+										}
+									);
+								}
+							);
+						}
+					);
+				} else {
+					col.update({$or: [{_id: uid}, {_id: ''+uid}]}, modDic, {new: true}, function (err, doc) {
+						finish();
+						if ( cb && typeof cb === 'function' ) {
+							cb( doc );
+						}
+						if (err != null) {
+							console.log(err);
+						}
+					});
+				}
 			});
 			addToChanges(_id, uid, modDic.$set);
 		});
@@ -474,45 +505,43 @@ function addUser(data, cb) {
     if (!cb || typeof cb != 'function') {
         cb = function () {};
     }
-    withDb(function (db, finish) {
-        db.collection(cols.users, function (err, col) {
-            col.findOne({username: data.username}, function (err, doc) {
-                if (!doc) {
-                    if ( data.isHashed === true ) {
-                        delete data.isHashed;
-                        if ( data.needsHash === true ) {
-                            // Hash once, this will protect it during transit from the client
-                            data.password = crypto.createHash( 'sha512' ).update( data.password ).digest( 'hex' );
-                            delete data.needsHash;
-                        }
-                        // Hash again with a salt, this will protect it while it's in the database
-                        data.salt = '' + Math.random();
-                        data.password = crypto.createHash( 'sha512' ).update( data.password + data.salt ).digest( 'hex' );
-                    }
-                    col.insert([data], {safe: true}, function (err, doc) {
-                        finish();
-                        cb(doc); // I don't know what gets sent here, but do it anyway!
-                    });
-                } else {
-                    var modDic = {$set: {}};
-                    for (var ix in data) {
-                        if (ix == 'username' || ix == 'password') {
-                            continue;
-                        } else {
-                            modDic.$set[ix] = data[ix];
-                        }
-                    }
-                    col.update({username: doc.username}, modDic, function () {
-                        finish();
-                        var user = modDic.$set;
-                        user.ename = doc.username;
-                        user.epass = doc.password;
-                        cb(user);
-                    });
-                }
-            });
-        });
-    });
+	withCol( cols.users, function ( col, finish ) {
+		col.findOne({username: data.username}, function (err, doc) {
+			if (!doc) {
+				if ( data.isHashed === true ) {
+					delete data.isHashed;
+					if ( data.needsHash === true ) {
+						// Hash once, this will protect it during transit from the client
+						data.password = crypto.createHash( 'sha512' ).update( data.password ).digest( 'hex' );
+						delete data.needsHash;
+					}
+					// Hash again with a salt, this will protect it while it's in the database
+					data.salt = '' + Math.random();
+					data.password = crypto.createHash( 'sha512' ).update( data.password + data.salt ).digest( 'hex' );
+				}
+				col.insert([data], {safe: true}, function (err, doc) {
+					finish();
+					cb(doc); // I don't know what gets sent here, but do it anyway!
+				});
+			} else {
+				var modDic = {$set: {}};
+				for (var ix in data) {
+					if (ix == 'username' || ix == 'password') {
+						continue;
+					} else {
+						modDic.$set[ix] = data[ix];
+					}
+				}
+				col.update({username: doc.username}, modDic, function () {
+					finish();
+					var user = modDic.$set;
+					user.ename = doc.username;
+					user.epass = doc.password;
+					cb(user);
+				});
+			}
+		});
+	});
 }
 
 function checkLogin(data, cb) {
@@ -520,38 +549,36 @@ function checkLogin(data, cb) {
         cb = function () {};
     }
     if (data && data.username && data.password) {
-        withDb(function (db, finish) {
-            db.collection(cols.users, function (err, col) {
-                if (err != null) {
-                    finish();
-                    cb({success: false});
-                    console.log(err);
-                }
-                col.findOne({username: data.username}, {}, function (err, doc) {
-                    finish();
-                    if (err != null) {
-                        cb({success: false});
-                        console.log(err);
-                    }
-                    if ( doc && doc.salt ) {
-                        // It's already been hashed once on the client, so we just need to hash
-                        // again with the salt. Security!!!
-                        data.password = crypto.createHash( 'sha512' ).update( data.password + doc.salt ).digest( 'hex' );
-                    } else {
-                        // This is an old-style password, there's no point in updating
-                        // it to be hashed in the database. We'll just hash this copy and
-                        // make sure it's the same.
-                        doc.password = crypto.createHash( 'sha512' ).update( doc.password ).digest( 'hex' );
-                    }
-                    if (doc && doc.username === data.username && doc.password === data.password) {
-                        delete doc.password;
-                        cb({success: true, user: doc});
-                    } else {
-                        cb({success: false});
-                    }
-                });
-            });
-        });
+		withCol( cols.users, function ( col, finish ) {
+			if ( col === null) {
+				finish();
+				cb({success: false});
+				console.log(err);
+			}
+			col.findOne({username: data.username}, {}, function (err, doc) {
+				finish();
+				if (err != null) {
+					cb({success: false});
+					console.log(err);
+				}
+				if ( doc && doc.salt ) {
+					// It's already been hashed once on the client, so we just need to hash
+					// again with the salt. Security!!!
+					data.password = crypto.createHash( 'sha512' ).update( data.password + doc.salt ).digest( 'hex' );
+				} else {
+					// This is an old-style password, there's no point in updating
+					// it to be hashed in the database. We'll just hash this copy and
+					// make sure it's the same.
+					doc.password = crypto.createHash( 'sha512' ).update( doc.password ).digest( 'hex' );
+				}
+				if (doc && doc.username === data.username && doc.password === data.password) {
+					delete doc.password;
+					cb({success: true, user: doc});
+				} else {
+					cb({success: false});
+				}
+			});
+		});
     } else {
         cb({success: false});
     }
@@ -559,25 +586,23 @@ function checkLogin(data, cb) {
 
 function getCurrentSortKeys( docid, cb ) {
 	getDoc( docid, function ( _id ) {
-		withDb( function ( db, finish ) {
-			db.collection( docid, function ( err, col ) {
-				col.find( {}, { sortkey: 1, supervisor: 1 } ).sort( { sortkey: -1 } ).toArray( function ( err, units ) {
-					var startKeys = {};
-					var unit;
-					for ( var ux = 0; ux < units.length; ux++ ) {
-						unit = units[ux];
-						// We only need to set the startKey if we haven't yet
-						// because we reverse-sorted the collection query result.
-						if ( startKeys['' + unit.supervisor] === undefined ) {
-							if ( unit.sortkey === undefined ) {
-								unit.sortkey = 0;
-							}
-							startKeys['' + unit.supervisor] = unit.sortkey;
+		withCol( docid, function ( col, finish ) {
+			col.find( {}, { sortkey: 1, supervisor: 1 } ).sort( { sortkey: -1 } ).toArray( function ( err, units ) {
+				var startKeys = {};
+				var unit;
+				for ( var ux = 0; ux < units.length; ux++ ) {
+					unit = units[ux];
+					// We only need to set the startKey if we haven't yet
+					// because we reverse-sorted the collection query result.
+					if ( startKeys['' + unit.supervisor] === undefined ) {
+						if ( unit.sortkey === undefined ) {
+							unit.sortkey = 0;
 						}
+						startKeys['' + unit.supervisor] = unit.sortkey;
 					}
-					finish();
-					cb( startKeys );
-				} );
+				}
+				finish();
+				cb( startKeys );
 			} );
 		} );
 	} );
@@ -615,31 +640,27 @@ function addUnits(docid, data, cb) {
         } else {
             _id = docid;
         }
-        withDb(function (db, finish) {
-            db.collection(''+_id, function (err, col) {
-                if (err != null) {
-                    console.log(err);
-                }
-                if (col != null) {
-					console.log( data );
-                    col.insert(data, { w: 1 }, function (err, doc) {
-                        finish();
-                        if (err != null) {
-                            cb(null);
-                            console.log(err);
-                        }
-                        else {
-      						cb(doc);
-	                        updateDocCount( '' + _id, function () {} );
+		withCol( '' + _id, function ( col, finish ) {
+			if (col !== null) {
+				col.insert(data, { w: 1 }, function (err, doc) {
+					finish();
+					if (err != null) {
+						cb(null);
+						console.log(err);
+					}
+					else {
+						cb(doc);
+						updateDocCount( '' + _id, function () {} );
 
-							for (ux in doc) {
-                                addToChanges(_id, doc[ux]._id, doc[ux]);
-                            }
-                        }
-                    });
-                }
-            });
-        });
+						for (ux in doc) {
+							addToChanges(_id, doc[ux]._id, doc[ux]);
+						}
+					}
+				});
+			} else {
+				cb( null );
+			}
+		});
     }
 
 	getCurrentSortKeys( docid, function ( curSortKey ) {
@@ -676,19 +697,17 @@ function emptyCollection(name, cb) {
         if (_id == null) {
             cb(null, false);
         } else {
-            withDb(function (db, finish) {
-                db.collection(''+_id, function (err, col) {
-                    if (col != null) {
-                        col.remove({}, {safe: true}, function (err, count) {
-                            finish();
-                            cb(err, true);
-                        });
-                    } else {
-                        finish();
-                        cb(err, false);
-                    }
-                });
-            });
+			withCol( '' + _id, function ( col, finish ) {
+				if (col !== null) {
+					col.remove({}, {safe: true}, function (err, count) {
+						finish();
+						cb(err, true);
+					});
+				} else {
+					finish();
+					cb(err, false);
+				}
+			});
         }
     });
 }
@@ -698,54 +717,48 @@ function dropCollection(name, cb) {
     if (!cb || typeof cb != 'function') {
         cb = function () {};
     }
-    withDb(function (db, finish) {
-        db.collection(cols[name], function (err, col) {
-            if (col != null) {
-                col.drop(function () {
-                    finish();
-                    cb();
-                });
-            } else {
-                finish();
-                cb();
-            }
-        });
-    });
+	withCol( cols[name], function( col, finish ) {
+		if (col !== null) {
+			col.drop(function () {
+				finish();
+				cb();
+			});
+		} else {
+			finish();
+			cb();
+		}
+	});
 }
 
 function getDocEntry( _id, cb ) {
-	withDb( function ( db, finish ) {
-		db.collection( cols.docs, function ( err, col ) {
-			var con = { _id: _id };
-			if ( _id instanceof ObjectId ) {
-				con = { $or: [ { _id: '' + _id }, con ] };
-			} else {
-				con = { $or: [ { _id: new ObjectId( _id ) }, con ] };
-			}
+	withCol( cols.docs, function ( col, finish ) {
+		var con = { _id: _id };
+		if ( _id instanceof ObjectId ) {
+			con = { $or: [ { _id: '' + _id }, con ] };
+		} else {
+			con = { $or: [ { _id: new ObjectId( _id ) }, con ] };
+		}
 
-			col.findOne( con, function ( err, doc ) {
-				finish();
-				if ( err !== null ) {
-					console.log( err );
-					cb( null );
-				} else {
-					cb( doc );
-				}
-			} );
+		col.findOne( con, function ( err, doc ) {
+			finish();
+			if ( err !== null ) {
+				console.log( err );
+				cb( null );
+			} else {
+				cb( doc );
+			}
 		} );
 	} );
 }
 
 function listDocs(cb, showDeleted) {
-    withDb(function (db, finish) {
-        db.collection(cols.docs, function (err, col) {
-            var cond = showDeleted ? {} : {$or: [{trashed: 0}, {trashed: {$exists: false}}]};
-            col.find(cond).toArray(function (err, docs) {
-                finish();
-                cb(docs);
-            });
-        });
-    });
+	withCol( cols.docs, function ( col, finish ) {
+		var cond = showDeleted ? {} : {$or: [{trashed: 0}, {trashed: {$exists: false}}]};
+		col.find(cond).toArray(function (err, docs) {
+			finish();
+			cb(docs);
+		});
+	});
 }
 
 function getDoc(did, cb) {
@@ -759,65 +772,59 @@ function getDoc(did, cb) {
         cb(null);
         return;
     }
-    withDb(function (db, finish) {
-        db.collection(cols.docs, function (err, col) {
-            if (err != null) {
-                finish();
-                console.log(err);
-                cb(null);
-            } else {
-                col.findOne({_id: did}, function (err, doc) {
-                    finish();
-                    if (err != null) {
-                        console.log(err);
-                        cb(null);
-                    }
-                    else if (doc != null) {
-                        cb(doc._id, doc.name, doc.date);
-                    } else {
-                        cb(null);
-                    }
-                });
-            }
-        });
-    });
+	withCol( cols.docs, function ( col, finish ) {
+		if ( col === null) {
+			finish();
+			cb( null );
+		} else {
+			col.findOne({_id: did}, function (err, doc) {
+				finish();
+				if (err != null) {
+					console.log(err);
+					cb(null);
+				}
+				else if (doc != null) {
+					cb(doc._id, doc.name, doc.date);
+				} else {
+					cb(null);
+				}
+			});
+		}
+	});
 }
 
 function createDoc(name, date, cb) {
     if (!cb || typeof cb != 'function') {
         cb = function () {};
     }
-    withDb(function (db, finish) {
-        db.collection(cols.docs, function (err, col) {
-            if (err != null) {
-                finish();
-                console.log(err);
-                cb(null);
-            } else {
-                col.insert([{date: date, name: name, created: (new Date()).getTime()}], {safe: true}, function (err, doc) {
-                    finish();
-                    if (err != null) {
-                        console.log(err);
-                        cb(null);
-                    } else {
-                        createCollection(''+doc[0]._id, function (err) {
-                            if (err != null) {
-                                console.log(err);
-                                cb(null);
-                            } else {
-                                createCollection(''+doc[0]._id+'_changes', function (err) {
-                                    if (err != null) {
-                                        console.log(err);
-                                    }
-                                    cb(doc[0]._id, doc[0]);
-                                });
-                            }
-                        });
-                    }
-                });
-            }
-        });
-    });
+	withCol( cols.docs, function ( col, finish ) {
+		if ( col === null) {
+			finish();
+			cb(null);
+		} else {
+			col.insert([{date: date, name: name, created: (new Date()).getTime()}], {safe: true}, function (err, doc) {
+				finish();
+				if (err != null) {
+					console.log(err);
+					cb(null);
+				} else {
+					createCollection(''+doc[0]._id, function (err) {
+						if (err != null) {
+							console.log(err);
+							cb(null);
+						} else {
+							createCollection(''+doc[0]._id+'_changes', function (err) {
+								if (err != null) {
+									console.log(err);
+								}
+								cb(doc[0]._id, doc[0]);
+							});
+						}
+					});
+				}
+			});
+		}
+	});
 }
 
 function copyDoc(orig, dest, cb) {
@@ -873,44 +880,50 @@ function changeDoc(doc, changes, cb) {
         }
     }
     getDoc(doc, function (_id) {
-        withDb(function (db, finish) {
-            db.collection(cols.docs, function (err, col) {
-                if ( err != null ) {
-                    finish();
-                    console.log( err );
-                    cb();
-                } else {
-					var con = { _id: _id };
-					if ( typeof _id != 'object' ) {
-						con = { $or: [ { _id: new ObjectId( _id ) }, con ] };
-					}
-					col.update( con, {$set: changes}, function (err, doc) {
-						if ( err != null ) {
-							console.log( err );
-						}
-						finish();
-						cb();
-					});
+		withCol( cols.docs, function ( col, finish ) {
+			if ( col === null ) {
+				finish();
+				cb();
+			} else {
+				var con = { _id: _id };
+				if ( typeof _id != 'object' ) {
+					con = { $or: [ { _id: new ObjectId( _id ) }, con ] };
 				}
-            });
-        });
-    });
+				col.update( con, {$set: changes}, function (err, doc) {
+					if ( err != null ) {
+						console.log( err );
+					}
+					finish();
+					cb();
+				});
+			}
+		});
+	});
 }
 
 // Don't use this for frontend-style deletion.
 function deleteDoc( doc, cb ) {
 	getDoc( doc, function ( _id ) {
-		withDb( function ( db, finish ) {
-			db.collection( '' + _id, function ( err, col ) {
+		withCol( '' + _id, function ( col, finish ) {
+			if ( col === null ) {
+				finish();
+				cb();
+			} else {
 				col.drop( function ( err ) {
-					db.collection( cols.docs, function ( err, col ) {
-						col.remove( { _id: { $in: [ _id, '' + _id ] } }, function ( err ) {
+					withCol( cols.docs, function ( col, finish ) {
+						if ( col === null ) {
 							finish();
 							cb();
-						} );
+						} else {
+							col.remove( { _id: { $in: [ _id, '' + _id ] } }, function ( err ) {
+								finish();
+								cb();
+							} );
+						}
 					} );
+					finish();
 				} );
-			} );
+			}
 		} );
 	} );
 }
@@ -920,18 +933,21 @@ function listAllChanges(doc, cb) {
         cb = function () {};
     }
     getDoc(doc, function (_id) {
-        withDb(function (db, finish) {
-            db.collection(''+_id+'_changes', function (err, col) {
-                col.find().toArray(function (err, docs) {
-                    finish();
-                    if (err != null) {
-                        console.log(err);
-                    }
-                    cb(docs);
-                });
-            });
-        });
-    });
+		withCol( '' + _id + '_changes', function ( col, finish ) {
+			if ( col === null ) {
+				finish();
+				cb( [] );
+			} else {
+				col.find().toArray(function (err, docs) {
+					finish();
+					if (err != null) {
+						console.log(err);
+					}
+					cb(docs);
+				});
+			}
+		});
+	});
 }
 
 function closeAll() {
