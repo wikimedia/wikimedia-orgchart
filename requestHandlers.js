@@ -15,9 +15,8 @@ sessions = require("sessions"),
 SessionHandler = new sessions(null, {expires: 3600}),
 
 respondWithFile = require("./respondWithFile").respondWithFile,
-mongodb = require("./db/mongo");
-
-var db = mongodb; // mongodb database (better)
+db = require("./lib/database"),
+document = require( './lib/Document' );
 
 var orgName = "Wikimedia Foundation";
 var orgLogo = "/image/orglogo.png";
@@ -156,7 +155,7 @@ function list(response, request, args) {
         doc = 'units';
     }
     checkAuth(response, request, function(isLogged, user) {
-        db.listHierarchy(doc, user && user.canSeePrivateData, function (list, locs, loccodes, units, docname) {
+        document.listHierarchy(doc, user && user.canSeePrivateData, function (list, locs, loccodes, units, docname) {
             response.writeHead(200, {'Content-Type': 'application/json'});
             response.write(jsonify({list: list, colors: locs, codes: loccodes, units: units, org: orgName, doc: docname, orglogo: orgLogo}));
             response.end();
@@ -250,7 +249,7 @@ function add(response, request, args) {
 
 function listDocs(response, request) {
     qs = querystring.parse( request.url.replace( /^[^\?]*\?/, '' ) );
-    db.listDocs(function (list) {
+    document.listDocs(function (list) {
         response.writeHead(200, {'Content-Type': 'application/json'});
         response.write(jsonify({list: list, org: orgName, orglogo: orgLogo}));
         response.end();
@@ -270,7 +269,7 @@ function deleteDoc(response, request) {
                 var docid;
                 if (fields && fields.docid) {
                     docid = fields.docid;
-                    db.changeDoc(docid, {trashed: 1}, function () {
+                    document.changeDoc(docid, {trashed: 1}, function () {
                         endDelete({success: true});
                     });
                 } else {
@@ -296,7 +295,7 @@ function undeleteDoc(response, request) {
                 var docid;
                 if (fields && fields.docid) {
                     docid = fields.docid;
-                    db.changeDoc(docid, {trashed: 0}, function () {
+                    document.changeDoc(docid, {trashed: 0}, function () {
                         endDelete({success: true});
                     });
                 } else {
@@ -377,7 +376,7 @@ function getPlainText(response, request, args) {
         doc = 'units';
     }
     checkAuth(response, request, function(isLogged, user) {
-        db.listHierarchy(doc, user && user.canSeePrivateData, function (list, locs, loccodes, units, docname) {
+        document.listHierarchy(doc, user && user.canSeePrivateData, function (list, locs, loccodes, units, docname) {
             var fullText = [];
             var fields = ['_id', 'title', 'status', 'name', 'location', 'loccode', 'reqn', 'start', 'end', 'hours', 'supervisor', 'image', 'notes'];
             if (user.canSeePrivateData) {
@@ -422,7 +421,7 @@ function renameDoc(response, request, args) {
                     var newname;
                     if (fields && fields.name) {
                         newname = fields.name;
-                        db.changeDoc(docid, {name: newname}, function () {
+                        document.changeDoc(docid, {name: newname}, function () {
                             endRename({success: true, name: newname, docid: docid});
                         });
                     } else {
@@ -456,7 +455,7 @@ function changeDocDate(response, request, args) {
                     var newdate;
                     if (fields && fields.date) {
                         newdate = fields.date - 0;
-                        db.changeDoc(docid, {date: newdate}, function () {
+                        document.changeDoc(docid, {date: newdate}, function () {
                             endChange({success: true, date: newdate});
                         });
                     } else {
@@ -481,14 +480,14 @@ function copyDoc(response, request, args) {
     checkAuth(response, request, function (isLogged) {
         if (isLogged) {
             if (args && args.length == 2) {
-                db.copyDoc(args[0], args[1] + ' (copy)', function () {
+                document.copyDoc(args[0], args[1] + ' (copy)', function () {
                     endCopy({success: true});
                 });
             } else {
                 var form = new formidable.IncomingForm();
                 form.parse(request, function (error, fields, files) {
                     if (fields && fields.docid && fields.name) {
-                        db.copyDoc(fields.docid, fields.name + ' (copy)', function (newdoc) {
+                        document.copyDoc(fields.docid, fields.name + ' (copy)', function (newdoc) {
                             endCopy({success: true, doc: newdoc});
                         });
                     } else {
@@ -517,7 +516,7 @@ function newDoc(response, request) {
                     if ( !fields.date ) {
                         fields.date = '';
                     }
-                    db.createDoc(fields.name, fields.date, function (docid, newdoc) {
+                    document.createDoc(null, fields.name, fields.date, function (docid, newdoc) {
                         var sdata = {title: 'Root Element',
                                      supervisor: '',
                                      name: '',

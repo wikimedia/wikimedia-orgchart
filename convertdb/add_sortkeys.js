@@ -3,16 +3,17 @@
    which can be found in full at http://www.gnu.org/licenses/gpl-2.0.txt
    It should also have been bundled with this software. */
 
-var db = require( '../db/mongo' ),
+var db = require( '../lib/database' ),
+	document = require( '../lib/Document' ),
 	async = require( 'async' );
 
 console.log( 'Adding sortkey fields everywhere....' );
 var currentIndex = {};
-db.listDocs( function ( docs ) {
+document.listDocs( function ( docs ) {
 	for ( var dx in docs ) {
 		var doc = docs[dx];
 		currentIndex[doc._id] = {};
-		db.listHierarchy( doc._id, false, function ( docid, units ) {
+		document.listHierarchy( doc._id, false, function ( docid, units ) {
 			var fns = [];
 			for ( var ux in units ) {
 				var unit = units[ux];
@@ -25,12 +26,10 @@ db.listDocs( function ( docs ) {
 				}
 
 				fns.push( function ( thisunit, index, cb ) {
-					db.withDb( function ( adb, finish ) {
-						adb.collection( docid, function ( err, col ) {
-							col.update( { _id: thisunit._id }, { $set: { sortkey: index } }, function () {
-								finish();
-								cb( null );
-							} );
+					db.withCol( docid, function ( col, finish ) {
+						col.update( { _id: thisunit._id }, { $set: { sortkey: index } }, function () {
+							finish();
+							cb( null );
 						} );
 					} );
 				}.bind( null, unit, currentIndex[docid][unit.supervisor]++ ) );

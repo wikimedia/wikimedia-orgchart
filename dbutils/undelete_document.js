@@ -3,7 +3,7 @@
    which can be found in full at http://www.gnu.org/licenses/gpl-2.0.txt
    It should also have been bundled with this software. */
 
-var mongo = require('../db/mongo');
+var mongo = require('../lib/database');
 var args = process.argv.splice( 2 );
 
 mongo.changeDoc(''+args[0], {trashed: 0}, function () {

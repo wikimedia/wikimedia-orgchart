@@ -19,33 +19,34 @@ function indexOf (arr, elt /*, from*/) {
     return -1;
 }
 
-var mongo = require('../db/mongo');
-var json = require('JSON');
-var fs = require('fs');
-var docd = [];
-var docl = {};
-var docdb = {};
-var bakfile = 'db_backup.json';
+var db = require( '../lib/database' ),
+	document = require( '../lib/Document' ),
+	json = require( 'JSON' ),
+	fs = require('fs'),
+	docd = [],
+	docl = {},
+	docdb = {},
+	bakfile = 'db_backup.json';
 
 if (process && process.argv && process.argv.length > 2) {
     bakfile = process.argv[2];
 }
 
-mongo.listDocs(function (docs) {
+document.listDocs( function ( docs ) {
     for (var fx in docs) {
         docd.push(docs[fx]._id);
         docl['' + docs[fx]._id] = docs[fx];
     }
     for (var dx in docs) {
-        mongo.listHierarchy('' + docs[dx]._id, true, function (list, locs, loccodes, units) {
-            docdb['' + docs[dx]._id] = units;
-            var ix = indexOf(docd, docs[dx]._id);
-            docd.pop(ix);
+        document.listHierarchy( '' + docs[dx]._id, true, function (properId, list, locs, loccodes, units) {
+            docdb['' + docs[properId]._id] = units;
+            var ix = indexOf(docd, docs[properId]._id);
+            docd.pop(properId);
             if (docd.length == 0) {
                 fs.writeFile(bakfile, json.stringify({list: docl, db: docdb}), function () {
                     console.log('Backup complete.');
                 });
             }
-        });
+        }.bind( null, dx ) );
     }
 });

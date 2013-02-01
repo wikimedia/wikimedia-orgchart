@@ -3,9 +3,9 @@
    which can be found in full at http://www.gnu.org/licenses/gpl-2.0.txt
    It should also have been bundled with this software. */
 
-var db = require('../db/mongo');
+var document = require( '../lib/Document' );
 
 console.log('Copying....');
-db.copyDoc('units', 'units', function () {
+document.copyDoc('units', 'units', function () {
     console.log('Copied');
 });

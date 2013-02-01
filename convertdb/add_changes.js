@@ -3,14 +3,16 @@
    which can be found in full at http://www.gnu.org/licenses/gpl-2.0.txt
    It should also have been bundled with this software. */
 
-var db = require('../db/mongo');
+var db = require('../lib/database'),
+	document = require( '../lib/Document.js' );
 
 console.log('Making collections for changes....');
-db.listDocs(function (docs){
-   for (dx in docs) {
+document.listDocs( function ( docs ) {
+   for ( dx in docs ) {
       var doc = docs[dx];
-      db.createCollection('' + doc.name + '_changes', function (err) {
-         console.log('Made it for '+doc.name);
-      });
+      db.createCollection( '' + doc.name + '_changes', function ( err ) {
+         console.log( 'Made it for ' + doc.name );
+      } );
    }
-});
+} );
+
