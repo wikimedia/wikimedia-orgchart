@@ -20,35 +20,26 @@ fs.readFile(bakfile, function (err, file) {
     for (var ix in fdata.list) {
         stillWaiting += 1;
         var fdbn = ix;
-        mongo.getDoc(fdbn, function (_id) {
-            function doTheRest() {
-                mongo.emptyCollection(fdbn, function (err, wasthere) {
-                    function doTheFinal() {
-                        var data = [];
-                        for (var dx in fdata.db[fdbn]) {
-                            data.push(fdata.db[fdbn][dx]);
-                        }
-                        console.log('    Adding data to '+fdbn+'....');
-                        mongo.addUnits(''+_id, data, function (docs) {
-                            console.log('    Backed up document ' + ix + '.');
-                            stillWaiting -= 1;
-                            if (stillWaiting <= 0) {
-                                mongo.closeAll();
-                            }
-                        });
-                    }
-                    doTheFinal();
-                });
-            }
+		function doTheRest() {
+			mongo.emptyCollection(fdbn, function (err, wasthere) {
+				function doTheFinal() {
+					var data = [];
+					for (var dx in fdata.db[fdbn]) {
+						data.push(fdata.db[fdbn][dx]);
+					}
+					console.log('    Adding data to '+fdbn+'....');
+					mongo.addUnits( fdbn, data, function (docs) {
+						console.log('    Backed up document ' + ix + '.');
+						stillWaiting -= 1;
+						if (stillWaiting <= 0) {
+							mongo.closeAll();
+						}
+					});
+				}
+				doTheFinal();
+			});
+		}
 
-            if (_id == null) {
-                mongo.createDoc(fdbn, null, function (_newid) {
-                    _id = _newid;
-                    doTheRest();
-                });
-            } else {
-                doTheRest();
-            }
-        });
+		mongo.deleteDoc( fdbn, mongo.createDoc.bind( null, fdbn, null, doTheRest ) );
     }
 });
