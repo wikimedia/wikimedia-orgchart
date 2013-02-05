@@ -89,10 +89,10 @@ function logChart(chart) {
                 var w = graph._wrapper;
                 var d = w.defs(this._chart);
                 w.rect(d, 0, 0, size, height, 5, 5, {fill:'white', stroke: '#969898', strokeWidth: 2, id: 'outlinerect'});
-				w.polygon( d, [[size / 2, 0], [size, height / 2], [0, height / 2]],
-						{ fill: 'blue', opacity: 0, id: 'order-change-up' } );
-				w.polygon( d, [[0, 0], [size, 0], [size / 2, height / 2]],
-						{ fill: 'blue', opacity: 0, id: 'order-change-down' } );
+				w.polygon( d, [[size / 2, 0], [size, height / 3], [0, height / 3]],
+						{ fill: 'blue', id: 'order-change-up' } );
+				w.polygon( d, [[0, 0], [size, 0], [size / 2, height / 3]],
+						{ fill: 'blue', id: 'order-change-down' } );
                 var g = w.group(this._chart,
                                 $.extend({class_: 'graph', fill: graph._fill, stroke: graph._stroke,
                                           transform: 'translate(0 20)', strokeWidth: graph._strokeWidth}, graph._settings || {}));

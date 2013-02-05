@@ -622,7 +622,12 @@ tr.odd {
     color: red;
 }
 
+.svg-orgchart-node-movement {
+	opacity: 0;
+}
+
 .svg-orgchart-node-movement.mode-active {
-	opacity: 50;
+	opacity: 0.5;
+	cursor: pointer;
 }
 

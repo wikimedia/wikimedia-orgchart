@@ -285,26 +285,30 @@ function orgChart() {
         var oldid = $inspector.data('oldid');
         var unitid = oldid.substr(16);
 		var unitNode = $( '#svg-of-unit-box-for-' + unitid ).get( 0 );
-		var $groupNode = $( unitNode.parentNode.parentNode.parentNode );
-        $( '.svg-orgchart-node-movement', $groupNode )
-			.addClass( 'mode-active' )
-			.on('of-order-change', function () {
-			var order = this.getAttribute( 'data-index' ) - 1;
-            var $form = $('#of-form-change-order').clone();
-            $('.svg-orgchart-node-movement')
-				.removeClass( 'mode-active' )
-				.off('of-order-change');
-            $('input', $form).val( order );
-            $form.attr('action', '/modify/' + getDocId() + '/' + unitid);
-            $form.ajaxForm({
-                success: function (data) {
-                    $('#of-inspector-change-order').hide();
-                    addToOpts({selected: unitid});
-                }
-            });
-            $form.submit();
-            return true;
-        });
+		var groupNode = unitNode.parentNode.parentNode.parentNode;
+		var childNodes = groupNode.getElementsByClassName( 'svg-orgchart-node-movement' );
+		var node;
+		for ( var nx in childNodes ) {
+			node = childNodes[nx];
+			node.setAttribute( 'class', node.getAttribute( 'class' ) + ' mode-active' );
+			$( node ).on('of-order-change', function () {
+				var order = this.getAttribute( 'data-index' ) - 1;
+				var $form = $('#of-form-change-order').clone();
+				$('.svg-orgchart-node-movement')
+					.removeClass( 'mode-active' )
+					.off('of-order-change');
+				$('input', $form).val( order );
+				$form.attr('action', '/modify/' + getDocId() + '/' + unitid);
+				$form.ajaxForm({
+					success: function (data) {
+						$('#of-inspector-change-order').hide();
+						addToOpts({selected: unitid});
+					}
+				});
+				$form.submit();
+				return true;
+			});
+		}
     });
 
     $('#of-cancel-super-change').click(function () {
@@ -1035,7 +1039,7 @@ function createOrgChart(opts) {
 		var currentIndex = parentGroup.getAttribute( 'data-current-index' ) - 0;
 		var upChange = w.use( nodeg, 0, 0, null, null, '#order-change-up',
 			{ 'data-index': currentIndex, class: 'svg-orgchart-node-movement' } );
-		var downChange = w.use( nodeg, 0, fullOpts.height / 2, null, null, '#order-change-down',
+		var downChange = w.use( nodeg, 0, 2 * fullOpts.height / 3, null, null, '#order-change-down',
 			{ 'data-index': currentIndex + 1, class: 'svg-orgchart-node-movement' } );
 
 		upChange.onclick = function ( event ) {
