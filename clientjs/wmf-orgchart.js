@@ -928,6 +928,7 @@ function createOrgChart(opts) {
             var cursvg = $svg.get(0).innerHTML;
             cursvg = cursvg.replace(/^<svg/, '<svg xmlns="http://www.w3.org/2000/svg" xmlns:svg="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"');
             cursvg = cursvg.replace(/ href="#outlinerect/g, ' xlink:href="#outlinerect');
+			cursvg = cursvg.replace(/<use[^>]*class="svg-orgchart-node-movement"[^>]*><\/use>/g, '');
             $('#of-export-current').attr( 'href-lang', 'image/svg+xml;base64' );
             $('#of-export-current').attr( 'href', 'data:image/svg+xml;base64,' + Base64.encode( cursvg ) );
         }});
